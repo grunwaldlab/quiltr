@@ -90,7 +90,7 @@ serial_dilution_table <- function(range, dilutions, volume, units="&mu;L") {
   if (!require(knitr)) {
     stop("requires package knitr")
   }
-  significant_figures <- 3
+  significant_figures <- 4
   base <- 10
   dilution_exp <- diff(log(range, base)) / (dilutions) #exponent to raise for each dilution
   dilution_factor <- base^dilution_exp
@@ -105,4 +105,78 @@ serial_dilution_table <- function(range, dilutions, volume, units="&mu;L") {
                    " of solvent:\n", sep=""))
   kable(data, format = "markdown")
   return(data)
+}
+
+#' Creates a markdown recipie for Qubit preparation 
+#'
+#' Creates a markdown recipie for Qubit preparation. 
+#' @param count The number of samples to be measured.
+#' @param volume_added The amount of sample to be diluted to 200&mu;L.
+#' @param standards TRUE/FALSE for wether standards will be made. 
+#' @param safety_factor A factor that will be multiplied to the exact amount of working solution needed.
+#' @keywords Qubit qubit
+#' @export
+#' @examples
+#' qbit_recipie(8, 5)
+qubit_br_recipie <- function(count, expected=NA, volume_added=NA, standards=TRUE, safety_factor=1.1) {
+  sig_figs <- 4
+  optimize_volume_added <- function(expected) {
+    mid_range = 1 #the middle of the Qubit detection range (.01 to 5ng/uL) of the diluted sampled
+    ideal <- mid_range*200/expected
+    if (ideal < 1) {
+      ideal <- 1
+    } else if (ideal > 20) {
+      ideal <- 20
+    }
+    return(ideal)
+  }
+  if (is.na(expected) == is.na(volume_added)) {
+    stop("Either 'expected' or 'volume_added' must be specified, but not both.")
+  }
+  if (is.na(expected) == FALSE) {
+    if (expected < .1 || expected > 1000) {
+      stop("The Qubit BR Assay is only accurate for initial sample concentrations from 0.1ng/&mu;L to 1000ng/&mu;L.")
+    }    
+  }
+  if (is.na(volume_added) == FALSE) {
+    if (volume_added < 1 || volume_added > 20) {
+      stop("'volume added' must be between 1 and 20.")
+    }    
+  }
+  if (is.na(volume_added)) {
+    volume_added <- optimize_volume_added(expected)
+  }
+  if (safety_factor < 1) {
+    stop("safety_factor must be at least 1.")
+  }
+  final_tube_volume <- 200
+  tube_working_volume <- final_tube_volume - volume_added
+  working_volume <- tube_working_volume * count
+  if (standards) {
+    working_volume <- working_volume + 2 * 190
+    standards_text <- " and 2 standards"
+  } else {
+    standards_text <- ""
+  }
+  working_volume <- working_volume * safety_factor
+  reagent_volume <- working_volume * (1/200)
+  buffer_volume <- working_volume * (199/200)
+  max_detection <- 5*(200/volume_added) #These values were inferred from the manual
+  min_detection <- .01*(200/volume_added) #These values were inferred from the manual
+  text <- paste("**Qbit recipie:**\n\n",
+                "For **", count, "** samples", standards_text, ", make **", signif(working_volume, sig_figs),
+                "&mu;L** of working solution by mixing **", signif(reagent_volume, sig_figs),
+                "&mu;L** of Qubit reagent with **", signif(buffer_volume, sig_figs), "&mu;L** of buffer.\n", 
+                "A safety factor of ", safety_factor, " has been applied to these volumes to allow for error.\n\n",
+                "Add **", signif(volume_added, sig_figs), "&mu;L** of each sample to **",
+                signif(tube_working_volume, sig_figs), "&mu;L** of working solution in appropriate measurment tubes.\n\n",
+                sep = '')
+  if (standards) {
+    text <- paste(text, "Prepare 2 standards by adding **10&mu;L** of each standard to **190&mu;L** of working solution.\n\n", sep="")
+  }
+  text <- paste(text, "It should be possible to quantify samples with an original concentration between **", 
+                signif(min_detection, sig_figs), "ng/&mu;L** and **", signif(max_detection, sig_figs),
+                "ng/&mu;L**\n", sep="")
+  text <- paste(text, "\n", sep="")
+  writeLines(text)
 }
