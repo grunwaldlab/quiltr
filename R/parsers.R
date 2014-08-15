@@ -1,3 +1,10 @@
+#' Parses the output of the Nanodrop spectrophotometer
+#'
+#' Parses the output of the Nanodrop spectrophotometer into a dataframe.
+#' @param path The file path to the .tsv output file of Nanodrop measurments.
+#' @param average If true, all numeric data for measurments with the same ID are averaged.
+#' @keywords nanodrop Nanodrop spectrophotometer
+#' @export
 read_nanodrop_tsv <- function(path, average=TRUE) {
   if (!require(lubridate)) {
     stop("install package lubridate")
@@ -20,6 +27,13 @@ read_nanodrop_tsv <- function(path, average=TRUE) {
   return(data)
 }
 
+#' Parses the spectrum output of the Nanodrop spectrophotometer
+#'
+#' Parses the spectrum output of the Nanodrop spectrophotometer into a dataframe.
+#' @param path The file path to the spectrum .tsv output file of Nanodrop measurments.
+#' @param average If true, all numeric data for measurments with the same ID are averaged.
+#' @keywords nanodrop Nanodrop spectrophotometer spectrum
+#' @export
 read_nanodrop_spectrum_tsv <- function(path, average=TRUE) {
   if (!require(lubridate)) {
     stop("install package lubridate")
@@ -53,7 +67,17 @@ read_nanodrop_spectrum_tsv <- function(path, average=TRUE) {
   return(data)
 }
 
-read_qbit <- function(path, volume_used=NULL) {
+#' Parses the output of the Qubit fluorometer
+#'
+#' Parses the output of the Qubit fluorometer into a dataframe. Since the Qubit stores data in the oppisite
+#' order that the tubes are inserted, the rows order will be reversed (i.e. the first row will be the first
+#' measured).
+#' NOTE: if a sample is too low and has a < symbol, this function does not handle it correctly yet!
+#' @param path The file path to the output file of Qubit measurments.
+#' @param volume_used The volume of sample added during dilution.
+#' @keywords qubit Qubit
+#' @export
+read_qubit <- function(path, volume_used=NULL) {
   if (!require(lubridate)) {
     stop("install package lubridate")
   }

@@ -163,7 +163,7 @@ qubit_br_recipie <- function(count, expected=NA, volume_added=NA, standards=TRUE
   buffer_volume <- working_volume * (199/200)
   max_detection <- 5*(200/volume_added) #These values were inferred from the manual
   min_detection <- .01*(200/volume_added) #These values were inferred from the manual
-  text <- paste("**Qbit recipie:**\n\n",
+  text <- paste("**Qubit recipie:**\n\n",
                 "For **", count, "** samples", standards_text, ", make **", signif(working_volume, sig_figs),
                 "&mu;L** of working solution by mixing **", signif(reagent_volume, sig_figs),
                 "&mu;L** of Qubit reagent with **", signif(buffer_volume, sig_figs), "&mu;L** of buffer.\n", 

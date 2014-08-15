@@ -2,4 +2,7 @@
 
 export(pcr_table)
 export(qubit_br_recipie)
+export(read_nanodrop_spectrum_tsv)
+export(read_nanodrop_tsv)
+export(read_qubit)
 export(serial_dilution_table)
