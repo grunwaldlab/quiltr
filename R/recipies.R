@@ -68,8 +68,8 @@ pcr_table <- function(count, additives=c(DNA=1), additive_concentration=rep('', 
   
   writeLines(paste("PCR ingredients for ", count, ", ", data$Single[nrow(data)], "&mu;L reactions:", sep=""))
   writeLines("")
-  
   kable(data, format = "markdown", )
+  writeLines("")
   return(data)
 }
 
@@ -97,13 +97,14 @@ serial_dilution_table <- function(range, dilutions, volume, units="&mu;L") {
   each_addition <-  dilution_factor * range[1] * volume / (range[1] - dilution_factor * range[1])
   data <- data.frame(N=0:dilutions, Dilution = base^(dilution_exp * 0:(dilutions)))
   data$Concentration = data$Dilution * range[1]
-  data <- format(data, scientific=FALSE, digits=significant_figures)
+  text_data <- format(data, scientific=FALSE, digits=significant_figures)
   writeLines(paste("**Serial dilution table**\nFor each dilution, dilute ", 
                    signif(each_addition, significant_figures), units,
                    " of the previous sample in ",
                    signif(volume, significant_figures), units,
                    " of solvent:\n", sep=""))
-  kable(data, format = "markdown")
+  writeLines("")
+  kable(text_data, format = "markdown")
   return(data)
 }
 
