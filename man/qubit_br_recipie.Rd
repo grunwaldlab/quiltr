@@ -9,6 +9,9 @@ qubit_br_recipie(count, expected = NA, volume_added = NA,
 \arguments{
 \item{count}{The number of samples to be measured.}
 
+\item{expected}{The expected concentration of the DNA to be measured. Used to estimate the volume_added if
+not specified.}
+
 \item{volume_added}{The amount of sample to be diluted to 200&mu;L.}
 
 \item{standards}{TRUE/FALSE for wether standards will be made.}

@@ -52,10 +52,8 @@ volume_for_dilution_table <- function(initial_conc, final_volume, final_conc = m
 #' @export
 #' @examples
 #' pcr_table(count=8, additives=c(DNA=1, other=7))
+#' @importFrom knitr kable
 pcr_table <- function(count, additives=c(DNA=1), additive_concentration=rep('', length(additives))) {
-  if (!require(knitr)) {
-    stop("install package knitr")
-  }
   master_mix_volume = 19.75 - sum(additives)
   data <- data.frame(Component=c("Water", "10x Buffer", "dNTP", "Primer 1", "Primer 2", "Taq", names(additives)),
                      Concentration=c("", "", "10mM", "10&mu;M", "10&mu;M", "", additive_concentration),
@@ -86,10 +84,8 @@ pcr_table <- function(count, additives=c(DNA=1), additive_concentration=rep('', 
 #' @export
 #' @examples
 #' serial_dilution_table(c(5,.00005), 5, 75)
+#' @importFrom knitr kable
 serial_dilution_table <- function(range, dilutions, volume, units="&mu;L") {
-  if (!require(knitr)) {
-    stop("requires package knitr")
-  }
   significant_figures <- 4
   base <- 10
   dilution_exp <- diff(log(range, base)) / (dilutions) #exponent to raise for each dilution
@@ -112,6 +108,8 @@ serial_dilution_table <- function(range, dilutions, volume, units="&mu;L") {
 #'
 #' Creates a markdown recipie for Qubit preparation. 
 #' @param count The number of samples to be measured.
+#' @param expected The expected concentration of the DNA to be measured. Used to estimate the volume_added if
+#'  not specified.
 #' @param volume_added The amount of sample to be diluted to 200&mu;L.
 #' @param standards TRUE/FALSE for wether standards will be made. 
 #' @param safety_factor A factor that will be multiplied to the exact amount of working solution needed.

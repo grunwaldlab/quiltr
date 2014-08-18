@@ -5,10 +5,8 @@
 #' @param average If true, all numeric data for measurments with the same ID are averaged.
 #' @keywords nanodrop Nanodrop spectrophotometer
 #' @export
+#' @importFrom lubridate mdy_hms
 read_nanodrop_tsv <- function(path, average=TRUE) {
-  if (!require(lubridate)) {
-    stop("install package lubridate")
-  }
   data_format <- "%m/%d/%Y %I:%M:%S %p"
   data <- do.call(rbind, lapply(path, read.csv, sep='\t'))
   names(data) <- c("measurment", "sample_id", "user", "time",
@@ -34,13 +32,9 @@ read_nanodrop_tsv <- function(path, average=TRUE) {
 #' @param average If true, all numeric data for measurments with the same ID are averaged.
 #' @keywords nanodrop Nanodrop spectrophotometer spectrum
 #' @export
+#' @importFrom lubridate mdy_hms
+#' @importFrom plyr ldply
 read_nanodrop_spectrum_tsv <- function(path, average=TRUE) {
-  if (!require(lubridate)) {
-    stop("install package lubridate")
-  }
-  if (!require(plyr)) {
-    stop("install package plyr")
-  }
   split_at <- function(x, pos) unname(split(x, cumsum(seq_along(x) %in% pos)))
   data <- sapply(path, function(x) c(readLines(x), '', ''))
   data <- split_at(data, which(data == ''))
@@ -77,16 +71,13 @@ read_nanodrop_spectrum_tsv <- function(path, average=TRUE) {
 #' @param volume_used The volume of sample added during dilution.
 #' @keywords qubit Qubit
 #' @export
+#' @importFrom lubridate ymd_hms
 read_qubit <- function(path, volume_used=NULL) {
-  if (!require(lubridate)) {
-    stop("install package lubridate")
-  }
   data <- read.csv(path, header=TRUE, fileEncoding="latin1")
   data <- data[rev(1:nrow(data)),]
   colnames(data) <- c("name", "time", "dilute_concentration", "dilute_unit", "concentration", "unit",
                       "assay", "sample_volume", "dilution_factor", "std_1_rfu", "std__rfu", "std_3_rfu",
                       "excitation", "green_rfu", "far_red_rfu")
-  data$dilute_concentration <- as.numeric(data$dilute_concentration)
   numeric_cols = c("dilute_concentration", "concentration", "sample_volume","dilution_factor",
                    "std_1_rfu", "std__rfu", "std_3_rfu", "green_rfu", "far_red_rfu")   
   data[,numeric_cols] = apply(data[,numeric_cols], 2, function(x) as.numeric(as.character(x)))
