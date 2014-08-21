@@ -4,11 +4,19 @@ volume_for_dilution <- function(initial_conc, final_volume, final_conc = min(ini
   return(list(initial_volume=initial_volume, volume_added=volume_added))
 }
 
+#' Creates table of dilutions instructions
+#'
+#' Creates table of dilutions instructions.
+#' @param initial_conc A numeric vector of initial concentrations of samples.
+#' @param final_volume The desired final volume after dilution.
+#' @param final_conc The desired final concentration. (Default: minimum of initial concentration)
+#' @param id The row names for the samples. (Default: the names of the initial_conc vector)
+#' @param display If True, the table is printed in markdown format. 
+#' @param ... Extra arguments are passed to kable. 
+#' @keywords dilution
+#' @export
+#' @importFrom knitr kable
 volume_for_dilution_table <- function(initial_conc, final_volume, final_conc = min(initial_conc), id=names(initial_conc), display=TRUE, ...) {
-  if (!require(knitr)) {
-    stop("install package knitr")
-  }
-  
   #Generate table of dilution values
   data <- volume_for_dilution(initial_conc, final_volume, final_conc)
   output_table <- data.frame(ID=1:length(data[[1]]))
