@@ -22,15 +22,19 @@ insert_str <- function(target, insert, index) {
 color_table <- function(table_html, columns, colors) {
   #if colors is numeric, make into hex codes
   numeric_cols <- sapply(colors, is.numeric)
-  colors[, numeric_cols] <- lapply(colors[, numeric_cols, drop=FALSE], color.scale, alpha=NULL, na.color="#FFFFFF", cs1=c(.7,.7,1), cs2=c(.7,1,.7), cs3=c(1,.7,.7))
-  
-  #insert styles
+  colors[, numeric_cols] <- lapply(colors[, numeric_cols, drop=FALSE],
+                                   color.scale,
+                                   alpha=NULL,
+                                   na.color="#FFFFFF",
+                                   cs1=c(.7,.7,1), cs2=c(.7,1,.7), cs3=c(1,.7,.7))
+  #find locations of all <TD ..> tags
   td_locations <- gregexpr(pattern ='<TD', table_html, fixed=TRUE)[[1]] + 3
-  cell_count <- length(td_locations)
+  #Infer numer of columns from cound of header <TH ...> tags
   column_count <- length(gregexpr(pattern ='<TH', table_html, fixed=TRUE)[[1]])
-  row_count <- cell_count / column_count
+  #structure the <TD> locations in the same way 'colors' is structured
   td_locations <- as.data.frame(matrix(td_locations, ncol=column_count, byrow=TRUE))
   td_locations <- td_locations[,columns]
+  #insert inline style into the html table
   td_locations <- unlist(td_locations)
   colors <- unlist(colors)
   colors <- paste(' style="background-color:', colors, ';",', sep="")
@@ -53,11 +57,13 @@ format_exp <- function(exp) {
 #' Standardizes the printing of data.frames and allows for renaming of columns without changing original data.frame.
 #' @param data The data frame to be printed
 #' @param column_names Acharacter vector of column names to be applied.
-#' @param colors A named list of vectors indicating which columns should have coloring, with the elements corresponding to cells. 
+#' @param colors The columns of 'data' that should be colored based of their numeric content (e.g. data[, c('my_col'), drop=FALSE]).
+#' Also accepted: A named list of vectors with names indicating columns of data and values indicating colors for the corresponding cells of 'data'. 
+#' @param ... Additional key word arguments are passed to print.xtable
 #' @export
 #' @importFrom xtable xtable print.xtable
 #' @importFrom plotrix color.scale
-print_table <- function(data, column_names=NA, colors=NA) {
+print_table <- function(data, column_names=NA, colors=NA, ...) {
   original_names <-  names(data)
   if (is.character(column_names)) {
     names(data) <- column_names
@@ -66,7 +72,11 @@ print_table <- function(data, column_names=NA, colors=NA) {
   data[, numeric_cols] <- lapply(data[, numeric_cols, drop=FALSE], signif, digits=3)
   data[] <- lapply(data, as.character)
   data[is.na(data)] <- ""
-  output_table <- print(xtable(data), type = "html", print.results=FALSE)
+  output_table <- print(xtable(data),
+                        type = "html",
+                        print.results=FALSE,
+                        sanitize.text.function = function(x) {x}, 
+                        ...)
   if (is.list(colors)) {
     colored_cols <- which(sapply(original_names, function(x) x %in% names(colors))) + 1
     output_table <- color_table(output_table, colored_cols, colors)

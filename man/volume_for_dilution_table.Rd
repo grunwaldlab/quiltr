@@ -18,7 +18,7 @@ volume_for_dilution_table(initial_conc, final_volume,
 
 \item{display}{If True, the table is printed in markdown format.}
 
-\item{...}{Extra arguments are passed to kable.}
+\item{...}{Extra arguments are passed to print_table}
 }
 \description{
 Creates table of dilutions instructions.
