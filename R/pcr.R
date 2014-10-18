@@ -42,7 +42,15 @@ pcr_table <- function(count, additives=c(DNA=1), additive_concentration=rep('', 
 #' @seealso \code{\link{pcr_profile}
 #' @export
 thermocycler_profile <- function(profile, width = NULL) {
+  profile <- melt(profile)
+  profile <- cbind(profile$value[seq(2, nrow(profile), 2)], profile[seq(1, nrow(profile), 2), ])
+  names(profile) <- c("time", "temp", "stage", "group")
+  profile$group <- factor(profile$group, levels = unique(profile$group), ordered = TRUE)
   
+  x_start <- function(x) c(0, cumsum(x)[-length(x)] + 1)
+  x_end <- function(x) cumsum(x)
+  
+  profile$x_start <- 
 }
 
 #===================================================================================================
