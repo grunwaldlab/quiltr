@@ -47,10 +47,16 @@ thermocycler_profile <- function(profile, width = NULL) {
   names(profile) <- c("time", "temp", "stage", "group")
   profile$group <- factor(profile$group, levels = unique(profile$group), ordered = TRUE)
   
-  x_start <- function(x) c(0, cumsum(x)[-length(x)] + 1)
-  x_end <- function(x) cumsum(x)
+  duration_to_range <- function(data) {
+    data$time <- cumsum(data$time)
+    start_times <- c(1, data$time[-nrow(data)] + 1)
+    data <- adply(data, 1, function(x) x[c(1,1), ]) #duplicate each row 
+    data$time[seq(1, nrow(data), 2)] <- start_times #replace odd rows with start time
+    return(data)
+  }
   
-  profile$x_start <- 
+  profile <- ddply(profile, "group", duration_to_range)
+  ggplot(data=profile, aes(x=time, y=temp)) + geom_path() + facet_wrap(~ group, scales="free_x")
 }
 
 #===================================================================================================
