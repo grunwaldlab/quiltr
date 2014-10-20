@@ -54,9 +54,18 @@ thermocycler_profile <- function(profile, width = NULL) {
     data$time[seq(1, nrow(data), 2)] <- start_times #replace odd rows with start time
     return(data)
   }
+  scale_panels <- function(my_grob, width) {
+    panels <- which(sapply(my_grob[["widths"]], "attr", "unit") == "null")
+    my_grob[["widths"]][panels] <- llply(width, unit, units="null")
+    return(my_grob)
+  }
   
   profile <- ddply(profile, "group", duration_to_range)
-  ggplot(data=profile, aes(x=time, y=temp)) + geom_path() + facet_wrap(~ group, scales="free_x")
+  my_plot <- ggplot(data=profile, aes(x=time, y=temp)) +
+    geom_line() +
+    facet_grid(.~ group, scales="free_x")
+  my_grob <- ggplotGrob(my_plot)
+  my_grob <- scale_panels(my_grob, dlply(profile, "group", function(x) length(unique(x$stage))))
 }
 
 #===================================================================================================
