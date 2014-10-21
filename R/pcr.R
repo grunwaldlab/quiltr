@@ -56,6 +56,8 @@ thermocycler_profile <- function(profile, repeats = NULL, width = NULL) {
   data <- cbind(data$value[seq(2, nrow(data), 2)], data[seq(1, nrow(data), 2), ])
   names(data) <- c("time", "temp", "stage", "group")
   data$group <- factor(data$group, levels = unique(data$group), ordered = TRUE)
+  levels(data$group) <- paste(levels(data$group), " (x", repeats, ")", sep = "")
+  data$label <- paste(data$time, "S at ", data$temp, "\u00B0C", sep = "")
   # Account for group repeats ----------------------------------------------------------------------
   duration_to_range <- function(data, start) {
     end_times <- cumsum(data$time) + start - 1
@@ -71,19 +73,27 @@ thermocycler_profile <- function(profile, repeats = NULL, width = NULL) {
   data <- do.call(rbind,
                   lapply(seq_along(split_data),
                          function(i) duration_to_range(split_data[[i]], start = start_time[i])))
+  data$time <- data$time/60
   # Make graph -------------------------------------------------------------------------------------
+  data$stage[seq(2,nrow(data), 2)] <- ""
+  data$label[seq(2,nrow(data), 2)] <- ""
   scale_panels <- function(my_grob, width) {
     panels <- which(sapply(my_grob[["widths"]], "attr", "unit") == "null")
     my_grob[["widths"]][panels] <- plyr::llply(width, grid::unit, units="null")
     return(my_grob)
   }
-  my_plot <- ggplot(data=data, aes(x=time, y=temp)) +
+  my_plot <- ggplot(data=data, aes(x = time, y = temp)) +
     geom_line() +
-    facet_grid(.~ group, scales="free_x") +
+    geom_text(size = 4, hjust=-.03, vjust=-.4, aes(label = stage)) +
+    geom_text(size = 4, hjust=-.03, vjust=1.4, aes(label = label)) +
+    facet_grid(.~ group, scales = "free_x") +
+    labs(x="Run Time (Minutes)", y = "Temperature (C)") +
+    scale_y_continuous(expand = c(.2, 0)) +
     theme(#panel.margin = grid::unit(0, "inches"),
           panel.background=element_blank(), 
           panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank())
+          panel.grid.minor=element_blank(),
+          strip.text.x = element_text(size = 16))
   my_grob <- ggplotGrob(my_plot)
   my_grob <- scale_panels(my_grob,
                           plyr::dlply(data, "group", function(x) length(unique(x$stage))))
@@ -117,11 +127,11 @@ thermocycler_profile <- function(profile, repeats = NULL, width = NULL) {
 pcr_profile <- function(cycles = 30, init_tm = 95, init_time = 300, denat_tm = 96,
                         denat_time = 25, anneal_tm = 55, anneal_time = 30, elong_tm = 72,
                         elong_time = 100, final_tm = 72, final_time = 600, hold_tm = 5) {
-  profile <- list("initialization" = list("initial denaturation" = c(init_tm, init_time)),
-                  "amplification"  = list("denaturation" = c(denat_tm, denat_time),
-                                          "annealing" = c(anneal_tm, anneal_time),
-                                          "elongation" = c(elong_tm, elong_time)),
-                  "resolution"     = list("final elongation" = c(final_tm, final_time),
-                                          "holding" = c(hold_tm, Inf)))
+  profile <- list("Initialization" = list("Initial denaturation" = c(init_tm, init_time)),
+                  "Amplification"  = list("Denaturation" = c(denat_tm, denat_time),
+                                          "Annealing" = c(anneal_tm, anneal_time),
+                                          "Elongation" = c(elong_tm, elong_time)),
+                  "Resolution"     = list("Final elongation" = c(final_tm, final_time),
+                                          "Holding" = c(hold_tm, Inf)))
   thermocycler_profile(profile, repeats = c(1, cycles, 1))
 }
