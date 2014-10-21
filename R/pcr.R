@@ -39,33 +39,56 @@ pcr_table <- function(count, additives=c(DNA=1), additive_concentration=rep('', 
 #'  above can be supplied to split the stages into named groups (see example). 
 #' @param width (\code{numeric}) The relative width of groupings in the graphical output. By
 #'  default, the width of each group will be proportional to the number of stage it contains.
-#' @seealso \code{\link{pcr_profile}
+#' @seealso \code{\link{pcr_profile}}
+#' @import ggplot2
 #' @export
-thermocycler_profile <- function(profile, width = NULL) {
-  profile <- melt(profile)
-  profile <- cbind(profile$value[seq(2, nrow(profile), 2)], profile[seq(1, nrow(profile), 2), ])
-  names(profile) <- c("time", "temp", "stage", "group")
-  profile$group <- factor(profile$group, levels = unique(profile$group), ordered = TRUE)
-  
-  duration_to_range <- function(data) {
-    data$time <- cumsum(data$time)
-    start_times <- c(1, data$time[-nrow(data)] + 1)
-    data <- adply(data, 1, function(x) x[c(1,1), ]) #duplicate each row 
+thermocycler_profile <- function(profile, repeats = NULL, width = NULL) {
+  # Argument validation ----------------------------------------------------------------------------
+  if (unique(rapply(profile, length)) != 2 || depth(profile) > 2 || depth(profile) < 1) {
+    stop("incorrect input format.")
+  }
+  # Argument parsing -------------------------------------------------------------------------------
+  if (depth(profile) == 1) profile = list(profile)
+  if (is.null(width)) width <- sapply(profile, length)
+  if (is.null(repeats)) repeats <- rep(1, length(profile))
+  # Reformat profile into dataframe ----------------------------------------------------------------
+  data <- reshape2::melt(profile)
+  data <- cbind(data$value[seq(2, nrow(data), 2)], data[seq(1, nrow(data), 2), ])
+  names(data) <- c("time", "temp", "stage", "group")
+  data$group <- factor(data$group, levels = unique(data$group), ordered = TRUE)
+  # Account for group repeats ----------------------------------------------------------------------
+  duration_to_range <- function(data, start) {
+    end_times <- cumsum(data$time) + start - 1
+    start_times <- c(start, end_times[-length(end_times)] + 1)
+    data <- plyr::adply(data, 1, function(x) x[c(1,1), ]) #duplicate each row 
     data$time[seq(1, nrow(data), 2)] <- start_times #replace odd rows with start time
+    data$time[seq(2, nrow(data), 2)] <- end_times #replace even rows with end time
     return(data)
   }
+  start_time <- plyr::daply(data, "group", function(x) sum(x$time)) * repeats
+  start_time <- cumsum(c(1, start_time[-length(start_time)]))
+  split_data <- split(data, data$group)
+  data <- do.call(rbind,
+                  lapply(seq_along(split_data),
+                         function(i) duration_to_range(split_data[[i]], start = start_time[i])))
+  # Make graph -------------------------------------------------------------------------------------
   scale_panels <- function(my_grob, width) {
     panels <- which(sapply(my_grob[["widths"]], "attr", "unit") == "null")
-    my_grob[["widths"]][panels] <- llply(width, unit, units="null")
+    my_grob[["widths"]][panels] <- plyr::llply(width, grid::unit, units="null")
     return(my_grob)
   }
-  
-  profile <- ddply(profile, "group", duration_to_range)
-  my_plot <- ggplot(data=profile, aes(x=time, y=temp)) +
+  my_plot <- ggplot(data=data, aes(x=time, y=temp)) +
     geom_line() +
-    facet_grid(.~ group, scales="free_x")
+    facet_grid(.~ group, scales="free_x") +
+    theme(#panel.margin = grid::unit(0, "inches"),
+          panel.background=element_blank(), 
+          panel.grid.major=element_blank(),
+          panel.grid.minor=element_blank())
   my_grob <- ggplotGrob(my_plot)
-  my_grob <- scale_panels(my_grob, dlply(profile, "group", function(x) length(unique(x$stage))))
+  my_grob <- scale_panels(my_grob,
+                          plyr::dlply(data, "group", function(x) length(unique(x$stage))))
+  plot(my_grob)
+  return(my_grob)
 }
 
 #===================================================================================================
@@ -89,7 +112,7 @@ thermocycler_profile <- function(profile, width = NULL) {
 #' @param final_time The duration of the final elongation step used after cycling completes.
 #' @param hold_tm The temperature used after all other steps to hold the sample.
 #' @keywords PCR
-#' @seealso \code{\link{thermocycler_profile}
+#' @seealso \code{\link{thermocycler_profile}}
 #' @export
 pcr_profile <- function(cycles = 30, init_tm = 95, init_time = 300, denat_tm = 96,
                         denat_time = 25, anneal_tm = 55, anneal_time = 30, elong_tm = 72,
@@ -100,5 +123,5 @@ pcr_profile <- function(cycles = 30, init_tm = 95, init_time = 300, denat_tm = 9
                                           "elongation" = c(elong_tm, elong_time)),
                   "resolution"     = list("final elongation" = c(final_tm, final_time),
                                           "holding" = c(hold_tm, Inf)))
-  thermocycler_profile(profile)
+  thermocycler_profile(profile, repeats = c(1, cycles, 1))
 }
