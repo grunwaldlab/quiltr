@@ -23,7 +23,7 @@ color_table <- function(table_html, columns, colors) {
   #if colors is numeric, make into hex codes
   numeric_cols <- sapply(colors, is.numeric)
   colors[, numeric_cols] <- lapply(colors[, numeric_cols, drop=FALSE],
-                                   color.scale,
+                                   plotrix::color.scale,
                                    alpha=NULL,
                                    na.color="#FFFFFF",
                                    cs1=c(.7,.7,1), cs2=c(.7,1,.7), cs3=c(1,.7,.7))
@@ -43,6 +43,7 @@ color_table <- function(table_html, columns, colors) {
 
 
 
+#===================================================================================================
 #' Formats a experiment id to a string
 #'
 #' Formats a experiment id numeric vector to a string for indexing. 
@@ -52,6 +53,7 @@ format_exp <- function(exp) {
   paste(exp, collapse="-")
 }
 
+#===================================================================================================
 #' Standardizes the printing of data.frames
 #'
 #' Standardizes the printing of data.frames and allows for renaming of columns without changing original data.frame.
@@ -59,10 +61,8 @@ format_exp <- function(exp) {
 #' @param column_names Acharacter vector of column names to be applied.
 #' @param colors The columns of 'data' that should be colored based of their numeric content (e.g. data[, c('my_col'), drop=FALSE]).
 #' Also accepted: A named list of vectors with names indicating columns of data and values indicating colors for the corresponding cells of 'data'. 
-#' @param ... Additional key word arguments are passed to print.xtable
+#' @param ... Additional key word arguments are passed to \code{\link[xtable]{print.xtable}}
 #' @export
-#' @importFrom xtable xtable print.xtable
-#' @importFrom plotrix color.scale
 print_table <- function(data, column_names=NA, colors=NA, ...) {
   original_names <-  names(data)
   if (is.character(column_names)) {
@@ -72,7 +72,7 @@ print_table <- function(data, column_names=NA, colors=NA, ...) {
   data[, numeric_cols] <- lapply(data[, numeric_cols, drop=FALSE], signif, digits=3)
   data[] <- lapply(data, as.character)
   data[is.na(data)] <- ""
-  output_table <- print(xtable(data),
+  output_table <- print(xtable::xtable(data),
                         type = "html",
                         print.results=FALSE,
                         sanitize.text.function = function(x) {x}, 
@@ -85,6 +85,7 @@ print_table <- function(data, column_names=NA, colors=NA, ...) {
 }
 
 
+#===================================================================================================
 #' Saves tabular data in a standard tab-separated value (.tsv) format
 #'
 #' Saves tabular data in a standard tab-separated value (.tsv) format with a standardized file name.
@@ -107,6 +108,7 @@ save_table <- function(data, exp, description, ext="tsv", path="data") {
 }
 
 
+#===================================================================================================
 #' Keeps track of experiment start and stop times
 #'
 #' Prints and logs experiment starting and finishing times to global data.frame 'exp_time_'.
@@ -115,16 +117,15 @@ save_table <- function(data, exp, description, ext="tsv", path="data") {
 #' @param finished time experiment was finished in YYYY-MM-DD HH:MM format.
 #' @param display if TRUE, print markdown display of start and finish times.
 #' @export
-#' @importFrom lubridate ymd_hm as.period
 log_time <- function(exp, started=NA, finished=NA, display=TRUE) {
   if (is.numeric(exp)) {
     exp <- format_exp(exp)
   }
   if (!is.na(started)) {
-    started <- ymd_hm(started)
+    started <- lubridate::ymd_hm(started)
   }
   if (!is.na(finished)) {
-    finished <- ymd_hm(finished)
+    finished <- lubridate::ymd_hm(finished)
   }
   if (!is.na(started) && !is.na(finished)) {
     duration <- finished - started

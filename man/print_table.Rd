@@ -14,7 +14,7 @@ print_table(data, column_names = NA, colors = NA, ...)
 \item{colors}{The columns of 'data' that should be colored based of their numeric content (e.g. data[, c('my_col'), drop=FALSE]).
 Also accepted: A named list of vectors with names indicating columns of data and values indicating colors for the corresponding cells of 'data'.}
 
-\item{...}{Additional key word arguments are passed to print.xtable}
+\item{...}{Additional key word arguments are passed to \code{\link[xtable]{print.xtable}}}
 }
 \description{
 Standardizes the printing of data.frames and allows for renaming of columns without changing original data.frame.

@@ -4,6 +4,7 @@ volume_for_dilution <- function(initial_conc, final_volume, final_conc = min(ini
   return(list(initial_volume=initial_volume, volume_added=volume_added))
 }
 
+#===================================================================================================
 #' Creates table of dilutions instructions
 #'
 #' Creates table of dilutions instructions.
@@ -15,7 +16,6 @@ volume_for_dilution <- function(initial_conc, final_volume, final_conc = min(ini
 #' @param ... Extra arguments are passed to print_table 
 #' @keywords dilution
 #' @export
-#' @importFrom knitr kable
 volume_for_dilution_table <- function(initial_conc, final_volume, final_conc = min(initial_conc), id=names(initial_conc), display=TRUE, ...) {
   #Generate table of dilution values
   data <- volume_for_dilution(initial_conc, final_volume, final_conc)
@@ -50,6 +50,7 @@ volume_for_dilution_table <- function(initial_conc, final_volume, final_conc = m
   return(output_table)
 }
 
+#===================================================================================================
 #' Creates table for serial dilutions
 #'
 #' Creates a markdown table of dilution factors and final concentrations for serial dilutions given 
@@ -62,7 +63,6 @@ volume_for_dilution_table <- function(initial_conc, final_volume, final_conc = m
 #' @export
 #' @examples
 #' serial_dilution_table(c(5,.00005), 5, 75)
-#' @importFrom knitr kable
 serial_dilution_table <- function(range, dilutions, volume, units="&mu;L") {
   significant_figures <- 4
   base <- 10

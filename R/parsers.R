@@ -1,3 +1,4 @@
+#===================================================================================================
 #' Parses the output of the Nanodrop spectrophotometer
 #'
 #' Parses the output of the Nanodrop spectrophotometer into a dataframe.
@@ -5,26 +6,26 @@
 #' @param average If true, all numeric data for measurments with the same ID are averaged.
 #' @keywords nanodrop Nanodrop spectrophotometer
 #' @export
-#' @importFrom lubridate mdy_hms
 read_nanodrop_tsv <- function(path, average=TRUE) {
   data_format <- "%m/%d/%Y %I:%M:%S %p"
   data <- do.call(rbind, lapply(path, read.csv, sep='\t'))
   names(data) <- c("measurment", "sample_id", "user", "time",
                    "concentration", "unit", "a260", "a280",
                    "a260_a280", "a260_a230", "type", "factor")
-  data$time <- mdy_hms(data$time)
+  data$time <- lubridate::mdy_hms(data$time)
   if (average) {
     data <- aggregate(. ~ sample_id, data = data, mean)
     class(data$time) = 'POSIXct'
     data$time = format(data$time, data_format)
   }
-  data$time <- mdy_hms(data$time)
+  data$time <- lubridate::mdy_hms(data$time)
   data <- data[order(data$time), ]
   row.names(data) <- 1:nrow(data)
   data$sample_id <- as.character(data$sample_id)
   return(data)
 }
 
+#===================================================================================================
 #' Parses the spectrum output of the Nanodrop spectrophotometer
 #'
 #' Parses the spectrum output of the Nanodrop spectrophotometer into a dataframe.
@@ -32,8 +33,6 @@ read_nanodrop_tsv <- function(path, average=TRUE) {
 #' @param average If true, all numeric data for measurments with the same ID are averaged.
 #' @keywords nanodrop Nanodrop spectrophotometer spectrum
 #' @export
-#' @importFrom lubridate mdy_hms
-#' @importFrom plyr ldply
 read_nanodrop_spectrum_tsv <- function(path, average=TRUE) {
   split_at <- function(x, pos) unname(split(x, cumsum(seq_along(x) %in% pos)))
   data <- sapply(path, function(x) c(readLines(x), '', ''))
@@ -42,7 +41,7 @@ read_nanodrop_spectrum_tsv <- function(path, average=TRUE) {
   data[-1] <- lapply(data[-1], function(x) x[-1]) 
   sample_id <- sapply(data, function(x) x[1])
   sample_date <- sapply(data, function(x) x[2])
-  sample_date <- mdy_hms(sample_date)
+  sample_date <- lubridate::mdy_hms(sample_date)
   data <- lapply(data, function(x) x[-(1:3)]) 
   wavelength <- lapply(data, function(x) as.numeric(gsub("\t.*$", '', x)))
   absorbance <- lapply(data, function(x) as.numeric(gsub("^.*\t", '', x)))
@@ -50,7 +49,7 @@ read_nanodrop_spectrum_tsv <- function(path, average=TRUE) {
   if (length(unique(wavelength)) != 1) {
     stop("wavelengths are not the same between samples")
   }
-  data <- ldply(absorbance)
+  data <- plyr::ldply(absorbance)
   if (average) {
     data <- aggregate(. ~ .id, data = data, mean)
     sample_id <- data$.id
@@ -61,6 +60,7 @@ read_nanodrop_spectrum_tsv <- function(path, average=TRUE) {
   return(data)
 }
 
+#===================================================================================================
 #' Parses the output of the Qubit fluorometer
 #'
 #' Parses the output of the Qubit fluorometer into a dataframe. Since the Qubit stores data in the oppisite
@@ -71,7 +71,6 @@ read_nanodrop_spectrum_tsv <- function(path, average=TRUE) {
 #' @param volume_used The volume of sample added during dilution.
 #' @keywords qubit Qubit
 #' @export
-#' @importFrom lubridate ymd_hms
 read_qubit <- function(path, volume_used=NULL) {
   data <- read.csv(path, header=TRUE, fileEncoding="latin1")
   data <- data[rev(1:nrow(data)),]
@@ -84,7 +83,7 @@ read_qubit <- function(path, volume_used=NULL) {
   if (!is.null(volume_used)) { 
     data$concentration <- data$dilute_concentration * (200 / volume_used)
   }
-  data$time <- ymd_hms(data$time)
+  data$time <- lubridate::ymd_hms(data$time)
   row.names(data) <- 1:nrow(data)
   return(data)
 }

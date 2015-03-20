@@ -1,3 +1,4 @@
+#===================================================================================================
 #' Creates table for PCR recipie
 #'
 #' Creates a markdown table for a PCR master mix recipe.
@@ -8,7 +9,6 @@
 #' @export
 #' @examples
 #' pcr_table(count=8, additives=c(DNA=1, other=7))
-#' @importFrom knitr kable
 pcr_table <- function(count, additives=c(DNA=1), additive_concentration=rep('', length(additives))) {
   master_mix_volume = 19.75 - sum(additives)
   data <- data.frame(Component=c("Water", "10x Buffer", "dNTP", "Primer 1", "Primer 2", "Taq", names(additives)),
@@ -40,7 +40,6 @@ pcr_table <- function(count, additives=c(DNA=1), additive_concentration=rep('', 
 #' @param width (\code{numeric}) The relative width of groupings in the graphical output. By
 #'  default, the width of each group will be proportional to the number of stage it contains.
 #' @seealso \code{\link{pcr_profile}}
-#' @import ggplot2
 #' @export
 thermocycler_profile <- function(profile, repeats = NULL, width = NULL) {
   # Argument validation ----------------------------------------------------------------------------
@@ -82,20 +81,20 @@ thermocycler_profile <- function(profile, repeats = NULL, width = NULL) {
     my_grob[["widths"]][panels] <- plyr::llply(width, grid::unit, units="null")
     return(my_grob)
   }
-  my_plot <- ggplot(data=data, aes(x = time, y = temp)) +
-    geom_line() +
-    geom_text(size = 4, hjust=-.03, vjust=-.4, aes(label = stage)) +
-    geom_text(size = 4, hjust=-.03, vjust=1.4, aes(label = label)) +
-    facet_grid(.~ group, scales = "free_x") +
-    labs(x="Run Time (Minutes)", y = "Temperature (C)") +
-    scale_y_continuous(expand = c(.2, 0)) +
-    theme(#panel.margin = grid::unit(0, "inches"),
-          panel.background=element_blank(), 
-          panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),
-          strip.text.x = element_text(size = 16))
-  my_grob <- ggplotGrob(my_plot)
-  my_grob <- scale_panels(my_grob,
+  my_plot <- ggplot2::ggplot(data = data, ggplot2::aes(x = time, y = temp)) +
+    ggplot2::geom_line() +
+    ggplot2::geom_text(size = 4, hjust=-.03, vjust=-.4, ggplot2::aes(label = stage)) +
+    ggplot2::geom_text(size = 4, hjust=-.03, vjust=1.4, ggplot2::aes(label = label)) +
+    ggplot2::facet_grid(.~ group, scales = "free_x") +
+    ggplot2::labs(x="Run Time (Minutes)", y = "Temperature (C)") +
+    ggplot2::scale_y_continuous(expand = c(.2, 0)) +
+    ggplot2::theme(#panel.margin = grid::unit(0, "inches"),
+          panel.background = ggplot2::element_blank(), 
+          panel.grid.major = ggplot2::element_blank(),
+          panel.grid.minor = ggplot2::element_blank(),
+          strip.text.x = ggplot2::element_text(size = 16))
+  my_grob <- ggplot2::ggplotGrob(my_plot)
+  my_grob <- ggplot2::scale_panels(my_grob,
                           plyr::dlply(data, "group", function(x) length(unique(x$stage))))
   plot(my_grob)
   return(my_grob)
