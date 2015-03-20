@@ -155,3 +155,25 @@ log_time <- function(exp, started=NA, finished=NA, display=TRUE) {
     writeLines("")
   }
 }
+
+
+#===================================================================================================
+#' Find current project root
+#' 
+#' Finds the current project's root directory from any subdirectory by looking through the file 
+#' path for a .Proj extension.
+#' 
+#' @param path (\code{character} of length 1) The path of a subdirectory of the project.
+#' 
+#' @return The path to the current project's root
+#' 
+#' @export
+get_project_root <- function(path = getwd()) {
+  if ("Rproj" %in% tools::file_ext(list.files(path))) {
+    return(path)
+  } else if (path %in% c("", NA, .Platform$file.sep)) {
+    stop("Could not find project root in given path or current working directory.")
+  } else {
+    return(get_project_root(dirname(path)))
+  }
+}
