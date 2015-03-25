@@ -1,0 +1,8 @@
+.Rproj.user
+.Rhistory
+.RData
+packrat/lib*/
+data*/
+doc/website*/
+results/*/*.html
+results/*/*.JPG

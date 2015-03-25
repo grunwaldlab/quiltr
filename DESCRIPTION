@@ -13,4 +13,5 @@ Imports: knitr,
     plyr,
     xtable,
     plotrix,
-    ggplot2
+    ggplot2,
+    packrat
