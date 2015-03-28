@@ -1,5 +1,3 @@
-
-
 #===================================================================================================
 #' Initialize a lab notebook
 #' 
@@ -20,7 +18,7 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
   if (add_timestamp) name <- paste(timestamp, name, sep = "-")
   notebook_path <- file.path(location, name)
   template_path <- system.file(template_name, package = "labtools")
-  dir.create(location, recursive = TRUE)
+  if (!file.exists(location)) dir.create(location, recursive = TRUE)
   file.copy(from = template_path, to = location, overwrite = FALSE, recursive = TRUE)
   file.rename(from = file.path(location, template_name), to = notebook_path) #rename root folder
   original_wd <- getwd()
@@ -33,8 +31,13 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
   }
   # Initialize packrat -----------------------------------------------------------------------------
   if (use_packrat) {
-    packrat::init(notebook_path)
-    install.packages("labtools")
-    packrat::snapshot()
+    file.remove(file.path(notebook_path, "src", "build_all.R")) # temporarily hide build_all.R since packrat cant find labtools 
+    packrat::init(notebook_path, restart = FALSE)
+    install.packages("devtools")#, lib = file.path(notebook_path, "packrat", "lib"))
+    devtools::install_github("zachary-foster/labtools")
+    packrat::snapshot(project = notebook_path)
+    file.copy(from = file.path(template_path, "src", "build_all.R"), 
+              to = file.path(notebook_path, "src", "build_all.R"))
+    getOption("restart")()
   }
 }
