@@ -3,6 +3,7 @@
 export(format_exp)
 export(get_project_root)
 export(log_time)
+export(make_website)
 export(nanodrop_absorbtion_maxima)
 export(new_notebook)
 export(pcr_profile)
