@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 *.html
+packrat/lib*/
+packrat/src/
