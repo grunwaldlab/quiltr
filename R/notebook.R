@@ -9,7 +9,7 @@ init_info_yaml <- function(notebook_path) {
   info_path <- file.path(notebook_path, "info.yaml")
   data <- yaml::yaml.load_file(info_path)
   data$labtools_version_used <- as.character(packageVersion("labtools"))
-  cat(as.yaml(data), file = info_path, append = FALSE)
+  cat(yaml::as.yaml(data), file = info_path, append = FALSE)
 }
 
 
@@ -35,6 +35,7 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
   if (add_timestamp) name <- paste(timestamp, name, sep = "-")
   notebook_path <- file.path(location, name)
   template_path <- system.file(template_name, package = "labtools")
+  if (file.exists(notebook_path)) stop("Notebook with that name already exists. Delete the existing notebook or choose a new name.")
   if (!file.exists(location)) dir.create(location, recursive = TRUE)
   file.copy(from = template_path, to = location, overwrite = FALSE, recursive = TRUE)
   file.rename(from = file.path(location, template_name), to = notebook_path) #rename root folder
