@@ -1,15 +1,8 @@
----
-title: "Labtools"
-output: html_document
-bibliography: bibliography.bibtex
----
+# Labtools
 
 Labtools is a R package currently under development to aid in the creation and maintenance of research notebooks.
 Currently, there are two primary focuses:
 
-* Functions to create a standardized rmarkdown notebook template that can be "built" into a website simply by following a specified folder structure and naming convention (inspired by @noble2009quick).
+* Functions to create a standardized rmarkdown notebook template that can be "built" into a website simply by following a specified folder structure and naming convention (inspired by [Noble 2009](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1000424#pcbi-1000424-g001)).
 * Functions to create rmarkdown "recipes" for typical molecular biology laboratory techniques (e.g. PCR and dilutions). 
 * Functions to parse the file formats returned by laboratory equipment (e.g. nanodrop and qubit, etc)
-
-
-### References:
