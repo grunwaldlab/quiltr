@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 packrat/lib*/
+packrat/src*/
 data/**
 !data/README.yaml
 doc/website*/
