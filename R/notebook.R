@@ -1,4 +1,21 @@
 #===================================================================================================
+#' Initialize notebook info
+#' 
+#' Initialize the info yaml file.
+#'  
+#'  @param notebook_path The path to the notebook root directory. 
+#'  
+init_info_yaml <- function(notebook_path) {
+  info_path <- file.path(notebook_path, "info.yaml")
+  data <- yaml::yaml.load_file(info_path)
+  data$labtools_version_used <- as.character(packageVersion("labtools"))
+  cat(as.yaml(data), file = info_path, append = FALSE)
+}
+
+
+
+
+#===================================================================================================
 #' Initialize a lab notebook
 #' 
 #' Make the directory structure and code for a lab notebook. 
@@ -25,6 +42,8 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
   on.exit(setwd(original_wd))
   setwd(notebook_path)
   file.rename(from = "notebook.Rproj", to = paste0(name, ".Rproj"))
+  # Initialize info.yaml ---------------------------------------------------------------------------
+  init_info_yaml(notebook_path)
   # Initialize git repository ----------------------------------------------------------------------
   if (use_git) {
     system("git init")    

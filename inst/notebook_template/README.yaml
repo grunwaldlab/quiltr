@@ -16,3 +16,4 @@ data: Contains raw/static data.
 notebook.Rproj: The RStudio project settings file.
 results: Contains notes and analyses automatically ran when building.
 src: Contains custom scripts used for analyses.
+info.yaml: Information on attributes of the notebook.
