@@ -61,3 +61,35 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
     getOption("restart")()
   }
 }
+
+
+#===================================================================================================
+#' Find README files
+#' 
+#' Locate all README files in the project and return their paths
+#' 
+#' @param path (\code{character} of length 1) Path somwhere under a R project in which to look for
+#'   README files.
+find_readmes <- function(path = get_project_root()) {
+  path <- get_project_root(normalizePath(path))
+  all_paths <- list.files(path, recursive = TRUE, )
+  readme_paths <- all_paths[basename(all_paths) == "README.yaml"]
+  file.path(path, readme_paths)
+}
+
+
+#===================================================================================================
+#' Validate READMEs 
+#' 
+#' Check if a readme has an entry for all files/folders in its folder. 
+#' 
+#' NOT FINISHED
+validate_readme <- function(readme_paths, missing = "warn", add = TRUE, order = TRUE) { 
+  do_once <- function(readme_path) {
+    path <- normalizePath(path)
+    content_paths <- list.files(dirname(path))
+    content_paths <- content_paths[content_paths != "README.yaml"]
+    
+    readme_content <- yaml::yaml.load_file(path)
+  }
+}
