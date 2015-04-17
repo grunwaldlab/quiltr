@@ -7,9 +7,7 @@
 add_labtools_import_to_rprofile(profile_path)
 }
 \arguments{
-\item{profile_path}{The path to the .Rprofile ro modify.
-
-NOT FINISHED}
+\item{profile_path}{The path to the .Rprofile ro modify.}
 }
 \description{
 Adds \code{library(labtools)} to .Rprofile to that new notebooks automatically load
