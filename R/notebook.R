@@ -43,7 +43,6 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
   on.exit(setwd(original_wd))
   setwd(notebook_path)
   file.rename(from = "notebook.Rproj", to = paste0(name, ".Rproj"))
-  add_labtools_import_to_rprofile(".Rprofile")
   # Initialize info.yaml ---------------------------------------------------------------------------
   init_info_yaml(notebook_path)
   # Initialize git repository ----------------------------------------------------------------------
@@ -61,6 +60,7 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
               to = file.path(notebook_path, "src", "build_all.R"))
     getOption("restart")()
   }
+  add_labtools_import_to_rprofile(".Rprofile")
 }
 
 
@@ -103,11 +103,13 @@ validate_readme <- function(readme_paths, missing = "warn", add = TRUE, order = 
 #' \code{labtools} when opened. 
 #' 
 #' @param profile_path The path to the .Rprofile ro modify.
-#' 
-#' NOT FINISHED
 add_labtools_import_to_rprofile <- function(profile_path) {
   data <- paste0("\n##### Added by labtools (v ", packageVersion("labtools"), ") #####\n",
                  "library(labtools)\n",
                  "#####")
-  write(data, profile_path)
+  write(data, profile_path, append = TRUE)
 }
+
+
+
+
