@@ -89,12 +89,12 @@ thermocycler_profile <- function(profile, repeats = NULL, width = NULL) {
     ggplot2::labs(x="Run Time (Minutes)", y = "Temperature (C)") +
     ggplot2::scale_y_continuous(expand = c(.2, 0)) +
     ggplot2::theme(#panel.margin = grid::unit(0, "inches"),
-          panel.background = ggplot2::element_blank(), 
-          panel.grid.major = ggplot2::element_blank(),
-          panel.grid.minor = ggplot2::element_blank(),
-          strip.text.x = ggplot2::element_text(size = 16))
+      panel.background = ggplot2::element_blank(), 
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank(),
+      strip.text.x = ggplot2::element_text(size = 16))
   my_grob <- ggplot2::ggplotGrob(my_plot)
-  my_grob <- ggplot2::scale_panels(my_grob,
+  my_grob <- scale_panels(my_grob,
                           plyr::dlply(data, "group", function(x) length(unique(x$stage))))
   plot(my_grob)
   return(my_grob)
