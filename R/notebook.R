@@ -146,6 +146,8 @@ new_note <- function(..., date = NULL, notebook = get_project_root(), data_folde
   file.symlink(file.path("..", "..", "bin"), "_bin")
   file.symlink(file.path("..", "..", "src"), "_src")
   file.symlink(file.path("..", "..", "references"), "_references")
+  dir.create("scratch", recursive = TRUE)
+  default_gitignore = "scratch\n*.html\n"
+  write(default_gitignore, ".gitignore")
 }
 
-                 
