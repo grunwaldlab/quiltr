@@ -68,8 +68,8 @@ Hash: e805e52d4a9b5d07e721862da02764d5
 
 Package: ggplot2
 Source: CRAN
-Version: 1.0.0
-Hash: c8bff66238347472f08b6a35608539ff
+Version: 1.0.1
+Hash: 06a8e5faacfd76c9e4ab11a5b7ad94d6
 Requires: digest, gtable, plyr, proto, reshape2, scales
 
 Package: gtable
