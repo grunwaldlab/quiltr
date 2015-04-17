@@ -122,9 +122,10 @@ add_labtools_import_to_rprofile <- function(profile_path) {
 #'   of its subdirectories.
 #' @param data_folder (\code{logical}) If \code{TRUE}, thea folder with the same name is made in
 #' `notebook_path/data` and linked to this new note via `_data`.
+#' @param change_wd (\code{logical}) If \code{TRUE}, change the current working directory to the new note.
 #' 
 #' @export
-new_note <- function(..., date = NULL, notebook = get_project_root(), data_folder = FALSE) {
+new_note <- function(..., date = NULL, notebook = get_project_root(), data_folder = FALSE, change_wd = TRUE) {
   if (is.null(date)) date <- format(Sys.time(), format="%Y_%m_%d")
   names <- unlist(list(...))
   note_name <- paste(c(date, names), collapse = "-")
@@ -132,7 +133,7 @@ new_note <- function(..., date = NULL, notebook = get_project_root(), data_folde
   if (file.exists(note_path)) stop(paste0("Note already exists at path '", note_path, "'."))
   dir.create(note_path, recursive = TRUE)
   original_wd <- getwd()
-  on.exit(setwd(original_wd))
+  if (!change_wd) on.exit(setwd(original_wd))
   setwd(note_path)
   if (data_folder) {
     data_path <- file.path(notebook, "data", note_name)

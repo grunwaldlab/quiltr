@@ -5,7 +5,7 @@
 \title{Makes a new note}
 \usage{
 new_note(..., date = NULL, notebook = get_project_root(),
-  data_folder = FALSE)
+  data_folder = FALSE, change_wd = TRUE)
 }
 \arguments{
 \item{...}{(\code{character}) One or more name corresponding to an organizational hierarchy.}
@@ -17,6 +17,8 @@ of its subdirectories.}
 
 \item{data_folder}{(\code{logical}) If \code{TRUE}, thea folder with the same name is made in
 `notebook_path/data` and linked to this new note via `_data`.}
+
+\item{change_wd}{(\code{logical}) If \code{TRUE}, change the current working directory to the new note.}
 }
 \description{
 Make a new note for the current time and notebook.
