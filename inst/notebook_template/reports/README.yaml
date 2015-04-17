@@ -1,7 +1,7 @@
-########## Readme for the 'content' directory ######################################################
-# This directory contains the directories for each note in the notebook.
+########## Readme for the 'reports' directory ######################################################
+# This directory contains reports composed of one or more notes from the `content` folder.
 #
-# Each note directory should be in the format: "yyyy_mm_dd-name_1-name_2-name_3".
+# Each report directory should be in the format: "yyyy_mm_dd-name_1-name_2-name_3".
 # The "name_1-name_2-name_3" part represents a hierarchy to classify the note in.
 # In this example, there are three levels in the hierarchy, but any number are allowed.
 # This hierarchy will be used to organize the notes when compiled into a more readable form
@@ -10,7 +10,6 @@
 # These characters are chosen to allow for cross-platform compatibility.
 # 
 # Example directory names: 
-#   2014_04_16-siskiyous-preliminary_analysis
-#   2012_07_01-note
+#   2014_04_16-papers-my_first_publication
+#   2012_07_01-presentations-my_first_slidshow_in_r
 ####################################################################################################
-
