@@ -1,11 +1,16 @@
 PackratFormat: 1.4
 PackratVersion: 0.4.0.12
-RVersion: 3.1.2
+RVersion: 3.1.3
 Repos: CRAN=http://cran.rstudio.com,
     BioCsoft=http://bioconductor.org/packages/2.14/bioc,
     BioCann=http://bioconductor.org/packages/2.14/data/annotation,
     BioCexp=http://bioconductor.org/packages/2.14/data/experiment,
     BioCextra=http://bioconductor.org/packages/2.14/extra
+
+Package: acepack
+Source: CRAN
+Version: 1.3-3.3
+Hash: e42d3814a877cf587e6a5225486323c3
 
 Package: bitops
 Source: CRAN
@@ -56,10 +61,15 @@ Source: CRAN
 Version: 1.0
 Hash: a90c211d7df7e61a72b8ab6c99c2e848
 
+Package: Formula
+Source: CRAN
+Version: 1.2-1
+Hash: e805e52d4a9b5d07e721862da02764d5
+
 Package: ggplot2
 Source: CRAN
-Version: 1.0.0
-Hash: c8bff66238347472f08b6a35608539ff
+Version: 1.0.1
+Hash: 06a8e5faacfd76c9e4ab11a5b7ad94d6
 Requires: digest, gtable, plyr, proto, reshape2, scales
 
 Package: gtable
@@ -71,6 +81,12 @@ Package: highr
 Source: CRAN
 Version: 0.3
 Hash: 7c85a9b7d07a75e2d8ca74f9467fee21
+
+Package: Hmisc
+Source: CRAN
+Version: 3.15-0
+Hash: 62927f04f08ffb991a77fc51b27db0d8
+Requires: acepack, Formula, ggplot2, latticeExtra, proto, scales
 
 Package: htmltools
 Source: CRAN
@@ -99,6 +115,12 @@ Package: labeling
 Source: CRAN
 Version: 0.3
 Hash: 568a992912caf7eeddfb121924154047
+
+Package: latticeExtra
+Source: CRAN
+Version: 0.6-26
+Hash: 2c59a30bb9d9d4651b913b828dca2640
+Requires: RColorBrewer
 
 Package: lubridate
 Source: CRAN

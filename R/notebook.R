@@ -60,6 +60,7 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
               to = file.path(notebook_path, "src", "build_all.R"))
     getOption("restart")()
   }
+  add_labtools_import_to_rprofile(".Rprofile")
 }
 
 
@@ -113,4 +114,58 @@ get_git_ignored <- function(path = get_project_root()) {
 }
 
 
+#===================================================================================================
+#' Add `library(labtools)` to .Rprofile
+#' 
+#' Adds \code{library(labtools)} to .Rprofile to that new notebooks automatically load
+#' \code{labtools} when opened. 
+#' 
+#' @param profile_path The path to the .Rprofile ro modify.
+add_labtools_import_to_rprofile <- function(profile_path) {
+  data <- paste0("\n##### Added by labtools (v ", packageVersion("labtools"), ") #####\n",
+                 "library(labtools)\n",
+                 "#####")
+  write(data, profile_path, append = TRUE)
+}
 
+
+#===================================================================================================
+#' Makes a new note
+#' 
+#' Make a new note for the current time and notebook.
+#' 
+#' @param ... (\code{character}) One or more name corresponding to an organizational hierarchy.
+#' @param date (\code{character}) Not date in the form `yyyy_mm_dd`. 
+#' @param notebook (\code{character}) The path to the notebook in which to write the note or one
+#'   of its subdirectories.
+#' @param data_folder (\code{logical}) If \code{TRUE}, thea folder with the same name is made in
+#' `notebook_path/data` and linked to this new note via `_data`.
+#' @param change_wd (\code{logical}) If \code{TRUE}, change the current working directory to the new note.
+#' 
+#' @export
+new_note <- function(..., date = NULL, notebook = get_project_root(), data_folder = FALSE, change_wd = TRUE) {
+  if (is.null(date)) date <- format(Sys.time(), format="%Y_%m_%d")
+  names <- unlist(list(...))
+  note_name <- paste(c(date, names), collapse = "-")
+  note_path <- file.path(notebook, "content", note_name)
+  if (file.exists(note_path)) stop(paste0("Note already exists at path '", note_path, "'."))
+  dir.create(note_path, recursive = TRUE)
+  original_wd <- getwd()
+  if (!change_wd) on.exit(setwd(original_wd))
+  setwd(note_path)
+  if (data_folder) {
+    data_path <- file.path(notebook, "data", note_name)
+    setwd(original_wd)
+    dir.create(data_path, recursive = TRUE)
+    setwd(note_path)
+    file.symlink(file.path("..", "..", "data", note_name), "_data")
+  } else {
+    file.symlink(file.path("..", "..", "data"), "_data")
+  }
+  file.symlink(file.path("..", "..", "bin"), "_bin")
+  file.symlink(file.path("..", "..", "src"), "_src")
+  file.symlink(file.path("..", "..", "references"), "_references")
+  dir.create("scratch", recursive = TRUE)
+  default_gitignore = "scratch\n*.html\n"
+  write(default_gitignore, ".gitignore")
+}

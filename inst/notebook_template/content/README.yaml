@@ -1,4 +1,4 @@
-########## Readme for the 'results' directory ######################################################
+########## Readme for the 'content' directory ######################################################
 # This directory contains the directories for each note in the notebook.
 #
 # Each note directory should be in the format: "yyyy_mm_dd-name_1-name_2-name_3".

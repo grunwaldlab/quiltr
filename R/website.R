@@ -129,7 +129,7 @@ render_rmd_contents <- function(directory_path, header_html = NULL, pre_body_htm
   if (length(rmd_paths) > 1 || (length(rmd_paths) == 1 && is.na(rmd_titles[1]))) {
     title <- rev(strsplit(note_name[1], '-')[[1]])[1]
     title <- gsub("_", " ", title)
-    title <- capitalize(title)
+#     title <- Hmisc::capitalize(title)
   } else {
     title <- rmd_titles[1]
   }

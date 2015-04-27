@@ -5,6 +5,4 @@ packrat/lib*/
 packrat/src*/
 data/**
 !data/README.yaml
-doc/website*/
-results/*/*.html
-results/*/*.JPG
+website*/
