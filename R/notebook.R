@@ -93,3 +93,24 @@ validate_readme <- function(readme_paths, missing = "warn", add = TRUE, order = 
     readme_content <- yaml::yaml.load_file(path)
   }
 }
+
+
+#===================================================================================================
+#' Get list of files ignored by git
+#' 
+#' Returns the list of all files ignored by git from anywhere within a git repository. 
+#' 
+#' @param path A a git repository or one of its subdirectories.
+#' 
+get_git_ignored <- function(path = get_project_root()) {
+  # Move into git repository -----------------------------------------------------------------------
+  original_wd <- getwd()
+  setwd(path)
+  on.exit(setwd(original_wd))
+  # Use git to output ignored files ----------------------------------------------------------------
+  git_output <- system("git clean -ndX", intern = TRUE)
+  gsub("Would remove ", "", git_output)   
+}
+
+
+
