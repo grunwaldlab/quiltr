@@ -102,7 +102,7 @@ validate_readme <- function(readme_paths, missing = "warn", add = TRUE, order = 
 #' Returns the list of all files ignored by git from anywhere within a git repository. 
 #' 
 #' @param path A a git repository or one of its subdirectories.
-#' 
+#'
 get_git_ignored <- function(path = get_project_root()) {
   # Move into git repository -----------------------------------------------------------------------
   original_wd <- getwd()
@@ -111,6 +111,77 @@ get_git_ignored <- function(path = get_project_root()) {
   # Use git to output ignored files ----------------------------------------------------------------
   git_output <- system("git clean -ndX", intern = TRUE)
   gsub("Would remove ", "", git_output)   
+}
+
+
+#===================================================================================================
+#' Rsync files ignored by git
+#' 
+#' Copys files ignored by git to a remote computer using rsync. 
+#' Both computers must have rsync installed. 
+#' 
+#' @param target The path to the analogous verison of the git repository on the remote computer. 
+#' @param user The user of the remote computer.
+#' @param remote The address of the remote computer. 
+#' @param port The port of ssh agent on the remote computer. 
+#' @param path A a git repository or one of its subdirectories on the local computer.
+#' 
+#' @export
+rsync_push <- function(target, user, remote, port = 22, path = get_project_root()) {
+  # Move into git repository -----------------------------------------------------------------------
+  original_wd <- getwd()
+  setwd(path)
+  on.exit(setwd(original_wd))
+  # Rsync once for each ignored path ---------------------------------------------------------------
+  to_push <- get_git_ignored(path = path)
+  command <- paste0("rsync -avh -e 'ssh -p ", port, "' --relative ",
+                    paste(to_push, collapse = " "), " ", user, "@", remote, ":", target)
+  system(command)
+}
+
+
+#===================================================================================================
+#' Get list of remote files ignored by git
+#' 
+#' Returns the list of all files ignored by git in a remote git repository. 
+#' 
+#' @param path The path to a git repository on a remote file system.
+#' @param user The user of the remote computer.
+#' @param remote The address of the remote computer. 
+#' @param port The port of ssh agent on the remote computer. 
+#'
+get_remote_git_ignored <- function(path, user, remote, port = 22) {
+  command <- paste0("ssh ", user, "@", remote, " -p ", port, " 'cd ", path, "; git clean -ndX'")
+  git_output <- system(command, intern = TRUE)[-1]
+  file.path(path, gsub("Would remove ", "", git_output))
+}
+
+
+#===================================================================================================
+#' Rsync remote files ignored by git
+#' 
+#' Copys files ignored by git from a remote computer using rsync. 
+#' Both computers must have rsync and git installed. 
+#' 
+#' @param target The path to the analogous verison of the git repository on the remote computer. 
+#' @param user The user of the remote computer.
+#' @param remote The address of the remote computer. 
+#' @param port The port of ssh agent on the remote computer. 
+#' @param path A a git repository or one of its subdirectories on the local computer.
+#' 
+#' @export
+rsync_pull <- function(target, user, remote, port = 22, path = get_project_root()) {
+  # Move into git repository -----------------------------------------------------------------------
+#   original_wd <- getwd()
+#   setwd(path)
+#   on.exit(setwd(original_wd))
+#   # Rsync once for each ignored path ---------------------------------------------------------------
+  to_pull <- get_remote_git_ignored(path = target, user = user, remote = remote, port = port)
+  to_pull <- paste0(user, "@", remote, ":", to_pull)
+  command <- paste0("rsync -avh -e 'ssh -p ", port, "' --relative",
+                    paste(to_pull, collapse = " "), " ", normalizePath(path))
+  system(command)
+#  command
 }
 
 
