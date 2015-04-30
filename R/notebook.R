@@ -24,11 +24,14 @@ init_info_yaml <- function(notebook_path) {
 #' @param name Name of new notebook folder. Format as you would a file name.
 #' @param use_git If \code{TRUE}, use git with the new notebook.
 #' @param use_packrat If \code{TRUE}, use packrat with the new notebook. 
-#' @param add_timestamp If \code{TRUE}, the current date is added to the notebook name. 
+#' @param add_timestamp If \code{TRUE}, the current date is added to the notebook name.
+#' @param open If \code{TRUE}, the new notebook is opened in RStudio after creation (Only
+#'  implemented in linux so far).
 #' 
 #' @export
+
 new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packrat = TRUE,
-                         add_timestamp = TRUE) {
+                         add_timestamp = TRUE, open = TRUE) {
   # Copy template to destination -------------------------------------------------------------------
   template_name <- "notebook_template"
   timestamp <- format(Sys.time(), format="%Y_%m_%d")
@@ -42,7 +45,9 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
   original_wd <- getwd()
   on.exit(setwd(original_wd))
   setwd(notebook_path)
-  file.rename(from = "notebook.Rproj", to = paste0(name, ".Rproj"))
+  notebook_proj_name <- paste0(name, ".Rproj")
+  notebook_proj_path <- file.path(notebook_path, notebook_proj_name)
+  file.rename(from = "notebook.Rproj", to = notebook_proj_name)
   # Initialize info.yaml ---------------------------------------------------------------------------
   init_info_yaml(notebook_path)
   # Initialize git repository ----------------------------------------------------------------------
@@ -61,6 +66,13 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
     getOption("restart")()
   }
   add_labtools_import_to_rprofile(".Rprofile")
+  # Open the new note in RStudio -------------------------------------------------------------------
+  if (open) {
+    if (Sys.info()['sysname'] == "Linux") {
+      command <- paste0("(rstudio ", notebook_proj_path, " &)")
+      system(command)    
+    }
+  }
 }
 
 
