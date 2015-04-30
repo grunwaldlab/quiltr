@@ -232,9 +232,11 @@ add_labtools_import_to_rprofile <- function(profile_path) {
 #' @param data_folder (\code{logical}) If \code{TRUE}, thea folder with the same name is made in
 #' `notebook_path/data` and linked to this new note via `_data`.
 #' @param change_wd (\code{logical}) If \code{TRUE}, change the current working directory to the new note.
-#' 
+#' @param open If \code{TRUE}, the new note is opened in RStudio after creation.
+#'  
 #' @export
-new_note <- function(..., date = NULL, notebook = get_project_root(), data_folder = FALSE, change_wd = TRUE) {
+new_note <- function(..., date = NULL, notebook = get_project_root(), data_folder = FALSE,
+                     change_wd = TRUE, open = TRUE) {
   if (is.null(date)) date <- format(Sys.time(), format="%Y_%m_%d")
   names <- unlist(list(...))
   note_name <- paste(c(date, names), collapse = "-")
@@ -259,4 +261,8 @@ new_note <- function(..., date = NULL, notebook = get_project_root(), data_folde
   dir.create("scratch", recursive = TRUE)
   default_gitignore = "scratch\n*.html\n"
   write(default_gitignore, ".gitignore")
+  # Open note after creation -----------------------------------------------------------------------
+  if (open) {
+    file.edit(note_path)
+  }
 }

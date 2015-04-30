@@ -5,7 +5,7 @@
 \title{Makes a new note}
 \usage{
 new_note(..., date = NULL, notebook = get_project_root(),
-  data_folder = FALSE, change_wd = TRUE)
+  data_folder = FALSE, change_wd = TRUE, open = TRUE)
 }
 \arguments{
 \item{...}{(\code{character}) One or more name corresponding to an organizational hierarchy.}
@@ -19,6 +19,8 @@ of its subdirectories.}
 `notebook_path/data` and linked to this new note via `_data`.}
 
 \item{change_wd}{(\code{logical}) If \code{TRUE}, change the current working directory to the new note.}
+
+\item{open}{If \code{TRUE}, the new note is opened in RStudio after creation.}
 }
 \description{
 Make a new note for the current time and notebook.
