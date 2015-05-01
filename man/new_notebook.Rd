@@ -5,7 +5,7 @@
 \title{Initialize a lab notebook}
 \usage{
 new_notebook(location, name = "notebook", use_git = TRUE,
-  use_packrat = TRUE, add_timestamp = TRUE, open = TRUE)
+  use_packrat = FALSE, add_timestamp = TRUE, open = TRUE)
 }
 \arguments{
 \item{location}{Path to new notebook location.}

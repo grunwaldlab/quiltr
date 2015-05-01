@@ -4,19 +4,20 @@
 \alias{new_note}
 \title{Makes a new note}
 \usage{
-new_note(..., date = NULL, notebook = get_project_root(),
-  data_folder = FALSE, change_wd = TRUE, open = TRUE)
+new_note(..., template = "default", date = NULL,
+  notebook = get_project_root(), change_wd = TRUE, open = TRUE)
 }
 \arguments{
 \item{...}{(\code{character}) One or more name corresponding to an organizational hierarchy.}
+
+\item{template}{(\code{character}) The name of the template to use for the new note. Available
+templates can be found in the \code{templates} folder in the root directory of the notebook. You
+can add your own templates there and use their name in this function.}
 
 \item{date}{(\code{character}) Not date in the form `yyyy_mm_dd`.}
 
 \item{notebook}{(\code{character}) The path to the notebook in which to write the note or one
 of its subdirectories.}
-
-\item{data_folder}{(\code{logical}) If \code{TRUE}, thea folder with the same name is made in
-`notebook_path/data` and linked to this new note via `_data`.}
 
 \item{change_wd}{(\code{logical}) If \code{TRUE}, change the current working directory to the new note.}
 

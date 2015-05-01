@@ -226,43 +226,36 @@ add_labtools_import_to_rprofile <- function(profile_path) {
 #' Make a new note for the current time and notebook.
 #' 
 #' @param ... (\code{character}) One or more name corresponding to an organizational hierarchy.
+#' @param template (\code{character}) The name of the template to use for the new note. Available
+#' templates can be found in the \code{templates} folder in the root directory of the notebook. You
+#' can add your own templates there and use their name in this function.
 #' @param date (\code{character}) Not date in the form `yyyy_mm_dd`. 
 #' @param notebook (\code{character}) The path to the notebook in which to write the note or one
 #'   of its subdirectories.
-#' @param data_folder (\code{logical}) If \code{TRUE}, thea folder with the same name is made in
-#' `notebook_path/data` and linked to this new note via `_data`.
 #' @param change_wd (\code{logical}) If \code{TRUE}, change the current working directory to the new note.
 #' @param open If \code{TRUE}, the new note is opened in RStudio after creation.
 #'  
 #' @export
-new_note <- function(..., date = NULL, notebook = get_project_root(), data_folder = FALSE,
+new_note <- function(..., template = "default", date = NULL, notebook = get_project_root(),
                      change_wd = TRUE, open = TRUE) {
+  # Parse arguments --------------------------------------------------------------------------------
   if (is.null(date)) date <- format(Sys.time(), format="%Y_%m_%d")
   names <- unlist(list(...))
   note_name <- paste(c(date, names), collapse = "-")
-  note_path <- file.path(notebook, "content", note_name)
+  note_location <- file.path(notebook, "content")
+  note_path <- file.path(note_location, note_name)
+  template_path <- file.path(notebook, "templates", template)
+  # Create note directory --------------------------------------------------------------------------
   if (file.exists(note_path)) stop(paste0("Note already exists at path '", note_path, "'."))
-  dir.create(note_path, recursive = TRUE)
-  original_wd <- getwd()
-  if (!change_wd) on.exit(setwd(original_wd))
-  setwd(note_path)
-  if (data_folder) {
-    data_path <- file.path(notebook, "data", note_name)
-    setwd(original_wd)
-    dir.create(data_path, recursive = TRUE)
-    setwd(note_path)
-    file.symlink(file.path("..", "..", "data", note_name), "_data")
-  } else {
-    file.symlink(file.path("..", "..", "data"), "_data")
-  }
-  file.symlink(file.path("..", "..", "bin"), "_bin")
-  file.symlink(file.path("..", "..", "src"), "_src")
-  file.symlink(file.path("..", "..", "references"), "_references")
-  dir.create("scratch", recursive = TRUE)
-  default_gitignore = "scratch\n*.html\n"
-  write(default_gitignore, ".gitignore")
+  if (!file.exists(template_path)) stop(paste0("Cannot find template at '", template_path,
+                                               "'. Check that it exists or pick another template."))
+  file.copy(from = template_path, to = note_location, recursive = TRUE)
+  file.rename(from = file.path(note_location, template), to = note_path)
+  # Change current working directory to new note ---------------------------------------------------
+  if (change_wd) setwd(note_path)
   # Open note after creation -----------------------------------------------------------------------
-  if (open) {
-    file.edit(note_path)
+  if (open && rstudioapi::isAvailable()) {
+    rmd_files <- list.files(note_path, pattern = "\\.Rmd$", ignore.case = TRUE, full.names = TRUE)
+    file.edit(rmd_files)
   }
 }
