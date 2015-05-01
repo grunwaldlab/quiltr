@@ -256,6 +256,6 @@ new_note <- function(..., template = "default", date = NULL, notebook = get_proj
   # Open note after creation -----------------------------------------------------------------------
   if (open && rstudioapi::isAvailable()) {
     rmd_files <- list.files(note_path, pattern = "\\.Rmd$", ignore.case = TRUE, full.names = TRUE)
-    file.edit(rmd_files)
+    if (length(rmd_files) > 0) file.edit(rmd_files)
   }
 }
