@@ -32,6 +32,7 @@ init_info_yaml <- function(notebook_path) {
 
 new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packrat = FALSE,
                          add_timestamp = TRUE, open = TRUE) {
+  location <- normalizePath(location)
   # Copy template to destination -------------------------------------------------------------------
   template_name <- "notebook_template"
   timestamp <- format(Sys.time(), format="%Y_%m_%d")
