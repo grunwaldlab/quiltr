@@ -41,7 +41,7 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
   template_path <- system.file(template_name, package = "labtools")
   if (file.exists(notebook_path)) stop("Notebook with that name already exists. Delete the existing notebook or choose a new name.")
   if (!file.exists(location)) dir.create(location, recursive = TRUE)
-  copy_folder_with_links(from = template_path, to = location)
+  file.copy(from = template_path, to = location, recursive = TRUE)
   file.rename(from = file.path(location, template_name), to = notebook_path) #rename root folder
   original_wd <- getwd()
   on.exit(setwd(original_wd))
@@ -55,6 +55,10 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
   if (use_git) {
     system("git init")    
   }
+  # Add templates ----------------------------------------------------------------------------------
+  template_generators <- c(make_notebook_template_default)
+  template_path <- file.path(notebook_path, "templates")
+  invisible(lapply(template_generators, function(f) f(location = template_path)))
   # Initialize packrat -----------------------------------------------------------------------------
   if (use_packrat) {
     file.remove(file.path(notebook_path, "src", "build_all.R")) # temporarily hide build_all.R since packrat cant find labtools 
@@ -259,4 +263,26 @@ new_note <- function(..., template = "default", date = NULL, notebook = get_proj
     rmd_files <- list.files(note_path, pattern = "\\.Rmd$", ignore.case = TRUE, full.names = TRUE)
     if (length(rmd_files) > 0) file.edit(rmd_files)
   }
+}
+
+
+
+#===================================================================================================
+#' Make default note template directory
+#' 
+#' @param location (\code{character} of length 1) Where to write the folder. 
+make_notebook_template_default <- function(location) {
+  location <- file.path(location, "default")
+  if(file.exists(location)) stop(paste0("Target folder ", location, " already exists."))
+  dir.create(location, recursive = TRUE)
+  file.symlink(file.path("..", "..", "data"), file.path(location, "_data"))
+  file.symlink(file.path("..", "..", "bin"), file.path(location, "_bin"))
+  file.symlink(file.path("..", "..", "src"), file.path(location,  "_src"))
+  file.symlink(file.path("..", "..", "references"), file.path(location, "_references"))
+  dir.create( file.path(location, "scratch"), recursive = TRUE)
+  default_gitignore = "scratch\n*.html\n"
+  write(default_gitignore,  file.path(location, ".gitignore"))
+  default_note = paste0('---\ntitle: "Untitled"\ndate: "', format(Sys.time(), format="%Y-%m-%d"),
+                        '"\noutput: html_document\n---')
+  write(default_note,  file.path(location, "notes.Rmd"))
 }
