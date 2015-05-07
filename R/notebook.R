@@ -41,7 +41,7 @@ new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packra
   template_path <- system.file(template_name, package = "labtools")
   if (file.exists(notebook_path)) stop("Notebook with that name already exists. Delete the existing notebook or choose a new name.")
   if (!file.exists(location)) dir.create(location, recursive = TRUE)
-  file.copy(from = template_path, to = location, overwrite = FALSE, recursive = TRUE)
+  copy_folder_with_links(from = template_path, to = location)
   file.rename(from = file.path(location, template_name), to = notebook_path) #rename root folder
   original_wd <- getwd()
   on.exit(setwd(original_wd))
@@ -250,7 +250,7 @@ new_note <- function(..., template = "default", date = NULL, notebook = get_proj
   if (file.exists(note_path)) stop(paste0("Note already exists at path '", note_path, "'."))
   if (!file.exists(template_path)) stop(paste0("Cannot find template at '", template_path,
                                                "'. Check that it exists or pick another template."))
-  file.copy(from = template_path, to = note_location, recursive = TRUE)
+  copy_folder_with_links(from = template_path, to = note_location)
   file.rename(from = file.path(note_location, template), to = note_path)
   # Change current working directory to new note ---------------------------------------------------
   if (change_wd) setwd(note_path)
