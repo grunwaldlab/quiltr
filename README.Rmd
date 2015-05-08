@@ -31,3 +31,14 @@ The package should now be installed and can be loaded using:
 library(labtools)
 ```
 
+## Use
+
+# Notebook
+
+To start a new lab notebook:
+
+```{r, eval=FALSE}
+library(labtools)
+new_notebook()
+```
+
