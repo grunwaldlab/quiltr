@@ -7,4 +7,4 @@ Currently, the primary focuses are:
 * Functions to create rmarkdown "recipes" for typical molecular biology laboratory techniques (e.g. PCR and dilutions). 
 * Functions to parse the file formats returned by laboratory equipment (e.g. nanodrop and qubit, etc)
 
-Blah, changed something - bjk
+
