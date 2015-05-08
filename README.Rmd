@@ -33,7 +33,7 @@ library(labtools)
 
 ## Use
 
-# Notebook
+### Notebook
 
 To start a new lab notebook:
 
