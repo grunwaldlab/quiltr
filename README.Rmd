@@ -1,10 +1,33 @@
 # Labtools
 
-Labtools is a R package currently under development to aid in the creation and maintenance of research notebooks.
+Lab tools is a R package currently under development to aid in the creation and maintenance of research notebooks. 
+By leveraging the functionality of `knitr`, `git`, and the Bootstrap web framework, this package allows for efficient creation of HTML lab notebooks from notes in Rmd files. 
+This facilitates reproducible, version controlled, easily shared research notes/analyses on all major operating systems using free, open source software. 
+
 Currently, the primary focuses are:
 
 * Functions to create a standardized rmarkdown notebook template that can be "built" into a website simply by following a specified folder structure and naming convention (inspired by [Noble 2009](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1000424#pcbi-1000424-g001)).
 * Functions to create rmarkdown "recipes" for typical molecular biology laboratory techniques (e.g. PCR and dilutions). 
 * Functions to parse the file formats returned by laboratory equipment (e.g. nanodrop and qubit, etc)
 
+## Installation
+
+Labtools is an R package available on GitHub, so it can installed from the RStudio console or an R command line session using the `devtools` command `install_github`.
+First, make sure `devtools` is installed:
+
+```{r, eval=FALSE}
+install.packages("devtools")
+```
+
+Next, install the package from GitHub by entering:
+
+```{r, eval=FALSE}
+devtools::install_github("grunwaldlab/labtools")
+```
+
+The package should now be installed and can be loaded using:
+
+```{r, eval=FALSE}
+library(labtools)
+```
 
