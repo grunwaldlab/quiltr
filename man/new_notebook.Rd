@@ -4,7 +4,7 @@
 \alias{new_notebook}
 \title{Initialize a lab notebook}
 \usage{
-new_notebook(location, name = "notebook", use_git = TRUE,
+new_notebook(location = getwd(), name = "notebook", use_git = TRUE,
   use_packrat = FALSE, add_timestamp = TRUE, open = TRUE)
 }
 \arguments{

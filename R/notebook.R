@@ -30,7 +30,7 @@ init_info_yaml <- function(notebook_path) {
 #' 
 #' @export
 
-new_notebook <- function(location, name = "notebook", use_git = TRUE, use_packrat = FALSE,
+new_notebook <- function(location = getwd(), name = "notebook", use_git = TRUE, use_packrat = FALSE,
                          add_timestamp = TRUE, open = TRUE) {
   location <- normalizePath(location)
   # Copy template to destination -------------------------------------------------------------------
