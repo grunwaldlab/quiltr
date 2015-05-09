@@ -31,14 +31,55 @@ The package should now be installed and can be loaded using:
 library(labtools)
 ```
 
-## Use
+## Basic usage
 
-### Notebook
+### Make a new notebook
 
-To start a new lab notebook:
+To start a new lab notebook type:
 
 ```{r, eval=FALSE}
 library(labtools)
 new_notebook()
 ```
 
+This will create a new lab notebook template in the current working directory with a generic name. 
+The `name` and `location` options can be used to specify where to make the notebook and what to call it. 
+For example,
+
+```{r, eval=FALSE}
+new_notebook(location = "~", name = "ideas")
+```
+
+will create a notebook called "ideas" in the users home directory. 
+
+Unless the `open` option is set to `FALSE` the new notebook will be automatically opened in a new window of RStudio. 
+
+### Adding a note
+
+Individual notes are folders withing the `content` directory of a notebook.
+They must be named with the date in the format `yyyy_mm_dd-` followed by a `-` deliminated hierarchical classification. 
+An example of a note folder name is `2015_02_23-bioinformatics-experiment_1-results`. 
+When the notebook is rendered into a website, this note's content will be accessible via a hierarchical dropdown menu under `bioinformatics` > `experiment_1` > `results`.\
+
+Although it works to make new notes manually, the `new_note` function can be used to make note templates within an existing notebook that follow this syntax.
+If the current working directory is a notebook or one of its sub directories, you can make the above example with `new_note` by typing:
+
+```{r, eval=FALSE}
+new_note("bioinformatics", "experiment_1", "results")
+```
+
+This will create a new note template in the correct format under the `content` folder and open any .Rmd files initialized for editing in RStudio.
+
+The `templates` folder of the notebook contains note templates that can be specified via the `template` option of `new_note`.
+A single template called `default` is included in the package and is used when the `template` option is not specified. 
+You are encouraged to change the `default` template and make other ones. 
+For example, if you created a template in the `templates` directory of the notebook called "bioinfo_pipeline", you could initialize a new note with it by typing:
+ 
+```{r, eval=FALSE}
+new_note("bioinformatics", "experiment_1", "results", template = "bioinfo_pipeline")
+```
+
+
+### Rendering the website
+
+To render a notebook into a website, open the notebook in RStudio and press `Ctrl` + `Shift` + `B` or press the `Build and Reload` menu item under `Build`.
