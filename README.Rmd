@@ -59,7 +59,7 @@ Unless the `open` option is set to `FALSE` the new notebook will be automaticall
 Individual notes are folders withing the `content` directory of a notebook.
 They must be named with the date in the format `yyyy_mm_dd-` followed by a `-` deliminated hierarchical classification. 
 An example of a note folder name is `2015_02_23-bioinformatics-experiment_1-results`. 
-When the notebook is rendered into a website, this note's content will be accessible via a hierarchical dropdown menu under `bioinformatics` > `experiment_1` > `results`.\
+When the notebook is rendered into a website, this note's content will be accessible via a hierarchical dropdown menu under `bioinformatics` > `experiment_1` > `results`.
 
 Although it works to make new notes manually, the `new_note` function can be used to make note templates within an existing notebook that follow this syntax.
 If the current working directory is a notebook or one of its sub directories, you can make the above example with `new_note` by typing:
