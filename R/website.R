@@ -48,17 +48,19 @@ get_note_hierarchy <- function(notebook_path = get_project_root(), implied = TRU
 make_menu_hierarchy <- function(notebook_path = get_project_root()) {
   # Parse note directory names ---------------------------------------------------------------------
   notebook_path <- get_project_root(notebook_path)
+  notebook_name <- basename(notebook_path)
   hierarchy <- get_note_hierarchy(notebook_path)
   depth <- vapply(hierarchy, length, numeric(1))
   names <- vapply(get_note_hierarchy(notebook_path, implied = FALSE),
                   paste, character(1), collapse = "-")
+  note_dir_names <- get_note_paths(notebook_path)
   
   # Recursive function to make menu html -----------------------------------------------------------
   make_nav <- function(index) {
     current <- hierarchy[[index]]
     children <- which(vapply(hierarchy, function(y) all(y[seq_along(current)] == current) & length(current) + 1 == length(y), logical(1)))
     if (paste(current, collapse = "-") %in% names) {
-      dir_name <- names[paste(current, collapse = "-") == names]
+      dir_name <- note_dir_names[paste(current, collapse = "-") == names]
       path <- file.path("..", dir_name, paste0("master_parent", ".html"))
     } else {
       path <- "#"
@@ -106,7 +108,7 @@ make_menu_hierarchy <- function(notebook_path = get_project_root()) {
                               '<span class="icon-bar"></span>',
                               '<span class="icon-bar"></span>',
                               '</button>',
-                              paste0('<a class="navbar-brand" href="#">', "Notebook", '</a>'),
+                              paste0('<a class="navbar-brand" href="#">', notebook_name, '</a>'),
                               '</div>')
   menu_html <- paste(sep = "\n",
                      '<div class="collapse navbar-collapse">',
@@ -114,7 +116,7 @@ make_menu_hierarchy <- function(notebook_path = get_project_root()) {
                       paste0(lapply(which(depth == 1), make_nav), collapse = ""),
                       '</ul></div>')
   nav_bar_html <- paste( sep = "\n",
-                         '<div class="navbar navbar-default navbar-fixed-top" role="navigation">',
+                         '<div class="navbar navbar-default" role="navigation">',
                          '<div class="container">',
                          notebook_name_html,
                          menu_html,
