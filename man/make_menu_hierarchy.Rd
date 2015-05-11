@@ -4,11 +4,11 @@
 \alias{make_menu_hierarchy}
 \title{Creates hierarchical menu html from note names}
 \usage{
-make_menu_hierarchy(notes_location)
+make_menu_hierarchy(notebook_path = get_project_root())
 }
 \arguments{
-\item{notes_location}{(\code{character} of length 1) File path to the directory containing note
-directories.}
+\item{notebook_path}{(\code{character} of length 1) The path to a notebook or one of its
+subdirectories.}
 }
 \description{
 Parses the names of note directories to create html for a hierarchical menu.

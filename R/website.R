@@ -1,19 +1,57 @@
 #===================================================================================================
+#' Gets names of notes in a notebook
+#' 
+#' Returns the names/paths of notes in a given notebook.
+#' 
+#' @param notebook_path (\code{character} of length 1) The path to a notebook or one of its 
+#'   subdirectories.
+#' @param full_names (\code{logical} of length 1) If \code{TRUE}, return the full path to each note.
+get_note_paths <- function(notebook_path = get_project_root(), full_names = FALSE) {
+  notebook_path <- get_project_root(notebook_path)
+  note_path <- file.path(notebook_path, "content")
+  list.dirs(note_path, recursive = FALSE, full.names = full_names)  
+}
+
+#===================================================================================================
+#' Get notebook note hierarchy
+#' 
+#' Return a list of all the locations in the notebook note classification hierarchy.
+#' 
+#' @param notebook_path (\code{character} of length 1) The path to a notebook or one of its 
+#'   subdirectories.
+#' @param implied (\code{logical} of length 1) If \code{TRUE}, return parts of the hierarchy that
+#'   no notes are assigned to, but are implied to exist (e.g. the "roots" of the hierarchy).
+#'   
+#' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy.
+get_note_hierarchy <- function(notebook_path = get_project_root(), implied = TRUE) {
+  note_directories <- get_note_paths(notebook_path)
+  hierarchy <- lapply(strsplit(note_names, "-"), `[`, -1)
+  if (implied) {
+    hierarchy <- unlist(lapply(hierarchy, function(x) lapply(seq_along(x), function(i) x[1:i])),
+                        recursive = FALSE)    
+  }
+  hierarchy <- unique(hierarchy)
+  hierarchy <- hierarchy[order(sapply(hierarchy, `[`, 1))]
+  return(hierarchy)
+}
+
+
+
+
+#===================================================================================================
 #' Creates hierarchical menu html from note names
 #' 
 #' Parses the names of note directories to create html for a hierarchical menu. 
 #' 
-#' @param notes_location (\code{character} of length 1) File path to the directory containing note
-#'   directories. 
-make_menu_hierarchy <- function(notes_location) {
+#' @param notebook_path (\code{character} of length 1) The path to a notebook or one of its 
+#'   subdirectories.
+make_menu_hierarchy <- function(notebook_path = get_project_root()) {
   # Parse note directory names ---------------------------------------------------------------------
-  note_directories <- Sys.glob(file.path(notes_location,"*"))
-  note_names <- basename(note_directories) 
-  hierarchy <- lapply(strsplit(note_names, "-"), `[`, -1)
-  names <- vapply(hierarchy, paste, character(1), collapse = "-")
-  hierarchy <- unique(unlist(lapply(hierarchy, function(x) lapply(seq_along(x), function(i) x[1:i])), recursive = FALSE))
-  hierarchy <- hierarchy[order(sapply(hierarchy, `[`, 1))]
+  notebook_path <- get_project_root(notebook_path)
+  hierarchy <- get_note_hierarchy(notes_location)
   depth <- vapply(hierarchy, length, numeric(1))
+  names <- vapply(get_note_hierarchy(notes_location, implied = FALSE),
+                  paste, character(1), collapse = "-")
   
   # Recursive function to make menu html -----------------------------------------------------------
   make_nav <- function(index) {
