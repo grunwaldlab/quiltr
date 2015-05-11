@@ -4,13 +4,14 @@
 \alias{new_notebook}
 \title{Initialize a lab notebook}
 \usage{
-new_notebook(location = getwd(), name = "notebook", use_git = TRUE,
+new_notebook(name = "notebook", location = getwd(), use_git = TRUE,
   use_packrat = FALSE, add_timestamp = TRUE, open = TRUE)
 }
 \arguments{
-\item{location}{Path to new notebook location.}
-
 \item{name}{Name of new notebook folder. Format as you would a file name.}
+
+\item{location}{Path to new notebook location. This is the directory that the new notebook
+directory will be made in.}
 
 \item{use_git}{If \code{TRUE}, use git with the new notebook.}
 

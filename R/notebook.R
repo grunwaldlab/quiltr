@@ -20,8 +20,9 @@ init_info_yaml <- function(notebook_path) {
 #' 
 #' Make the directory structure and code for a lab notebook. 
 #' 
-#' @param location Path to new notebook location.
 #' @param name Name of new notebook folder. Format as you would a file name.
+#' @param location Path to new notebook location. This is the directory that the new notebook 
+#'   directory will be made in.
 #' @param use_git If \code{TRUE}, use git with the new notebook.
 #' @param use_packrat If \code{TRUE}, use packrat with the new notebook. 
 #' @param add_timestamp If \code{TRUE}, the current date is added to the notebook name.
@@ -30,7 +31,7 @@ init_info_yaml <- function(notebook_path) {
 #' 
 #' @export
 
-new_notebook <- function(location = getwd(), name = "notebook", use_git = TRUE, use_packrat = FALSE,
+new_notebook <- function(name = "notebook", location = getwd(), use_git = TRUE, use_packrat = FALSE,
                          add_timestamp = TRUE, open = TRUE) {
   location <- normalizePath(location)
   # Copy template to destination -------------------------------------------------------------------
