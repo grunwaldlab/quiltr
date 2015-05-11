@@ -1,4 +1,4 @@
-This is a lab notebook following the the format suggested by Noble 2009 in "A quick guide to rganizing computational biology projects".
+This is a lab notebook following the the format suggested by Noble 2009 in "A quick guide to organizing computational biology projects".
 It incorperates the functionality of RStudio and the R packages rmarkdown, knitr, packrat, and labtools to integrate analysis, note taking, and results into a sharable and reproducable format.
 Below are descriptions of what the various files and folders in this folder do.
 
