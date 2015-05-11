@@ -1,6 +1,6 @@
 Package: labtools
 Title: Lab notebook tools
-Version: 0.4.8
+Version: 0.4.9
 Authors@R: "Zachary Foster <zacharyfoster1989@gmail.com> [aut, cre]"
 Description: A set of functions to aid in planning, documenting, and analyzing
     labratory experiments using a markdown lab notebook.
