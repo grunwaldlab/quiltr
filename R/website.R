@@ -25,7 +25,7 @@ get_note_paths <- function(notebook_path = get_project_root(), full_names = FALS
 #' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy.
 get_note_hierarchy <- function(notebook_path = get_project_root(), implied = TRUE) {
   note_directories <- get_note_paths(notebook_path)
-  hierarchy <- lapply(strsplit(note_names, "-"), `[`, -1)
+  hierarchy <- lapply(strsplit(note_directories, "-"), `[`, -1)
   if (implied) {
     hierarchy <- unlist(lapply(hierarchy, function(x) lapply(seq_along(x), function(i) x[1:i])),
                         recursive = FALSE)    
@@ -48,9 +48,9 @@ get_note_hierarchy <- function(notebook_path = get_project_root(), implied = TRU
 make_menu_hierarchy <- function(notebook_path = get_project_root()) {
   # Parse note directory names ---------------------------------------------------------------------
   notebook_path <- get_project_root(notebook_path)
-  hierarchy <- get_note_hierarchy(notes_location)
+  hierarchy <- get_note_hierarchy(notebook_path)
   depth <- vapply(hierarchy, length, numeric(1))
-  names <- vapply(get_note_hierarchy(notes_location, implied = FALSE),
+  names <- vapply(get_note_hierarchy(notebook_path, implied = FALSE),
                   paste, character(1), collapse = "-")
   
   # Recursive function to make menu html -----------------------------------------------------------
@@ -58,7 +58,7 @@ make_menu_hierarchy <- function(notebook_path = get_project_root()) {
     current <- hierarchy[[index]]
     children <- which(vapply(hierarchy, function(y) all(y[seq_along(current)] == current) & length(current) + 1 == length(y), logical(1)))
     if (paste(current, collapse = "-") %in% names) {
-      dir_name <- note_names[paste(current, collapse = "-") == names]
+      dir_name <- names[paste(current, collapse = "-") == names]
       path <- file.path("..", dir_name, paste0("master_parent", ".html"))
     } else {
       path <- "#"
@@ -67,17 +67,29 @@ make_menu_hierarchy <- function(notebook_path = get_project_root()) {
     out <- ""
     if (length(current) == 1) {
       if  (length(children) == 0) {
-        out <- paste0(out, '<div class="dropdown" style="position:relative;float:left"><a href="', path,'" class="btn btn-default">', name, '</a>\n<ul class="dropdown-menu">')
+        out <- paste0(out, '<li><a href="', path,'">', name, '</a></li>')
       } else {
-        out <- paste0(out, '<div class="dropdown" style="position:relative;float:left"><a href="', path,'" class="btn btn-default dropdown-toggle" data-toggle="dropdown">', name, '<span class="caret"></span></a>\n<ul class="dropdown-menu">')
+        out <- paste(sep = "\n",
+                     out,
+                     '<li>',
+                     paste0('<a href="', path,
+                            '" class="dropdown-toggle" data-toggle="dropdown">', name,
+                            '<b class="caret"></b></a>'),
+                     '<ul class="dropdown-menu multi-level">')
         child_html <- paste0(vapply(children, make_nav, character(1)), collapse = "")
         out <- paste0(out, child_html)
+        out <- paste0(out, "</ul></li>")
       }
-      out <- paste0(out, "</ul></div>")
     } else if (length(children) == 0) {
       out <- paste0(out, '<li><a href="', path, '">', name, '</a></li>')
     } else {
-      out <- paste0(out, '<li><a class="trigger right-caret">', name, '</a>\n<ul class="dropdown-menu sub-menu">')
+      out <- paste(sep = "\n",
+                   out,
+                   '<li class="dropdown dropdown-submenu">',
+                   paste0('<a href="', path,
+                          '" class="dropdown-toggle" data-toggle="dropdown">', name,
+                          '</a>'),
+                   '<ul class="dropdown-menu">')
       child_html <- paste0(vapply(children, make_nav, character(1)), collapse = "")
       out <- paste0(out, child_html)
       out <- paste0(out, "</ul></li>")
@@ -86,10 +98,29 @@ make_menu_hierarchy <- function(notebook_path = get_project_root()) {
   }
   
   # Make menu --------------------------------------------------------------------------------------
-  menu_html <- paste0(paste0(lapply(which(depth == 1), make_nav), collapse = ""),
-                      '<div style="clear:both"></div>')
-  # home_button <- '<div class="dropdown" style="position:relative;float:left"><a href="../index/index.html" class="btn btn-default">Home</a></div>'
-  return(menu_html)
+  notebook_name_html <- paste(sep = "\n",
+                              '<div class="navbar-header">',
+                              '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">',
+                              '<span class="sr-only">Toggle navigation</span>',
+                              '<span class="icon-bar"></span>',
+                              '<span class="icon-bar"></span>',
+                              '<span class="icon-bar"></span>',
+                              '</button>',
+                              paste0('<a class="navbar-brand" href="#">', "Notebook", '</a>'),
+                              '</div>')
+  menu_html <- paste(sep = "\n",
+                     '<div class="collapse navbar-collapse">',
+                      '<ul class="nav navbar-nav">',
+                      paste0(lapply(which(depth == 1), make_nav), collapse = ""),
+                      '</ul></div>')
+  nav_bar_html <- paste( sep = "\n",
+                         '<div class="navbar navbar-default navbar-fixed-top" role="navigation">',
+                         '<div class="container">',
+                         notebook_name_html,
+                         menu_html,
+                         '</div>',
+                         '</div>')
+  return(nav_bar_html)
 }
 
 #===================================================================================================
@@ -129,8 +160,8 @@ get_rmd_yaml <- function(path, attribute, default = "") {
 #' @param master_rmd_name (\code{character} of length 1) The name of the Rmd/html output file for
 #'   each page. Should be different from any Rmd/html file in the notes.
 render_rmd_contents <- function(directory_path, header_html = NULL, pre_body_html = NULL,
-                                      post_body_html = NULL, output_yaml = NULL,
-                                      master_rmd_name = "master_parent.Rmd") {
+                                post_body_html = NULL, output_yaml = NULL,
+                                master_rmd_name = "master_parent.Rmd") {
   # Copy dependencies into the current directory - - - - - - - - - - - - - - - - - - - - - - - - - -
   copy_file_or_text <- function(input, output_path) {
     if (is.null(input)) input <- ""
@@ -141,9 +172,9 @@ render_rmd_contents <- function(directory_path, header_html = NULL, pre_body_htm
     }
   }
   dependencies <- list("in_header.html" = header_html,
-                    "before_body.html" = pre_body_html,
-                    "after_body.html" = post_body_html,
-                    "_output.yaml" = output_yaml)
+                       "before_body.html" = pre_body_html,
+                       "after_body.html" = post_body_html,
+                       "_output.yaml" = output_yaml)
   names(dependencies) <- file.path(directory_path, names(dependencies))
   mapply(copy_file_or_text, dependencies, names(dependencies))
   files_to_remove <- names(dependencies)
@@ -167,7 +198,7 @@ render_rmd_contents <- function(directory_path, header_html = NULL, pre_body_htm
   if (length(rmd_paths) > 1 || (length(rmd_paths) == 1 && is.na(rmd_titles[1]))) {
     title <- rev(strsplit(note_name[1], '-')[[1]])[1]
     title <- gsub("_", " ", title)
-#     title <- Hmisc::capitalize(title)
+    #     title <- Hmisc::capitalize(title)
   } else {
     title <- rmd_titles[1]
   }
