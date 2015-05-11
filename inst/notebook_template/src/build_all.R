@@ -4,7 +4,7 @@ setwd(project_root)
 source(file.path(project_root, ".Rprofile"))
 
 # Make the website =================================================================================
-labtools::make_website(notes_location = file.path(project_root, "results"),
+labtools::make_website(notes_location = file.path(project_root, "content"),
              site_location = file.path(project_root, "doc"),
              header_html = file.path(project_root, "src", "in_header.html"), 
              pre_body_html = NULL, #default is to make the menu
