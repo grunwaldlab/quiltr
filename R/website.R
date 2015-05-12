@@ -252,9 +252,10 @@ render_rmd_contents <- function(directory_path, header_html = NULL, pre_body_htm
   note_name <- basename(directory_path)
   date <- strsplit(note_name[1], '-')[[1]][1]
   date <- gsub("_", "/", date)
+  note_title <-  rev(strsplit(note_name[1], '-')[[1]])[1]
   
-  note_yaml <- list(title = note_name, date = date)
-  parent_html <- make_parent_html(files = note_files, titles = basename(note_files),
+  note_yaml <- list(title = note_title)
+  parent_html <- make_parent_html(files = note_files, titles = NA,
                                   rmd_header = note_yaml)
   
   cat(parent_html, file = master_rmd_path, append = FALSE)

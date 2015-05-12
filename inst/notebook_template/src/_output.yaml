@@ -2,7 +2,7 @@ html_document:
   self_contained: false
   theme: journal
   highlight: textmate
-  toc: yes
+  toc: no
   lib_dir: libs
   includes:
     in_header: in_header.html
