@@ -6,7 +6,7 @@
 \usage{
 render_rmd_contents(directory_path, header_html = NULL,
   pre_body_html = NULL, post_body_html = NULL, output_yaml = NULL,
-  master_rmd_name = "master_parent.Rmd")
+  master_rmd_name = "master_parent.Rmd", clean = FALSE)
 }
 \arguments{
 \item{directory_path}{(\code{character} of length 1) The path to the directory containing Rmd
@@ -26,6 +26,8 @@ YAML format. Can be a file path.}
 
 \item{master_rmd_name}{(\code{character} of length 1) The name of the Rmd/html output file for
 each page. Should be different from any Rmd/html file in the notes.}
+
+\item{clean}{(\code{logical}) Remove intermediate files afterwards}
 }
 \description{
 Combines and builds all Rmd files in a directory for the purpose of making a website page.

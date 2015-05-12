@@ -1,4 +1,62 @@
 #===================================================================================================
+#' Get note content file paths
+#' 
+#' Get the paths to note content that should be displayed
+#' 
+#' @param note_path (\code{character} of length 1) The path to a note.
+#' 
+get_note_content_files <- function(note_path) {
+  list.files(path = note_path, pattern = "\\.html$", ignore.case = TRUE)
+}
+
+
+
+#===================================================================================================
+#' Make Rmd code to display HTML pages
+#' 
+#' Uses iframes to display content from other html files.
+#' 
+#' @param files (\code{character}) One or more files to display
+#' @param titles (\code{character} same length as \code{files}) Titles to display above embedded
+#'   content
+#' @param rmd_header (\code{list}) YAML header data from Rmarkdown. 
+#' 
+#' @return (\code{character} of length 1) The Rmd code to display the content provided. 
+make_parent_html <- function(files, titles = NA, rmd_header = NULL) {
+  # Validate arguments -----------------------------------------------------------------------------
+  if (!is.na(titles) && length(files) != length(titles)) {
+    stop("Arguments `files` and `title` must the same length")
+  }
+  if (any(! tools::file_ext(files) %in% c("Rmd", "rmd", "md", "html"))) {
+    stop("Only files with `Rmd` or `html` extensions can be used.")
+  }
+  # Define functions to make components ------------------------------------------------------------
+  make_rmd_header <- function(rmd_header) {
+    paste0('---\n', yaml::as.yaml(rmd_header), "---\n\n")
+  }
+  make_iframe_code <- function(file, count) {
+    iframe_att <- paste0('width="100%" height="200px" id="iframe', count,
+    '" marginheight="0" frameborder="0" onLoad="autoResize(\'iframe', count, '\');"')
+    paste0('<iframe src="', file, '" ', iframe_att, '></iframe>\n\n')
+  }
+  make_child_rmd_code <- function(file) {
+    paste0("```{r child = '", rmd_names, "'}\n```\n\n")
+  }
+  make_code <- function(file, title, count) {
+    if (!is.na(title)) title_code <- paste0("## ", title, "\n\n") else title_code <- ""
+    if (tools::file_ext(file) %in% c("Rmd", "rmd", "md")) {
+      return(paste0(title_code, make_child_rmd_code(file)))
+    } else if (tools::file_ext(file) %in% c("html")) {
+      return(paste0(title_code, make_iframe_code(file, count)))
+    } 
+  }
+  # Generate Rmd document ---------------------------------------------------------------------------
+  paste0(make_rmd_header(rmd_header),
+         paste0(mapply(make_code, file = files, title = titles, count = 1:length(files)), collapse = ""))
+}
+
+
+#===================================================================================================
 #' Gets names of notes in a notebook
 #' 
 #' Returns the names/paths of notes in a given notebook.
@@ -161,10 +219,13 @@ get_rmd_yaml <- function(path, attribute, default = "") {
 #'   YAML format. Can be a file path. 
 #' @param master_rmd_name (\code{character} of length 1) The name of the Rmd/html output file for
 #'   each page. Should be different from any Rmd/html file in the notes.
+#' @param clean (\code{logical}) Remove intermediate files afterwards
 render_rmd_contents <- function(directory_path, header_html = NULL, pre_body_html = NULL,
                                 post_body_html = NULL, output_yaml = NULL,
-                                master_rmd_name = "master_parent.Rmd") {
-  # Copy dependencies into the current directory - - - - - - - - - - - - - - - - - - - - - - - - - -
+                                master_rmd_name = "master_parent.Rmd", clean = FALSE) {
+  note_files <- get_note_content_files(directory_path)
+
+  # Copy dependencies into the current directory ---------------------------------------------------
   copy_file_or_text <- function(input, output_path) {
     if (is.null(input)) input <- ""
     if (file.exists(input)) {
@@ -179,36 +240,24 @@ render_rmd_contents <- function(directory_path, header_html = NULL, pre_body_htm
                        "_output.yaml" = output_yaml)
   names(dependencies) <- file.path(directory_path, names(dependencies))
   mapply(copy_file_or_text, dependencies, names(dependencies))
-  files_to_remove <- names(dependencies)
-  on.exit(lapply(files_to_remove[file.exists(files_to_remove)], file.remove))
+  if (clean) {
+    files_to_remove <- names(dependencies)
+    on.exit(lapply(files_to_remove[file.exists(files_to_remove)], file.remove))
+  }
   
-  # Create master Rmd that references the original files - - - - - - - - - - - - - - - - - - - - - -
+  # Create master Rmd that references the original files -------------------------------------------
   master_rmd_path <- file.path(directory_path, master_rmd_name)
-  files_to_remove <- c(files_to_remove, master_rmd_path)
+  if (clean) files_to_remove <- c(files_to_remove, master_rmd_path)
   if (file.exists(master_rmd_path)) file.remove(master_rmd_path)
   note_name <- basename(directory_path)
   date <- strsplit(note_name[1], '-')[[1]][1]
   date <- gsub("_", "/", date)
-  rmd_paths <- Sys.glob(file.path(directory_path,"*.Rmd"))
-  rmd_names <- basename(rmd_paths)
-  rmd_titles <- get_rmd_yaml(rmd_paths, "title", default = NA)
-  rmd_titles[is.na(rmd_titles)] <- rmd_names[is.na(rmd_titles)]
-  chunks <- paste0("```{r child = '", rmd_names, "'}\n```\n\n")
-  if (length(rmd_paths) > 1) {
-    chunks <- paste0("# ", rmd_titles, "\n\n", chunks)
-  }
-  if (length(rmd_paths) > 1 || (length(rmd_paths) == 1 && is.na(rmd_titles[1]))) {
-    title <- rev(strsplit(note_name[1], '-')[[1]])[1]
-    title <- gsub("_", " ", title)
-    #     title <- Hmisc::capitalize(title)
-  } else {
-    title <- rmd_titles[1]
-  }
-  header <- paste0('---\ntitle: "', title, '"\ndate: "', date, '"\n---\n\n')
-  chunks <- paste0(chunks, collapse = "")
-  cat(paste0(header, chunks), file = master_rmd_path, append = FALSE)
-  html_paths <- gsub("\\.Rmd$", ".html", rmd_paths)
-  files_to_remove <- c(files_to_remove, rmd_paths, html_paths)
+  
+  note_yaml <- list(title = note_name, date = date)
+  parent_html <- make_parent_html(files = note_files, titles = basename(note_files),
+                                  rmd_header = note_yaml)
+  
+  cat(parent_html, file = master_rmd_path, append = FALSE)
   rmarkdown::render(master_rmd_path)
 }
 
@@ -242,13 +291,12 @@ make_website <- function(notes_location, site_location, header_html = NULL, pre_
   
   # Copy notes to website location -----------------------------------------------------------------
   site_path <- file.path(site_location, "website")
-  note_directories <- Sys.glob(file.path(notes_location,"*"))
+  note_directories <- list.dirs(notes_location, recursive = FALSE)
   if (!file.exists(site_location)) dir.create(site_location, recursive = TRUE)
   if (file.exists(site_path)) unlink(site_path, recursive = TRUE)
   dir.create(site_path, recursive = TRUE)
   file.copy(note_directories, site_path, overwrite = TRUE, recursive = TRUE)
-  website_directories <- Sys.glob(file.path(site_path,"*"))
-  website_directories <- website_directories[file.info(website_directories)$isdir] #only use directories
+  website_directories <- list.dirs(site_path, recursive = FALSE)
   
   # Render website ---------------------------------------------------------------------------------
   if (is.null(pre_body_html)) pre_body_html <- make_menu_hierarchy(notes_location)
