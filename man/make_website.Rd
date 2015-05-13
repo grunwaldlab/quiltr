@@ -4,26 +4,14 @@
 \alias{make_website}
 \title{Make a website from notes}
 \usage{
-make_website(notes_location, site_location, header_html = NULL,
-  pre_body_html = NULL, post_body_html = NULL, output_yaml = NULL,
+make_website(notes_location = file.path(get_project_root(), "content"),
+  site_location = file.path(get_project_root(), "doc"),
   master_rmd_name = "master_parent.Rmd")
 }
 \arguments{
 \item{notes_location}{(\code{character} of length 1) The path to the directory containing note directories.}
 
 \item{site_location}{(\code{character} of length 1) The path to where the website will be made.}
-
-\item{header_html}{(\code{character} of length 1) Html code or a file path to html code that will
-put in the header of each page of the website.}
-
-\item{pre_body_html}{(\code{character} of length 1) Html code or a file path to html code that will
-put before the body of each page of the website.}
-
-\item{post_body_html}{(\code{character} of length 1) Html code or a file path to html code that will
-put after the body of each page of the website.}
-
-\item{output_yaml}{(\code{character} of length 1) Rmarkdown settings for building Rmd files in
-YAML format. Can be a file path.}
 
 \item{master_rmd_name}{(\code{character} of length 1) The name of the Rmd/html output file for
   each page. Should be different from any Rmd/html file in the notes.}

@@ -209,39 +209,22 @@ get_rmd_yaml <- function(path, attribute, default = "") {
 #' 
 #' @param directory_path (\code{character} of length 1) The path to the directory containing Rmd
 #'   files to render. 
-#' @param header_html (\code{character} of length 1) Html code or a file path to html code that will
-#'   put in the header of each page of the website.
-#' @param pre_body_html (\code{character} of length 1) Html code or a file path to html code that will
-#'   put before the body of each page of the website.
-#' @param post_body_html (\code{character} of length 1) Html code or a file path to html code that will
-#'   put after the body of each page of the website.
-#' @param output_yaml (\code{character} of length 1) Rmarkdown settings for building Rmd files in 
-#'   YAML format. Can be a file path. 
 #' @param master_rmd_name (\code{character} of length 1) The name of the Rmd/html output file for
 #'   each page. Should be different from any Rmd/html file in the notes.
 #' @param clean (\code{logical}) Remove intermediate files afterwards
-render_rmd_contents <- function(directory_path, header_html = NULL, pre_body_html = NULL,
-                                post_body_html = NULL, output_yaml = NULL,
-                                master_rmd_name = "master_parent.Rmd", clean = FALSE) {
+render_rmd_contents <- function(directory_path, master_rmd_name = "master_parent.Rmd",
+                                clean = FALSE) {
   note_files <- get_note_content_files(directory_path)
 
   # Copy dependencies into the current directory ---------------------------------------------------
-  copy_file_or_text <- function(input, output_path) {
-    if (is.null(input)) input <- ""
-    if (file.exists(input)) {
-      file.copy(from = input, output_path)  
-    } else {
-      writeChar(input, con = output_path)
-    }
-  }
-  dependencies <- list("in_header.html" = header_html,
-                       "before_body.html" = pre_body_html,
-                       "after_body.html" = post_body_html,
-                       "_output.yaml" = output_yaml)
-  names(dependencies) <- file.path(directory_path, names(dependencies))
-  mapply(copy_file_or_text, dependencies, names(dependencies))
+  dependencies <- vapply(c("in_header.html", "after_body.html", "_output.yaml"),
+                         function(x) system.file("file_templates", x, package = "labtools"), 
+                         character(1))
+  file.copy(from = dependencies, to = directory_path)
+  writeChar(make_menu_hierarchy(file.path(get_project_root(), "content")),
+            file.path(directory_path, "before_body.html"))
   if (clean) {
-    files_to_remove <- names(dependencies)
+    files_to_remove <- c(dependencies, "before_body.html")
     on.exit(lapply(files_to_remove[file.exists(files_to_remove)], file.remove))
   }
   
@@ -273,20 +256,12 @@ render_rmd_contents <- function(directory_path, header_html = NULL, pre_body_htm
 #' 
 #' @param notes_location (\code{character} of length 1) The path to the directory containing note directories. 
 #' @param site_location (\code{character} of length 1) The path to where the website will be made.
-#' @param header_html (\code{character} of length 1) Html code or a file path to html code that will
-#'   put in the header of each page of the website.
-#' @param pre_body_html (\code{character} of length 1) Html code or a file path to html code that will
-#'   put before the body of each page of the website.
-#' @param post_body_html (\code{character} of length 1) Html code or a file path to html code that will
-#'   put after the body of each page of the website.
-#' @param output_yaml (\code{character} of length 1) Rmarkdown settings for building Rmd files in 
-#'   YAML format. Can be a file path. 
 #' @param master_rmd_name (\code{character} of length 1) The name of the Rmd/html output file for
 #'   each page. Should be different from any Rmd/html file in the notes.
 #'   
 #' @export
-make_website <- function(notes_location, site_location, header_html = NULL, pre_body_html = NULL,
-                         post_body_html = NULL, output_yaml = NULL,
+make_website <- function(notes_location =  file.path(get_project_root(), "content"),
+                         site_location = file.path(get_project_root(), "doc"),
                          master_rmd_name = "master_parent.Rmd") {
   set.seed(100)
   
@@ -300,11 +275,5 @@ make_website <- function(notes_location, site_location, header_html = NULL, pre_
   website_directories <- list.dirs(site_path, recursive = FALSE)
   
   # Render website ---------------------------------------------------------------------------------
-  if (is.null(pre_body_html)) pre_body_html <- make_menu_hierarchy(notes_location)
-  lapply(website_directories, render_rmd_contents,
-         header_html = header_html,
-         pre_body_html = pre_body_html, 
-         post_body_html = post_body_html,
-         output_yaml = output_yaml,
-         master_rmd_name = master_rmd_name)
+  lapply(website_directories, render_rmd_contents, master_rmd_name = master_rmd_name)
 }

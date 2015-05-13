@@ -4,25 +4,12 @@
 \alias{render_rmd_contents}
 \title{Concatenate and build Rmd files in a directory}
 \usage{
-render_rmd_contents(directory_path, header_html = NULL,
-  pre_body_html = NULL, post_body_html = NULL, output_yaml = NULL,
-  master_rmd_name = "master_parent.Rmd", clean = FALSE)
+render_rmd_contents(directory_path, master_rmd_name = "master_parent.Rmd",
+  clean = FALSE)
 }
 \arguments{
 \item{directory_path}{(\code{character} of length 1) The path to the directory containing Rmd
 files to render.}
-
-\item{header_html}{(\code{character} of length 1) Html code or a file path to html code that will
-put in the header of each page of the website.}
-
-\item{pre_body_html}{(\code{character} of length 1) Html code or a file path to html code that will
-put before the body of each page of the website.}
-
-\item{post_body_html}{(\code{character} of length 1) Html code or a file path to html code that will
-put after the body of each page of the website.}
-
-\item{output_yaml}{(\code{character} of length 1) Rmarkdown settings for building Rmd files in
-YAML format. Can be a file path.}
 
 \item{master_rmd_name}{(\code{character} of length 1) The name of the Rmd/html output file for
 each page. Should be different from any Rmd/html file in the notes.}
