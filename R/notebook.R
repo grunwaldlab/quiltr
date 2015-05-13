@@ -1,4 +1,20 @@
 #===================================================================================================
+#' Get configuration options 
+#' 
+#' @param option (\code{character}) The name of the option to query
+#' @param config_path (\code{character}) The path to the configuration file
+#' 
+#' @return (\code{character})
+get_config <- function(option = NULL, config_path = file.path(get_project_root(), "config.yaml")) {
+  data <- yaml::yaml.load_file(config_path)
+  if (!is.null(option)) data <- data[option]
+  return(unlist(data))
+}
+
+
+
+
+#===================================================================================================
 #' Initialize notebook info
 #' 
 #' Initialize the info yaml file.

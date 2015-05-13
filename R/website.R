@@ -1,4 +1,23 @@
 #===================================================================================================
+#' Generate _output.yaml
+#' 
+#' Make the content of the file that contols knitting of the website page Rmds
+#' 
+#' @return (\code{character} of length 1)
+make_output_yaml <- function() {
+  yaml::as.yaml(list(html_document = list(self_contained = FALSE,
+                                          theme = get_config("website_theme"),
+                                          highlight = "textmate",
+                                          toc = FALSE,
+                                          lib_dir = "libs",
+                                          includes = list(in_header = "in_header.html",
+                                                          before_body = "before_body.html",
+                                                          after_body = "after_body.html"))))
+}
+
+
+
+#===================================================================================================
 #' Get note content file paths
 #' 
 #' Get the paths to note content that should be displayed
@@ -213,18 +232,21 @@ get_rmd_yaml <- function(path, attribute, default = "") {
 #'   each page. Should be different from any Rmd/html file in the notes.
 #' @param clean (\code{logical}) Remove intermediate files afterwards
 render_rmd_contents <- function(directory_path, master_rmd_name = "master_parent.Rmd",
-                                clean = FALSE) {
+                                clean = get_config("clean_website")) {
   note_files <- get_note_content_files(directory_path)
 
   # Copy dependencies into the current directory ---------------------------------------------------
-  dependencies <- vapply(c("in_header.html", "after_body.html", "_output.yaml"),
+  dependencies <- vapply(c("in_header.html", "after_body.html"),
                          function(x) system.file("file_templates", x, package = "labtools"), 
                          character(1))
   file.copy(from = dependencies, to = directory_path)
-  writeChar(make_menu_hierarchy(file.path(get_project_root(), "content")),
-            file.path(directory_path, "before_body.html"))
+  pre_body_html_path <- file.path(directory_path, "before_body.html")
+  output_yaml_path <- file.path(directory_path, "_output.yaml")
+  cat(make_menu_hierarchy(file.path(get_project_root(), "content")), file = pre_body_html_path)
+  cat(make_output_yaml(), file = output_yaml_path)
   if (clean) {
-    files_to_remove <- c(dependencies, "before_body.html")
+    files_to_remove <- file.path(directory_path, c("in_header.html", "after_body.html",
+                                                   "before_body.html","_output.yaml"))
     on.exit(lapply(files_to_remove[file.exists(files_to_remove)], file.remove))
   }
   

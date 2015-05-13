@@ -5,7 +5,7 @@
 \title{Concatenate and build Rmd files in a directory}
 \usage{
 render_rmd_contents(directory_path, master_rmd_name = "master_parent.Rmd",
-  clean = FALSE)
+  clean = get_config("clean_website"))
 }
 \arguments{
 \item{directory_path}{(\code{character} of length 1) The path to the directory containing Rmd
