@@ -75,7 +75,9 @@ new_notebook <- function(name = "notebook", location = getwd(), use_git = TRUE, 
     system("git init")    
   }
   # Add templates ----------------------------------------------------------------------------------
-  template_generators <- c(make_notebook_template_default)
+  template_generators <- c(make_notebook_template_default,
+                           make_notebook_template_minimal,
+                           make_notebook_template_empty)
   template_path <- file.path(notebook_path, "templates")
   invisible(lapply(template_generators, function(f) f(location = template_path)))
   # Initialize packrat -----------------------------------------------------------------------------
@@ -306,3 +308,30 @@ make_notebook_template_default <- function(location) {
                         '"\noutput: html_document\n---')
   write(default_note,  file.path(location, "notes.Rmd"))
 }
+
+#===================================================================================================
+#' Make minimal note template directory
+#' 
+#' @param location (\code{character} of length 1) Where to write the folder. 
+make_notebook_template_minimal <- function(location) {
+  location <- file.path(location, "minimal")
+  if(file.exists(location)) stop(paste0("Target folder ", location, " already exists."))
+  dir.create(location, recursive = TRUE)
+  default_gitignore = "*.html\n"
+  write(default_gitignore,  file.path(location, ".gitignore"))
+  default_note = paste0('---\ntitle: "Untitled"\ndate: "', format(Sys.time(), format="%Y-%m-%d"),
+                        '"\noutput: html_document\n---')
+  write(default_note,  file.path(location, "notes.Rmd"))
+}
+
+
+#===================================================================================================
+#' Make empty note template directory
+#' 
+#' @param location (\code{character} of length 1) Where to write the folder. 
+make_notebook_template_empty <- function(location) {
+  location <- file.path(location, "empty")
+  if(file.exists(location)) stop(paste0("Target folder ", location, " already exists."))
+  dir.create(location, recursive = TRUE)
+}
+
