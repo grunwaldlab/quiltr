@@ -49,6 +49,8 @@ init_info_yaml <- function(notebook_path) {
 
 new_notebook <- function(name = "notebook", location = getwd(), use_git = TRUE, use_packrat = FALSE,
                          add_timestamp = TRUE, open = TRUE) {
+  # Parse arguments --------------------------------------------------------------------------------
+  name <- gsub(" ", "_", name)
   location <- normalizePath(location)
   # Copy template to destination -------------------------------------------------------------------
   template_name <- "notebook_template"
@@ -264,6 +266,7 @@ new_note <- function(..., template = "default", date = NULL, notebook = get_proj
   if (is.null(date)) date <- format(Sys.time(), format="%Y_%m_%d")
   names <- unlist(list(...))
   note_name <- paste(c(date, names), collapse = "-")
+  note_name <- gsub(" ", "_", note_name)
   note_location <- file.path(notebook, "content")
   note_path <- file.path(note_location, note_name)
   template_path <- file.path(notebook, "templates", template)
