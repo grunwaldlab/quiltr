@@ -1,6 +1,5 @@
 .Rproj.user
 .Rhistory
 .RData
-*.html
 packrat/lib*/
 packrat/src/

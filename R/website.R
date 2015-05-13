@@ -54,8 +54,10 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL) {
     paste0('---\n', yaml::as.yaml(rmd_header), "---\n\n")
   }
   make_iframe_code <- function(file, count) {
+    on_load <- paste0('autoResize(\'iframe', count, '\');')
+    if (get_config("theme_note_content"))  on_load <- paste0('apply_theme(\'iframe', count, '\'); ', on_load)
     iframe_att <- paste0('width="100%" height="200px" id="iframe', count,
-    '" marginheight="0" frameborder="0" onLoad="autoResize(\'iframe', count, '\');"')
+    '" marginheight="0" frameborder="0" onLoad="', on_load, '"')
     paste0('<iframe src="', file, '" ', iframe_att, '></iframe>\n\n')
   }
   make_child_rmd_code <- function(file) {
