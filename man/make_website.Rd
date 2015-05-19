@@ -4,22 +4,17 @@
 \alias{make_website}
 \title{Make a website from notes}
 \usage{
-make_website(notes_location = file.path(get_project_root(), "content"),
-  site_location = file.path(get_project_root(), "doc"),
-  master_rmd_name = "master_parent.Rmd")
-}
-\arguments{
-\item{notes_location}{(\code{character} of length 1) The path to the directory containing note directories.}
-
-\item{site_location}{(\code{character} of length 1) The path to where the website will be made.}
-
-\item{master_rmd_name}{(\code{character} of length 1) The name of the Rmd/html output file for
-  each page. Should be different from any Rmd/html file in the notes.}
+make_website(target, output, use_file_names = TRUE, use_dir_names = TRUE,
+  use_config_files = TRUE, overwrite = FALSE, name_sep = "-",
+  config_name = ".notebook", clean = FALSE)
 }
 \description{
 Makes a website from a directory containing correctly formatted notes.
 Each note must be a directory with one or more Rmd files.
 All of the notes will be copied and built to make the website.
-The hierarchy of the website menu will be made using the note directory names.
+}
+\details{
+TODO: make option to accept Rmd and possible other note types.
+TODO: let notes occur  in multiple places in the hierarchy
 }
 
