@@ -381,7 +381,7 @@ make_website <- function(target, output, use_file_names = TRUE, use_dir_names = 
   }
   notes <- lapply(hierarchy, assign_notes)
   # Make website pages
-  page_dir <- file.path(output, "html")
+  page_dir <- output
   if (!file.exists(page_dir)) dir.create(page_dir)
   page_names <- vapply(hierarchy, paste, character(1), collapse = "-")
   page_names[page_names == ""] <- "index"
