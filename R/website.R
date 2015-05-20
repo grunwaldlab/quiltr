@@ -141,8 +141,10 @@ make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Notebook
         out <- paste(sep = "\n",
                      out,
                      '<li>',
-                     paste0('<a href="', path, '">', name, '</a>'),
-                     '<ul class="dropdown-menu">')
+                     paste0('<a href="', path,
+                            '" class="dropdown-toggle" data-toggle="dropdown">', name,
+                            '<b class="caret"></b></a>'),
+                     '<ul class="dropdown-menu multi-level">')
         child_html <- paste0(vapply(children, make_nav, character(1)), collapse = "")
         out <- paste0(out, child_html)
         out <- paste0(out, "</ul></li>")
@@ -152,8 +154,9 @@ make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Notebook
     } else {
       out <- paste(sep = "\n",
                    out,
-                   '<li>', paste0('<a href="', path,
-                          '">', name,
+                   '<li class="dropdown dropdown-submenu">',
+                   paste0('<a href="', path,
+                          '" class="dropdown-toggle" data-toggle="dropdown">', name,
                           '</a>'),
                    '<ul class="dropdown-menu">')
       child_html <- paste0(vapply(children, make_nav, character(1)), collapse = "")
@@ -177,9 +180,9 @@ make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Notebook
                               '</div>')
   menu_html <- paste(sep = "\n",
                      '<div class="collapse navbar-collapse">',
-                      '<ul class="nav navbar-nav">',
-                      paste0(lapply(which(depth == 1), make_nav), collapse = ""),
-                      '</ul></div>')
+                     '<ul class="nav navbar-nav">',
+                     paste0(lapply(which(depth == 1), make_nav), collapse = ""),
+                     '</ul></div>')
   nav_bar_html <- paste( sep = "\n",
                          '<div class="navbar navbar-default" role="navigation">',
                          '<div class="container">',
