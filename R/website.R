@@ -299,6 +299,70 @@ get_common_dir <- function(paths, delim = .Platform$file.sep)
 
 
 #===================================================================================================
+#' Get paths to notes
+#' 
+#' Return the absolute paths to note files in a given directory.
+#' 
+#' @param path (\code{character}) One or more directories in which to look for note files.
+#' @param type (\code{character}) One or more note file extensions to search for.
+#' @param simplify (\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
+#' with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a
+#' single \code{character} vector is returned. 
+#' 
+#' @return Depends on the \code{simplify} option.
+get_note_files <- function(path, type = c("html"), simplify = TRUE) {
+  
+}
+
+
+#===================================================================================================
+#' Get note dependencies
+#' 
+#' Return the absolute paths of note dependencies files.
+#' @param path (\code{character}) One or more note files in which to look for references to
+#'   dependencies.
+#' @param simplify (\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
+#' with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a
+#' single \code{character} vector is returned. 
+#' 
+#' @return Depends on the \code{simplify} option.
+get_note_dependencies <- function(path, simplify = FALSE) {
+  
+}
+
+
+#===================================================================================================
+#' Copy notes and their dependencies
+#' 
+#' Copy note files and any files they reference to a new location. 
+#' Enough of the directory structure will be copied to contain all the files copies in their
+#' original configuration. 
+#' 
+#' @param path (\code{character}) The paths to notes to copy.
+#' @param output (\code{character} of length 1) The path to where the notes and their dependencies 
+#' will be copied.
+#' 
+#' @return (\code{character}) Paths of where the notes were copied to.
+copy_note_directory <- function(path, output) {
+  
+}
+
+
+#===================================================================================================
+#' Get notebook note hierarchy
+#' 
+#' Return a list of all the locations in the notebook note classification hierarchy.
+#' 
+#' @param path (\code{character}) The paths to notes to assign hirearchical classifications to.
+#' @param root (\code{character} of length 1) The path to the root directory of the notebook.
+#'   
+#' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy 
+#' corresponding to the input argument \code{path}.
+get_note_hierarchy <- function(path, root) {
+  
+}
+
+#===================================================================================================
 #' Make a website from notes
 #' 
 #' Makes a website from a directory containing correctly formatted notes. 
