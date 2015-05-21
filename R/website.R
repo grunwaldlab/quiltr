@@ -269,7 +269,12 @@ get_dependencies <- function(paths, simplify = TRUE) {
     html <- XML::htmlParse(path)
     output <- c(XML::xpathSApply(html,  "//@src"),
                 XML::xpathSApply(html,  "//@href"))
-    normalizePath(output[file.exists(output)])
+    output <- unlist(output)
+    output <- output[!grepl("^data:", output)] #remove embedded data, e.g. images
+    output <- output[!grepl("^https:", output)] #remove links to webpages
+    output <- output[!grepl("^http:", output)] #remove links to webpages
+    if (length(output) > 0) normalizePath(output[file.exists(output)])
+    return(output)
   }
   output <- lapply(paths, get_dependency)
   if (simplify) output <- unlist(output)
@@ -371,6 +376,7 @@ make_website <- function(target, output, use_file_names = TRUE, use_dir_names = 
     }
     return(hierarchy)
   }
+  
   hierarchy_root <- file.path(content, gsub(paste0("^", dirname(dependency_root), .Platform$file.sep), "", target))
   note_placement <- lapply(note_destinations, get_hierarchy, root = hierarchy_root)
   hierarchy <- unique(unlist(lapply(note_placement, function(x) lapply(seq_along(x), function(i) x[1:i])),
