@@ -1,0 +1,10 @@
+---
+title: "Note F"
+author: "Zachary Foster"
+date: "05/21/2015"
+output: html_document
+---
+
+Below is a link to an internet resource that should not be counted as a dependecy.
+
+[GOOGLE](http://www.google.com)

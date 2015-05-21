@@ -1,0 +1,10 @@
+---
+title: "Note A"
+author: "Zachary Foster"
+date: "05/21/2015"
+output:
+  html_document:
+    self_contained: false
+---
+
+<img src="r_logo.jpg">
