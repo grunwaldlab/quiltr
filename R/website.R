@@ -273,7 +273,7 @@ get_dependencies <- function(paths, simplify = TRUE) {
     output <- output[!grepl("^data:", output)] #remove embedded data, e.g. images
     output <- output[!grepl("^https:", output)] #remove links to webpages
     output <- output[!grepl("^http:", output)] #remove links to webpages
-    if (length(output) > 0) normalizePath(output[file.exists(output)])
+    if (length(output) > 0) output <- normalizePath(output[file.exists(output)])
     return(output)
   }
   output <- lapply(paths, get_dependency)
