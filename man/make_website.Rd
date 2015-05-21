@@ -2,34 +2,19 @@
 % Please edit documentation in R/website.R
 \name{make_website}
 \alias{make_website}
-\title{Get paths to notes}
+\title{Make a website from notes}
 \usage{
 make_website(target, output, use_file_names = TRUE, use_dir_names = TRUE,
   use_config_files = TRUE, overwrite = FALSE, name_sep = "-",
   config_name = ".notebook", clean = FALSE)
 }
-\arguments{
-\item{path}{(\code{character}) One or more directories in which to look for note files.}
-
-\item{type}{(\code{character}) One or more note file extensions to search for.}
-
-\item{simplify}{(\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
-with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a
-single \code{character} vector is returned.}
-}
-\value{
-Depends on the \code{simplify} option.
-Make a website from notes
-
+\description{
 Makes a website from a directory containing correctly formatted notes.
 Each note must be a directory with one or more Rmd files.
 All of the notes will be copied and built to make the website.
-
-
+}
+\details{
 TODO: make option to accept Rmd and possible other note types.
 TODO: let notes occur  in multiple places in the hierarchy
-}
-\description{
-Return the paths to note files in a given directory.
 }
 

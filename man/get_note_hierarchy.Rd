@@ -4,9 +4,15 @@
 \alias{get_note_hierarchy}
 \title{Get notebook note hierarchy}
 \usage{
-get_note_hierarchy(notebook_path = get_project_root(), implied = TRUE)
+get_note_hierarchy(path, root)
+
+get_note_hierarchy(path, root)
 }
 \arguments{
+\item{path}{(\code{character}) The paths to notes to assign hirearchical classifications to.}
+
+\item{root}{(\code{character} of length 1) The path to the root directory of the notebook.}
+
 \item{notebook_path}{(\code{character} of length 1) The path to a notebook or one of its
 subdirectories.}
 
@@ -15,8 +21,13 @@ subdirectories.}
 }
 \value{
 (\code{list} of \code{character}) A list of locations in the notebook hierarchy.
+
+(\code{list} of \code{character}) A list of locations in the notebook hierarchy
+corresponding to the input argument \code{path}.
 }
 \description{
+Return a list of all the locations in the notebook note classification hierarchy.
+
 Return a list of all the locations in the notebook note classification hierarchy.
 }
 
