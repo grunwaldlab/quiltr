@@ -1,10 +1,11 @@
 ---
-title: "Note F"
-author: "Zachary Foster"
-date: "05/21/2015"
-output: html_document
+output: html_fragment
 ---
 
 Below is a link to an internet resource that should not be counted as a dependecy.
 
-[GOOGLE](http://www.google.com)
+[GOOGLE](https://www.google.com)
+
+Below is a broken link:
+
+[This does not exist](/this/file/does/not/exist)

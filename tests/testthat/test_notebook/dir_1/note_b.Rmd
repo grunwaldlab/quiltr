@@ -1,8 +1,5 @@
 ---
-title: "Note B"
-author: "Zachary Foster"
-date: "05/21/2015"
-output: html_document
+output: html_fragment
 ---
 
-Note B
+# Note B

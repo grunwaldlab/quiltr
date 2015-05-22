@@ -11,7 +11,8 @@ get_note_files(path, type = c("html"), full_names = TRUE, simplify = TRUE)
 
 \item{type}{(\code{character}) One or more note file extensions to search for.}
 
-\item{full_names}{(\code{logical} of length 1) \code{\link{list.files}}}
+\item{full_names}{(\code{logical} of length 1) See \code{\link{list.files}} help for option
+\code{full.names}.}
 
 \item{simplify}{(\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
 with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a

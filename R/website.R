@@ -313,6 +313,8 @@ get_common_dir <- function(paths, delim = .Platform$file.sep)
 #' 
 #' @return Depends on the \code{simplify} option.
 get_note_files <- function(path, type = c("html"), full_names = TRUE, simplify = TRUE) {
+  # If nothing is given, return the same ----------------------------------------------------------
+  if (length(path) == 0) return(path)
   # Make paths absolute ----------------------------------------------------------------------------
   path <- normalizePath(path)
   # Make regular expression for file extensions ----------------------------------------------------
@@ -322,24 +324,87 @@ get_note_files <- function(path, type = c("html"), full_names = TRUE, simplify =
                            ignore.case = TRUE, full.names = full_names)
   # Simplify if specified --------------------------------------------------------------------------
   if (simplify) note_paths <- unlist(note_paths)
-  # Return result ----------------------------------------------------------------------------------
   return(note_paths)
+}
+
+
+#===================================================================================================
+#' Get html file dependencies
+#' 
+#' Return the absolute paths of file referneced by one or more html files.
+#' 
+#' @param path (\code{character}) One or more html files in which to look for references to
+#'   dependencies.
+#'   
+#' @return \code{list} of paths are returned with elements corresponding to input \code{path}
+get_html_dependencies <- function(path) {
+  # define attributes of html tags to get the content of -------------------------------------------          
+  xpath_tags <- c("//@src", "//@href")
+  # define regular expressions to filter results ---------------------------------------------------
+  excluded_dependencies <- c("^data:", "^https:", "^http:")
+  # define function to process a single html file --------------------------------------------------
+  get_dependency <- function(path) {
+    # Extract values of tag attributes - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    html <- XML::htmlParse(path)
+    output <- unlist(lapply(xpath_tags, XML::xpathSApply, doc = html))
+    # Remove values that are note local file paths - - - - - - - - - - - - - - - - - - - - - - - - -
+    for (pattern in excluded_dependencies) output <- output[!grepl(pattern, output)]
+    return(output)
+  }
+  # process all html files -------------------------------------------------------------------------
+  lapply(path, get_dependency)
 }
 
 
 #===================================================================================================
 #' Get note dependencies
 #' 
-#' Return the absolute paths of note dependencies files.
+#' Return the absolute paths of note dependencies files. Currently, only \code{.html} files are
+#' implemented.
+#' 
 #' @param path (\code{character}) One or more note files in which to look for references to
-#'   dependencies.
+#'   other files.
 #' @param simplify (\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
 #' with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a
 #' single \code{character} vector is returned. 
 #' 
 #' @return Depends on the \code{simplify} option.
-get_note_dependencies <- function(path, simplify = FALSE) {
-  
+get_file_dependencies <- function(path, simplify = FALSE) {
+  # If nothing is given, return the same ----------------------------------------------------------
+  if (length(path) == 0) return(path)
+  # Define parsers for each file type supported ----------------------------------------------------
+  parsers <- list("html" = get_html_dependencies)
+  # Check for unsupported file types ---------------------------------------------------------------
+  extension <- tools::file_ext(path)
+  unsupported_ext <- unique(extension[!extension %in% names(parsers)])
+  if (length(unsupported_ext) > 0) 
+    stop(paste("Unsupported file type(s) encountered: ", paste(unsupported_ext, collapse = ", ")))
+  # Check for non-existant input files -------------------------------------------------------------
+  absent_input <- path[!file.exists(path)]
+  if (length(absent_input) > 0) stop(paste0("The following input files do not exist:\n",
+                                            paste0("\t", absent_input, collapse = "\n")))
+  # Call parser functions to get dependencies ------------------------------------------------------
+  output <- lapply(names(parsers), function(p) parsers[[p]](path[extension == p]))
+  output <- unlist(output, recursive = FALSE)
+  # Standardize file paths -------------------------------------------------------------------------
+  standardize_path <- function(path, context) {
+    from_root <- grepl(paste0("^", .Platform$file.sep), path)
+    path[!from_root] <- file.path(dirname(context), path[!from_root])
+    return(path)
+  }
+  output <- mapply(standardize_path, output, path, SIMPLIFY = FALSE)
+  # Remove any files that do not exist -------------------------------------------------------------
+  absent_files <- lapply(output, function(x) x[!file.exists(x)])
+  warning_text <- vapply(which(sapply(absent_files, length) > 0),
+                         function(i) paste0("\t\t\t", path[i], ":\n",
+                                            paste0("\t\t\t\t", absent_files[[i]], collapse = "\n")),
+                         character(1))
+  if (any(sapply(absent_files, length) > 0)) warning("The following dependencies do not exist:\n", 
+                                                     paste0(warning_text, collapse = "\n"))
+  output <- lapply(output, function(x) x[file.exists(x)])
+  # Simplify if specified --------------------------------------------------------------------------
+  if (simplify) output <- unlist(output)
+  return(output)
 }
 
 
@@ -387,13 +452,11 @@ get_note_hierarchy <- function(path, root) {
 #' @export
 make_website <- function(target, output, use_file_names = TRUE, use_dir_names = TRUE, use_config_files = TRUE, 
                              overwrite = FALSE, name_sep = "-", config_name = ".notebook", clean = FALSE) {
-  # Parse arguments 
+  # Parse arguments --------------------------------------------------------------------------------
   target <- normalizePath(target)
   output <- normalizePath(output)
-  # Get note files
-  note_types <- c("html")
-  note_regex <- paste0("\\.", paste(note_types, collapse = "|"), "$")
-  note_paths <- list.files(target, note_regex, all.files = TRUE, recursive = TRUE, ignore.case = TRUE, full.names = TRUE)
+  # Get note files ---------------------------------------------------------------------------------
+  note_paths <- get_note_files(target)
   # Get note dependencies
   note_dependencies <- get_dependencies(note_paths)
   config_regex <- gsub(".", "\\.", paste0(config_name, "$"), fixed = TRUE)
