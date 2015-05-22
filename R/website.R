@@ -305,13 +305,25 @@ get_common_dir <- function(paths, delim = .Platform$file.sep)
 #' 
 #' @param path (\code{character}) One or more directories in which to look for note files.
 #' @param type (\code{character}) One or more note file extensions to search for.
+#' @param full_names (\code{logical} of length 1) See \code{\link{list.files}} help for option
+#'   \code{full.names}.
 #' @param simplify (\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
 #' with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a
 #' single \code{character} vector is returned. 
 #' 
 #' @return Depends on the \code{simplify} option.
-get_note_files <- function(path, type = c("html"), simplify = TRUE) {
-  
+get_note_files <- function(path, type = c("html"), full_names = TRUE, simplify = TRUE) {
+  # Make paths absolute ----------------------------------------------------------------------------
+  path <- normalizePath(path)
+  # Make regular expression for file extensions ----------------------------------------------------
+  note_regex <- paste0(paste("\\.", type, collapse = "|", sep = ""), "$")
+  # Search for files with matching extension -------------------------------------------------------
+  note_paths <- lapply(path, list.files, note_regex, all.files = TRUE, recursive = TRUE,
+                           ignore.case = TRUE, full.names = full_names)
+  # Simplify if specified --------------------------------------------------------------------------
+  if (simplify) note_paths <- unlist(note_paths)
+  # Return result ----------------------------------------------------------------------------------
+  return(note_paths)
 }
 
 

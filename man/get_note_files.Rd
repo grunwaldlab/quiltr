@@ -4,12 +4,14 @@
 \alias{get_note_files}
 \title{Get paths to notes}
 \usage{
-get_note_files(path, type = c("html"), simplify = TRUE)
+get_note_files(path, type = c("html"), full_names = TRUE, simplify = TRUE)
 }
 \arguments{
 \item{path}{(\code{character}) One or more directories in which to look for note files.}
 
 \item{type}{(\code{character}) One or more note file extensions to search for.}
+
+\item{full_names}{(\code{logical} of length 1) \code{\link{list.files}}}
 
 \item{simplify}{(\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
 with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a
