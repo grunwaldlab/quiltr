@@ -1,0 +1,8 @@
+---
+output:
+  html_fragment:
+    self_contained: false
+
+---
+
+This note is not in the notebook.

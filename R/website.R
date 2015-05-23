@@ -462,7 +462,7 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
     rel_path <- gsub(paste0("^", root, .Platform$file.sep), "", path)
     path_hierarchy <- strsplit(rel_path, .Platform$file.sep, fixed = TRUE)[[1]]
     # For each level in the directory, record effects on hierarchy --------------------------------- 
-    hierarchy <- character(0)
+    hierarchy <- list(character(0))
     for (index in 1:length(path_hierarchy)) {
       addition <- character(0)
       # Get path to current directory level  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -490,25 +490,33 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
         for (pattern in names(config)) {
           matches <- Sys.glob(file.path(dirname(current_path), pattern))
           if (current_path %in% matches) {
-            if (config[[pattern]][1] == ".") {
+            if (is.null(config[[pattern]][1])) {
+              hierarchy <- list()
+              addition <- NULL
+            } else if (config[[pattern]][1] == ".") {
               if (length(config[[pattern]]) > 1)
                 addition <- config[[pattern]][2:length(config[[pattern]])]
             } else {
-              hierarchy <-  config[[pattern]]
-              addition <- character(0)
+              hierarchy <-  list(character(0))
+              addition <- config[[pattern]]
             }
           }
         }
       }
       # Save resulting addition  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      hierarchy <- c(hierarchy, addition)
+      if (cumulative)
+      {
+        hierarchy <-  c(hierarchy,
+                        lapply(seq_along(addition),
+                               function(i) c(hierarchy[[length(hierarchy)]], addition[1:i])))
+      } else {
+        if (length(hierarchy) > 0) 
+          hierarchy[[length(hierarchy)]] <- c(hierarchy[[length(hierarchy)]], addition)
+        else 
+          hierarch <- list(addition)
+      }  
     }
-    # Infer intermediate levels if specified -------------------------------------------------------
-    if (cumulative)
-      hierarchy <- lapply(seq_along(hierarchy), function(i) hierarchy[1:i])
-    else
-      hierarchy <- list(hierarchy)
-    return(hierarchy)
+  return(hierarchy)
   }
   lapply(path, process_one)
 }
