@@ -4,20 +4,48 @@
 \alias{get_note_hierarchy}
 \title{Get notebook note hierarchy}
 \usage{
-get_note_hierarchy(path, root)
+get_note_hierarchy(path, root, cumulative = TRUE, use_file_names = TRUE,
+  use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
+  use_file_suffix = FALSE, use_dir_suffix = TRUE, config_name = ".note")
 
-get_note_hierarchy(path, root)
+get_note_hierarchy(path, root, cumulative = TRUE, use_file_names = TRUE,
+  use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
+  use_file_suffix = FALSE, use_dir_suffix = TRUE, config_name = ".note")
 }
 \arguments{
 \item{path}{(\code{character}) The paths to notes to assign hirearchical classifications to.}
 
 \item{root}{(\code{character} of length 1) The path to the root directory of the notebook.}
 
+\item{cumulative}{(\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
+levels will be returned.}
+
+\item{use_file_names}{(\code{logical} of length 1) If \code{TRUE}, The names of files will be
+be used to determine the hierarchy.}
+
+\item{use_dir_names}{(\code{logical} of length 1) If \code{TRUE}, The names of directories will
+be used to determine the hierarchy.}
+
+\item{use_config_files}{(\code{logical} of length 1) If \code{TRUE}, configuration
+files along the notes' file path will be used to determine the hierarchy. The name of
+configuration files is specified by the \code{config_name} option.}
+
+\item{name_sep}{(\code{character} of length 1) A character to split file/directory names by when
+using them for parts of the hierarchy.}
+
+\item{use_file_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of a file
+name when split by the \code{name_sep} option.}
+
+\item{use_dir_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of directory
+names when split by the \code{name_sep} option.}
+
 \item{notebook_path}{(\code{character} of length 1) The path to a notebook or one of its
 subdirectories.}
 
 \item{implied}{(\code{logical} of length 1) If \code{TRUE}, return parts of the hierarchy that
   no notes are assigned to, but are implied to exist (e.g. the "roots" of the hierarchy).}
+
+\item{(\code{character}}{of length 1) The name of configuration files.}
 }
 \value{
 (\code{list} of \code{character}) A list of locations in the notebook hierarchy.

@@ -259,29 +259,6 @@ render_rmd_contents <- function(directory_path, master_rmd_name = "master_parent
 }
 
 
-
-
-get_dependencies <- function(paths, simplify = TRUE) {
-  get_dependency <- function(path) {
-    original_wd <- getwd()
-    on.exit(setwd(original_wd))
-    setwd(dirname(path))
-    html <- XML::htmlParse(path)
-    output <- c(XML::xpathSApply(html,  "//@src"),
-                XML::xpathSApply(html,  "//@href"))
-    output <- unlist(output)
-    output <- output[!grepl("^data:", output)] #remove embedded data, e.g. images
-    output <- output[!grepl("^https:", output)] #remove links to webpages
-    output <- output[!grepl("^http:", output)] #remove links to webpages
-    if (length(output) > 0) output <- normalizePath(output[file.exists(output)])
-    return(output)
-  }
-  output <- lapply(paths, get_dependency)
-  if (simplify) output <- unlist(output)
-  return(output)
-}
-
-
 #` http://rosettacode.org/wiki/Find_common_directory_path
 get_common_dir <- function(paths, delim = .Platform$file.sep)
 {
@@ -349,6 +326,7 @@ get_html_dependencies <- function(path) {
     output <- unlist(lapply(xpath_tags, XML::xpathSApply, doc = html))
     # Remove values that are note local file paths - - - - - - - - - - - - - - - - - - - - - - - - -
     for (pattern in excluded_dependencies) output <- output[!grepl(pattern, output)]
+    if (is.null(output)) output <- character(0)
     return(output)
   }
   # process all html files -------------------------------------------------------------------------
@@ -390,7 +368,7 @@ get_file_dependencies <- function(path, simplify = FALSE) {
   standardize_path <- function(path, context) {
     from_root <- grepl(paste0("^", .Platform$file.sep), path)
     path[!from_root] <- file.path(dirname(context), path[!from_root])
-    return(path)
+    normalizePath(path)
   }
   output <- mapply(standardize_path, output, path, SIMPLIFY = FALSE)
   # Remove any files that do not exist -------------------------------------------------------------
@@ -404,6 +382,8 @@ get_file_dependencies <- function(path, simplify = FALSE) {
   output <- lapply(output, function(x) x[file.exists(x)])
   # Simplify if specified --------------------------------------------------------------------------
   if (simplify) output <- unlist(output)
+  # Make dependencies unique -----------------------------------------------------------------------
+  if (simplify) output <- unique(output) else  output <- lapply(output, unique)
   return(output)
 }
 
@@ -411,17 +391,36 @@ get_file_dependencies <- function(path, simplify = FALSE) {
 #===================================================================================================
 #' Copy notes and their dependencies
 #' 
-#' Copy note files and any files they reference to a new location. 
+#' Copy note files and any files they reference to a new location while preserving relative
+#' directory locations. 
 #' Enough of the directory structure will be copied to contain all the files copies in their
 #' original configuration. 
 #' 
-#' @param path (\code{character}) The paths to notes to copy.
-#' @param output (\code{character} of length 1) The path to where the notes and their dependencies 
+#' @param from (\code{character}) The paths to notes to copy.
+#' @param to (\code{character} of length 1) The path to where the notes and their dependencies 
 #' will be copied.
+#' @param copy_dep (\code{logical} of length 1) If \code{FALSE}, dependencies will not be 
+#' copied.
 #' 
 #' @return (\code{character}) Paths of where the notes were copied to.
-copy_note_directory <- function(path, output) {
-  
+copy_notes <- function(from, to, copy_depend = TRUE) {
+  # Make input file paths absolute -----------------------------------------------------------------
+  from_path <- normalizePath(from)
+  to <- normalizePath(to)
+  # Get dependencies of input files ----------------------------------------------------------------
+  if (copy_depend) {
+    depend_from <- get_file_dependencies(from_path, simplify = TRUE)
+    from_path <- c(from_path, depend_from)
+  }
+  # Determine location of file copies --------------------------------------------------------------
+  from_root <- get_common_dir(from_path)
+  to_path <- file.path(to, gsub(paste0("^", dirname(from_root), .Platform$file.sep), "", from_path))
+  # Copy files and directory structure -------------------------------------------------------------
+  for (dir_to_make in unique(dirname(to_path))) 
+    if (!file.exists(dir_to_make)) dir.create(dir_to_make, recursive = TRUE)
+  invisible(file.copy(from = from_path, to = to_path, overwrite = TRUE))
+  # Return the locations of input file copies ------------------------------------------------------
+  from_path[1:length(from)]
 }
 
 
@@ -432,11 +431,86 @@ copy_note_directory <- function(path, output) {
 #' 
 #' @param path (\code{character}) The paths to notes to assign hirearchical classifications to.
 #' @param root (\code{character} of length 1) The path to the root directory of the notebook.
+#' @param cumulative (\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
+#' levels will be returned. 
+#' @param use_file_names (\code{logical} of length 1) If \code{TRUE}, The names of files will be
+#' be used to determine the hierarchy.
+#' @param use_dir_names (\code{logical} of length 1) If \code{TRUE}, The names of directories will
+#' be used to determine the hierarchy.
+#' @param use_config_files (\code{logical} of length 1) If \code{TRUE}, configuration
+#' files along the notes' file path will be used to determine the hierarchy. The name of 
+#' configuration files is specified by the \code{config_name} option.
+#' @param name_sep (\code{character} of length 1) A character to split file/directory names by when
+#' using them for parts of the hierarchy.
+#' @param use_file_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of a file
+#' name when split by the \code{name_sep} option.
+#' @param use_dir_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of directory
+#' names when split by the \code{name_sep} option.
+#' @param (\code{character} of length 1) The name of configuration files.
 #'   
 #' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy 
 #' corresponding to the input argument \code{path}.
-get_note_hierarchy <- function(path, root) {
-  
+get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = TRUE,
+                               use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
+                               use_file_suffix = FALSE, use_dir_suffix = TRUE,
+                               config_name = ".note") {
+  # Make input file paths absolute -----------------------------------------------------------------
+  path <- normalizePath(path)
+  root <- normalizePath(root)
+  process_one <- function(path) {
+    # Get directory path from root -----------------------------------------------------------------
+    rel_path <- gsub(paste0("^", root, .Platform$file.sep), "", path)
+    path_hierarchy <- strsplit(rel_path, .Platform$file.sep, fixed = TRUE)[[1]]
+    # For each level in the directory, record effects on hierarchy --------------------------------- 
+    hierarchy <- character(0)
+    for (index in 1:length(path_hierarchy)) {
+      addition <- character(0)
+      # Get path to current directory level  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      current_path <- do.call(file.path, as.list(c(root, path_hierarchy[0:index])))
+      # Apply directory name effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      if (index != length(path_hierarchy) && use_dir_names) {
+        addition <- basename(current_path)
+        if (!is.na(name_sep) && !is.null(name_sep) && length(addition) > 0) 
+          addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
+        if (!use_dir_suffix)
+          addition <- addition[seq(1, length.out = length(addition) - 1)]
+      }
+      # Apply file name effects  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      if (index == length(path_hierarchy) && use_file_names) {
+        addition <- tools::file_path_sans_ext(basename(current_path))
+        if (!is.na(name_sep) && !is.null(name_sep) && length(addition) > 0) 
+          addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
+        if (!use_file_suffix)
+          addition <- addition[seq(1, length.out = length(addition) - 1)]
+      }
+      # Apply configuration file effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      config_path <- file.path(dirname(current_path), config_name)
+      if (use_config_files && file.exists(config_path)) {
+        config <- yaml::yaml.load_file(config_path)
+        for (pattern in names(config)) {
+          matches <- Sys.glob(file.path(dirname(current_path), pattern))
+          if (current_path %in% matches) {
+            if (config[[pattern]][1] == ".") {
+              if (length(config[[pattern]]) > 1)
+                addition <- config[[pattern]][2:length(config[[pattern]])]
+            } else {
+              hierarchy <-  config[[pattern]]
+              addition <- character(0)
+            }
+          }
+        }
+      }
+      # Save resulting addition  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      hierarchy <- c(hierarchy, addition)
+    }
+    # Infer intermediate levels if specified -------------------------------------------------------
+    if (cumulative)
+      hierarchy <- lapply(seq_along(hierarchy), function(i) hierarchy[1:i])
+    else
+      hierarchy <- list(hierarchy)
+    return(hierarchy)
+  }
+  lapply(path, process_one)
 }
 
 #===================================================================================================
@@ -446,25 +520,27 @@ get_note_hierarchy <- function(path, root) {
 #' Each note must be a directory with one or more Rmd files. 
 #' All of the notes will be copied and built to make the website. 
 #' 
+#' @param overwrite (\code{logical} of length 1) If \code{TRUE}, an existing directory with the 
+#' same name as the output directory will be overwritten. 
 #'   
 #' TODO: make option to accept Rmd and possible other note types.
 #' TODO: let notes occur  in multiple places in the hierarchy
 #' @export
-make_website <- function(target, output, use_file_names = TRUE, use_dir_names = TRUE, use_config_files = TRUE, 
+make_website <- function(path, output, use_file_names = TRUE, use_dir_names = TRUE, use_config_files = TRUE, 
                              overwrite = FALSE, name_sep = "-", config_name = ".notebook", clean = FALSE) {
   # Parse arguments --------------------------------------------------------------------------------
-  target <- normalizePath(target)
+  path <- normalizePath(path)
   output <- normalizePath(output)
   # Get note files ---------------------------------------------------------------------------------
-  note_paths <- get_note_files(target)
+  note_paths <- get_note_files(path)
   # Get note dependencies
   note_dependencies <- get_dependencies(note_paths)
   config_regex <- gsub(".", "\\.", paste0(config_name, "$"), fixed = TRUE)
-  config_files <- list.files(target, config_regex,  all.files = TRUE, recursive = TRUE, ignore.case = TRUE, full.names = TRUE)
+  config_files <- list.files(path, config_regex,  all.files = TRUE, recursive = TRUE, ignore.case = TRUE, full.names = TRUE)
   note_dependencies <- c(note_dependencies, config_files)
   # Copy note directory
   dependency_root <- get_common_dir(note_dependencies)
-  if (nchar(dependency_root) > nchar(target)) dependency_root <- target
+  if (nchar(dependency_root) > nchar(path)) dependency_root <- path
   output <- file.path(output, "website")
   content <- file.path(output, "content")
   note_destinations <- file.path(content,
@@ -516,7 +592,7 @@ make_website <- function(target, output, use_file_names = TRUE, use_dir_names = 
     return(hierarchy)
   }
   
-  hierarchy_root <- file.path(content, gsub(paste0("^", dirname(dependency_root), .Platform$file.sep), "", target))
+  hierarchy_root <- file.path(content, gsub(paste0("^", dirname(dependency_root), .Platform$file.sep), "", path))
   note_placement <- lapply(note_destinations, get_hierarchy, root = hierarchy_root)
   hierarchy <- unique(unlist(lapply(note_placement, function(x) lapply(seq_along(x), function(i) x[1:i])),
                       recursive = FALSE))

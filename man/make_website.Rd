@@ -4,17 +4,20 @@
 \alias{make_website}
 \title{Make a website from notes}
 \usage{
-make_website(target, output, use_file_names = TRUE, use_dir_names = TRUE,
+make_website(path, output, use_file_names = TRUE, use_dir_names = TRUE,
   use_config_files = TRUE, overwrite = FALSE, name_sep = "-",
   config_name = ".notebook", clean = FALSE)
+}
+\arguments{
+\item{overwrite}{(\code{logical} of length 1) If \code{TRUE}, an existing directory with the
+same name as the output directory will be overwritten.
+
+TODO: make option to accept Rmd and possible other note types.
+TODO: let notes occur  in multiple places in the hierarchy}
 }
 \description{
 Makes a website from a directory containing correctly formatted notes.
 Each note must be a directory with one or more Rmd files.
 All of the notes will be copied and built to make the website.
-}
-\details{
-TODO: make option to accept Rmd and possible other note types.
-TODO: let notes occur  in multiple places in the hierarchy
 }
 
