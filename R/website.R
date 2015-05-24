@@ -565,5 +565,7 @@ make_website <- function(path, output, clean = TRUE, overwrite = FALSE, theme = 
   hierarchy <- lapply(hierarchy_class,
                       function(x) relative_copy_class_path[vapply(ul_classification, 
                                                                   identical, y = x, logical(1))])
-  mapply(make_master_rmd, page_rmd_names, hierarchy, location = output)[["index.Rmd"]]
+  home_path <- mapply(make_master_rmd, page_rmd_names, hierarchy, location = output)[["index.Rmd"]]
+  if (rstudioapi::isAvailable()) rstudioapi::viewer(home_path)
+  return(home_path)
 }
