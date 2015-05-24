@@ -39,13 +39,13 @@ name when split by the \code{name_sep} option.}
 \item{use_dir_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of directory
 names when split by the \code{name_sep} option.}
 
+\item{config_name}{(\code{character} of length 1) The name of configuration files.}
+
 \item{notebook_path}{(\code{character} of length 1) The path to a notebook or one of its
 subdirectories.}
 
 \item{implied}{(\code{logical} of length 1) If \code{TRUE}, return parts of the hierarchy that
   no notes are assigned to, but are implied to exist (e.g. the "roots" of the hierarchy).}
-
-\item{(\code{character}}{of length 1) The name of configuration files.}
 }
 \value{
 (\code{list} of \code{character}) A list of locations in the notebook hierarchy.

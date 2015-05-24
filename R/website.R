@@ -3,10 +3,24 @@
 #' 
 #' Make the content of the file that contols knitting of the website page Rmds
 #' 
+#' @param theme (\code{character} of length 1) The bootstrap theme used in the website. For current
+#' options, see \link{http://rmarkdown.rstudio.com/html_document_format.html#appearance-and-style}
+#  At the time of writing, valid options are:
+#' \itemize{
+#'   \item "default"
+#'   \item "cerulean"
+#'   \item "journal"
+#'   \item "flatly"
+#'   \item "readable"
+#'   \item "spacelab"
+#'   \item "united"
+#'   \item "cosmo"
+#' }
+#'  
 #' @return (\code{character} of length 1)
-make_output_yaml <- function() {
+make_output_yaml <- function(theme = "journal") {
   yaml::as.yaml(list(html_document = list(self_contained = FALSE,
-                                          theme = "journal",
+                                          theme = theme,
                                           highlight = "textmate",
                                           toc = FALSE,
                                           lib_dir = "libs",
@@ -38,10 +52,11 @@ get_note_content_files <- function(note_path) {
 #' @param files (\code{character}) One or more files to display
 #' @param titles (\code{character} same length as \code{files}) Titles to display above embedded
 #'   content
-#' @param rmd_header (\code{list}) YAML header data from Rmarkdown. 
+#' @param rmd_header (\code{list}) YAML header data from Rmarkdown.
+#' @param apply_theme (\code{logical} of length 1) If \code{TRUE}, apply parent window CSS to iframes
 #' 
 #' @return (\code{character} of length 1) The Rmd code to display the content provided. 
-make_parent_html <- function(files, titles = NA, rmd_header = NULL) {
+make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme = FALSE) {
   # Validate arguments -----------------------------------------------------------------------------
   if (!is.na(titles) && length(files) != length(titles)) {
     stop("Arguments `files` and `title` must the same length")
@@ -55,7 +70,7 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL) {
   }
   make_iframe_code <- function(file, count) {
     on_load <- paste0('autoResize(\'iframe', count, '\');')
-    if (FALSE)  on_load <- paste0('apply_theme(\'iframe', count, '\'); ', on_load)
+    if (apply_theme)  on_load <- paste0('apply_theme(\'iframe', count, '\'); ', on_load)
     iframe_att <- paste0('width="100%" height="200px" id="iframe', count,
     '" marginheight="0" frameborder="0" onLoad="', on_load, '"')
     paste0('<iframe src="', file, '" ', iframe_att, '></iframe>\n\n')
@@ -209,53 +224,6 @@ get_rmd_yaml <- function(path, attribute, default = "") {
     return(as.character(default))
   }
   vapply(path, do_once, character(1)) 
-}
-
-
-#===================================================================================================
-#' Concatenate and build Rmd files in a directory
-#' 
-#' Combines and builds all Rmd files in a directory for the purpose of making a website page.
-#' 
-#' @param directory_path (\code{character} of length 1) The path to the directory containing Rmd
-#'   files to render. 
-#' @param master_rmd_name (\code{character} of length 1) The name of the Rmd/html output file for
-#'   each page. Should be different from any Rmd/html file in the notes.
-#' @param clean (\code{logical}) Remove intermediate files afterwards
-render_rmd_contents <- function(directory_path, master_rmd_name = "master_parent.Rmd",
-                                clean = FALSE) {
-  note_files <- get_note_content_files(directory_path)
-
-  # Copy dependencies into the current directory ---------------------------------------------------
-  dependencies <- vapply(c("in_header.html", "after_body.html"),
-                         function(x) system.file("file_templates", x, package = "labtools"), 
-                         character(1))
-  file.copy(from = dependencies, to = directory_path)
-  pre_body_html_path <- file.path(directory_path, "before_body.html")
-  output_yaml_path <- file.path(directory_path, "_output.yaml")
-  cat(make_menu_hierarchy(file.path(get_project_root(), "content")), file = pre_body_html_path)
-  cat(make_output_yaml(), file = output_yaml_path)
-  if (clean) {
-    files_to_remove <- file.path(directory_path, c("in_header.html", "after_body.html",
-                                                   "before_body.html","_output.yaml"))
-    on.exit(lapply(files_to_remove[file.exists(files_to_remove)], file.remove))
-  }
-  
-  # Create master Rmd that references the original files -------------------------------------------
-  master_rmd_path <- file.path(directory_path, master_rmd_name)
-  if (clean) files_to_remove <- c(files_to_remove, master_rmd_path)
-  if (file.exists(master_rmd_path)) file.remove(master_rmd_path)
-  note_name <- basename(directory_path)
-  date <- strsplit(note_name[1], '-')[[1]][1]
-  date <- gsub("_", "/", date)
-  note_title <-  rev(strsplit(note_name[1], '-')[[1]])[1]
-  
-  note_yaml <- list(title = note_title)
-  parent_html <- make_parent_html(files = note_files, titles = NA,
-                                  rmd_header = note_yaml)
-  
-  cat(parent_html, file = master_rmd_path, append = FALSE)
-  rmarkdown::render(master_rmd_path)
 }
 
 
@@ -420,7 +388,7 @@ copy_notes <- function(from, to, copy_depend = TRUE) {
     if (!file.exists(dir_to_make)) dir.create(dir_to_make, recursive = TRUE)
   invisible(file.copy(from = from_path, to = to_path, overwrite = TRUE))
   # Return the locations of input file copies ------------------------------------------------------
-  from_path[1:length(from)]
+  to_path[1:length(from)]
 }
 
 
@@ -446,7 +414,7 @@ copy_notes <- function(from, to, copy_depend = TRUE) {
 #' name when split by the \code{name_sep} option.
 #' @param use_dir_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of directory
 #' names when split by the \code{name_sep} option.
-#' @param (\code{character} of length 1) The name of configuration files.
+#' @param config_name (\code{character} of length 1) The name of configuration files.
 #'   
 #' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy 
 #' corresponding to the input argument \code{path}.
@@ -464,7 +432,7 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
     # For each level in the directory, record effects on hierarchy --------------------------------- 
     hierarchy <- list(character(0))
     for (index in 1:length(path_hierarchy)) {
-      addition <- character(0)
+      addition <- NULL
       # Get path to current directory level  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       current_path <- do.call(file.path, as.list(c(root, path_hierarchy[0:index])))
       # Apply directory name effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -521,6 +489,32 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
   lapply(path, process_one)
 }
 
+
+#===================================================================================================
+#' Make composite webpage
+#' 
+#' Make webpage out of iframes.
+#'
+#' @param name (\code{character}) Name of Rmd files to use
+#' @param files (\code{list} of \code{character}) The file in each page, corresponding to argument
+#' \code{name}
+#' @param location (\code{character} of length 1) Where to make the webpages
+#' @param apply_theme (\code{logical} of length 1) If \code{TRUE}, apply parent window CSS to iframes
+make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = TRUE) {
+  master_rmd_path <- file.path(location, name)
+  if (clean) files_to_remove <- master_rmd_path
+  if (file.exists(master_rmd_path)) file.remove(master_rmd_path)
+  note_title <-  rev(strsplit(tools::file_path_sans_ext(name)[1], '-')[[1]])[1]
+  note_yaml <- list(title = note_title)
+  parent_html <- make_parent_html(files = files, titles = NA,
+                                  rmd_header = note_yaml, apply_theme = apply_theme)
+  cat(parent_html, file = master_rmd_path, append = FALSE)
+  rmarkdown::render(master_rmd_path)
+}
+
+
+
+
 #===================================================================================================
 #' Make a website from notes
 #' 
@@ -528,130 +522,109 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
 #' Each note must be a directory with one or more Rmd files. 
 #' All of the notes will be copied and built to make the website. 
 #' 
+#' 
+#' @param path (\code{character}) One or more directories in which to look for note files.
+#' @param output (\code{character} of length 1) Location to write the output directory. The website
+#' will be made in a directory called "website" in this location.
+#' @param clean (\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
+#' use.
 #' @param overwrite (\code{logical} of length 1) If \code{TRUE}, an existing directory with the 
 #' same name as the output directory will be overwritten. 
+#' @param theme (\code{character} of length 1) The bootstrap theme used in the website. For current
+#' options, see \link{http://rmarkdown.rstudio.com/html_document_format.html#appearance-and-style}
+#  At the time of writing, valid options are:
+#' \itemize{
+#'   \item "default"
+#'   \item "cerulean"
+#'   \item "journal"
+#'   \item "flatly"
+#'   \item "readable"
+#'   \item "spacelab"
+#'   \item "united"
+#'   \item "cosmo"
+#' }
+#' @param apply_theme (\code{logical} of length 1) If \code{TRUE}, apply notebook CSS to 
+#' note content.
+#' @param cumulative (\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
+#' levels will be returned. 
+#' @param use_file_names (\code{logical} of length 1) If \code{TRUE}, The names of files will be
+#' be used to determine the hierarchy.
+#' @param use_dir_names (\code{logical} of length 1) If \code{TRUE}, The names of directories will
+#' be used to determine the hierarchy.
+#' @param use_config_files (\code{logical} of length 1) If \code{TRUE}, configuration
+#' files along the notes' file path will be used to determine the hierarchy. The name of 
+#' configuration files is specified by the \code{config_name} option.
+#' @param name_sep (\code{character} of length 1) A character to split file/directory names by when
+#' using them for parts of the hierarchy.
+#' @param use_file_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of a file
+#' name when split by the \code{name_sep} option.
+#' @param use_dir_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of directory
+#' names when split by the \code{name_sep} option.
+#' @param config_name (\code{character} of length 1) The name of configuration files.
 #'   
 #' TODO: make option to accept Rmd and possible other note types.
 #' TODO: let notes occur  in multiple places in the hierarchy
+#' 
 #' @export
-make_website <- function(path, output, use_file_names = TRUE, use_dir_names = TRUE, use_config_files = TRUE, 
-                             overwrite = FALSE, name_sep = "-", config_name = ".notebook", clean = FALSE) {
+make_website <- function(path, output, clean = TRUE, overwrite = FALSE, theme = "journal",
+                         apply_theme = TRUE, cumulative = TRUE, use_file_names = TRUE,
+                         use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
+                         use_file_suffix = FALSE, use_dir_suffix = TRUE,
+                         config_name = ".note") {
   # Parse arguments --------------------------------------------------------------------------------
   path <- normalizePath(path)
   output <- normalizePath(output)
   # Get note files ---------------------------------------------------------------------------------
   note_paths <- get_note_files(path)
-  # Get note dependencies
-  note_dependencies <- get_dependencies(note_paths)
-  config_regex <- gsub(".", "\\.", paste0(config_name, "$"), fixed = TRUE)
-  config_files <- list.files(path, config_regex,  all.files = TRUE, recursive = TRUE, ignore.case = TRUE, full.names = TRUE)
-  note_dependencies <- c(note_dependencies, config_files)
-  # Copy note directory
-  dependency_root <- get_common_dir(note_dependencies)
-  if (nchar(dependency_root) > nchar(path)) dependency_root <- path
+  # Filter for notes in hirearchy ------------------------------------------------------------------
+  classification <- get_note_hierarchy(note_paths, root = path)
+  classification_paths <- rep(note_paths, vapply(classification, length, integer(1)))
+  ul_classification <- unlist(classification, recursive = FALSE)
+  hierarchy_class <- unique(ul_classification)
+  hierarchy <- lapply(hierarchy_class,
+                      function(x) classification_paths[vapply(ul_classification, 
+                                                         identical, y = x, logical(1))])
+  note_paths <- unique(unlist(hierarchy))
+  classification <- get_note_hierarchy(note_paths, root = path)
+  # Copy note directory ----------------------------------------------------------------------------
   output <- file.path(output, "website")
   content <- file.path(output, "content")
-  note_destinations <- file.path(content,
-                                 gsub(paste0("^", dirname(dependency_root), .Platform$file.sep), "", note_paths))
-  dep_destinations <- file.path(content,
-                                gsub(paste0("^", dirname(dependency_root), .Platform$file.sep), "", note_dependencies))
-  files_to_copy_from <- c(note_dependencies, note_paths)
-  files_to_copy_to <- c(dep_destinations, note_destinations)
   if (file.exists(output)) {
     if (overwrite)
       unlink(output, recursive = TRUE) else
         stop("Website exsits at ", output, ". Use `overwrite = TRUE` to replace.")
   }
-  for (dir_to_make in unique(dirname(files_to_copy_to))) 
-    if (!file.exists(dir_to_make)) dir.create(dir_to_make, recursive = TRUE)
-  invisible(file.copy(from = files_to_copy_from, to = files_to_copy_to, overwrite = TRUE))
-  # Get website hierarchy
-  get_hierarchy <- function(path, root) {
-    path_hierarchy <- strsplit(gsub(paste0("^", root, .Platform$file.sep), "", path),
-                          .Platform$file.sep,
-                          fixed = TRUE)[[1]]
-    hierarchy <- character(0)
-    for (index in 1:length(path_hierarchy)) {
-      addition <- character(0)
-      current_path <- do.call(file.path, as.list(c(root, path_hierarchy[0:index])))
-      if (index != length(path_hierarchy) && use_dir_names)
-        addition <- basename(current_path)
-      if (index == length(path_hierarchy) && use_file_names)
-        addition <- tools::file_path_sans_ext(basename(current_path))
-      if (!is.na(name_sep) && !is.null(name_sep) && length(addition) > 0) 
-        addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
-      config_path <- file.path(dirname(current_path), config_name)
-      if (use_config_files && file.exists(config_path)) {
-        config <- yaml::yaml.load_file(config_path)
-        for (pattern in names(config)) {
-          matches <- Sys.glob(file.path(dirname(current_path), pattern))
-          if (current_path %in% matches) {
-            if (config[[pattern]][1] == ".") {
-              if (length(config[[pattern]]) > 1) addition <- config[[pattern]][2:length(config[[pattern]])]
-            } else {
-              hierarchy <-  config[[pattern]]
-              addition <- character(0)
-            }
-          }
-        }
-      }
-      hierarchy <- c(hierarchy, addition)
-    }
-    return(hierarchy)
-  }
-  
-  hierarchy_root <- file.path(content, gsub(paste0("^", dirname(dependency_root), .Platform$file.sep), "", path))
-  note_placement <- lapply(note_destinations, get_hierarchy, root = hierarchy_root)
-  hierarchy <- unique(unlist(lapply(note_placement, function(x) lapply(seq_along(x), function(i) x[1:i])),
-                      recursive = FALSE))
-  hierarchy <- c(list(character(0)), hierarchy)
-  assign_notes <- function(class) {
-    if (length(class) == 0) return(note_destinations)
-    bool <- (length(class) <= sapply(note_placement, length) &
-               sapply(note_placement, function(x) all(x[1:length(class)] == class)))
-    note_destinations[bool]
-  }
-  notes <- lapply(hierarchy, assign_notes)
-  # Make website pages
-  page_dir <- output
-  if (!file.exists(page_dir)) dir.create(page_dir)
-  page_names <- vapply(hierarchy, paste, character(1), collapse = "-")
+  dir.create(output)
+  dir.create(content)
+  note_copy_path <- copy_notes(note_paths, content)
+  # Make website menu ------------------------------------------------------------------------------
+  page_names <- vapply(hierarchy_class, paste, character(1), collapse = "-")
   page_names[page_names == ""] <- "index"
   page_names <- gsub(" ", "_", page_names)
   page_rmd_names <- paste0(page_names, ".Rmd")
-  page_rmd_paths <- file.path(page_dir, page_rmd_names)
   page_html_names <- paste0(page_names, ".html")
-  page_html_paths <- file.path(page_dir, page_html_names)
-  
-  
+  page_html_paths <- file.path(output, page_html_names)
+  pre_body_html_path <- file.path(output, "before_body.html")
+  cat(make_hierarchy_html(hierarchy_class, page_html_names), file = pre_body_html_path)
+  # Make other dependencies ------------------------------------------------------------------------
   dependencies <- vapply(c("in_header.html", "after_body.html"),
                          function(x) system.file("file_templates", x, package = "labtools"), 
                          character(1))
-  file.copy(from = dependencies, to = page_dir)
-  pre_body_html_path <- file.path(page_dir, "before_body.html")
-  output_yaml_path <- file.path(page_dir, "_output.yaml")
-  cat(make_hierarchy_html(hierarchy, page_html_names), file = pre_body_html_path)
-  cat(make_output_yaml(), file = output_yaml_path)
+  file.copy(from = dependencies, to = output)
+  output_yaml_path <- file.path(output, "_output.yaml")
+  cat(make_output_yaml(theme = theme), file = output_yaml_path)
+  # Step up clean up -------------------------------------------------------------------------------
   if (clean) {
-    files_to_remove <- file.path(page_dir, c("in_header.html", "after_body.html",
-                                             "before_body.html","_output.yaml"))
+    files_to_remove <- file.path(output, c("in_header.html", "after_body.html",
+                                           "before_body.html","_output.yaml",
+                                           page_rmd_names))
     on.exit(lapply(files_to_remove[file.exists(files_to_remove)], file.remove))
-  }
-
-  
-  mapply(make_master_rmd, page_rmd_names, notes, location = page_dir)
-  
-}
-
-
-make_master_rmd <- function(name, files, location, clean = FALSE) {
-  master_rmd_path <- file.path(location, name)
-  if (clean) files_to_remove <- master_rmd_path
-  if (file.exists(master_rmd_path)) file.remove(master_rmd_path)
-  note_title <-  rev(strsplit(tools::file_path_sans_ext(name)[1], '-')[[1]])[1]
-  note_yaml <- list(title = note_title)
-  parent_html <- make_parent_html(files = files, titles = NA,
-                                  rmd_header = note_yaml)
-  cat(parent_html, file = master_rmd_path, append = FALSE)
-  rmarkdown::render(master_rmd_path)
+  }  
+  # Make website pages -----------------------------------------------------------------------------
+  relative_copy_path <- gsub(pattern = paste0("^", output, .Platform$file.sep), "", note_copy_path)
+  relative_copy_class_path <-rep(relative_copy_path, vapply(classification, length, integer(1)))
+  hierarchy <- lapply(hierarchy_class,
+                      function(x) relative_copy_class_path[vapply(ul_classification, 
+                                                                  identical, y = x, logical(1))])
+  mapply(make_master_rmd, page_rmd_names, hierarchy, location = output)
 }

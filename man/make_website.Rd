@@ -4,13 +4,63 @@
 \alias{make_website}
 \title{Make a website from notes}
 \usage{
-make_website(path, output, use_file_names = TRUE, use_dir_names = TRUE,
-  use_config_files = TRUE, overwrite = FALSE, name_sep = "-",
-  config_name = ".notebook", clean = FALSE)
+make_website(path, output, clean = TRUE, overwrite = FALSE,
+  theme = "journal", apply_theme = TRUE, cumulative = TRUE,
+  use_file_names = TRUE, use_dir_names = TRUE, use_config_files = TRUE,
+  name_sep = "-", use_file_suffix = FALSE, use_dir_suffix = TRUE,
+  config_name = ".note")
 }
 \arguments{
+\item{path}{(\code{character}) One or more directories in which to look for note files.}
+
+\item{output}{(\code{character} of length 1) Location to write the output directory. The website
+will be made in a directory called "website" in this location.}
+
+\item{clean}{(\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
+use.}
+
 \item{overwrite}{(\code{logical} of length 1) If \code{TRUE}, an existing directory with the
-same name as the output directory will be overwritten.
+same name as the output directory will be overwritten.}
+
+\item{theme}{(\code{character} of length 1) The bootstrap theme used in the website. For current
+options, see \link{http://rmarkdown.rstudio.com/html_document_format.html#appearance-and-style}
+\itemize{
+  \item "default"
+  \item "cerulean"
+  \item "journal"
+  \item "flatly"
+  \item "readable"
+  \item "spacelab"
+  \item "united"
+  \item "cosmo"
+}}
+
+\item{apply_theme}{(\code{logical} of length 1) If \code{TRUE}, apply notebook CSS to
+note content.}
+
+\item{cumulative}{(\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
+levels will be returned.}
+
+\item{use_file_names}{(\code{logical} of length 1) If \code{TRUE}, The names of files will be
+be used to determine the hierarchy.}
+
+\item{use_dir_names}{(\code{logical} of length 1) If \code{TRUE}, The names of directories will
+be used to determine the hierarchy.}
+
+\item{use_config_files}{(\code{logical} of length 1) If \code{TRUE}, configuration
+files along the notes' file path will be used to determine the hierarchy. The name of
+configuration files is specified by the \code{config_name} option.}
+
+\item{name_sep}{(\code{character} of length 1) A character to split file/directory names by when
+using them for parts of the hierarchy.}
+
+\item{use_file_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of a file
+name when split by the \code{name_sep} option.}
+
+\item{use_dir_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of directory
+names when split by the \code{name_sep} option.}
+
+\item{config_name}{(\code{character} of length 1) The name of configuration files.
 
 TODO: make option to accept Rmd and possible other note types.
 TODO: let notes occur  in multiple places in the hierarchy}
