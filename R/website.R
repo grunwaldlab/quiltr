@@ -141,12 +141,18 @@ get_note_hierarchy <- function(notebook_path = get_project_root(), implied = TRU
 #'   subdirectories.
 make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Notebook") {
   # Parse note directory names ---------------------------------------------------------------------
-  depth <- vapply(hierarchy, length, numeric(1))
+  expand <- function(char) lapply(seq_along(char), function(i) char[1:i])
+  full_hierarchy <- unique(unlist(lapply(hierarchy, expand), recursive = FALSE))
+  depth <- vapply(full_hierarchy, length, numeric(1))
   # Recursive function to make menu html -----------------------------------------------------------
   make_nav <- function(index) {
-    current <- hierarchy[[index]]
-    children <- which(vapply(hierarchy, function(y) all(y[seq_along(current)] == current) & length(current) + 1 == length(y), logical(1)))
-    path <-  page_paths[index]
+    current <- full_hierarchy[[index]]
+    children <- which(vapply(full_hierarchy, function(y) all(y[seq_along(current)] == current) & length(current) + 1 == length(y), logical(1)))
+    page_path_index <- which(vapply(hierarchy, identical, y = current, logical(1)))
+    if (length(page_path_index) == 0)
+      path <- "#"
+    else
+      path <-  page_paths[page_path_index]
     name <- gsub("_", " ", current[length(current)], fixed = TRUE)
     out <- ""
     if (length(current) == 1) {
@@ -182,7 +188,7 @@ make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Notebook
   }
   
   # Make menu --------------------------------------------------------------------------------------
-  home <- page_paths[depth == 0]
+  home <- page_paths[vapply(hierarchy, length, numeric(1)) == 0]
   notebook_name_html <- paste(sep = "\n",
                               '<div class="navbar-header">',
                               '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">',
@@ -577,7 +583,13 @@ make_website <- function(path, output, clean = TRUE, overwrite = FALSE, theme = 
   # Get note files ---------------------------------------------------------------------------------
   note_paths <- get_note_files(path)
   # Filter for notes in hirearchy ------------------------------------------------------------------
-  classification <- get_note_hierarchy(note_paths, root = path)
+  classification <- get_note_hierarchy(note_paths, root = path, cumulative = cumulative, 
+                                       use_file_names = use_file_names, 
+                                       use_dir_names = use_dir_names, 
+                                       use_config_files = use_config_files, name_sep = name_sep,
+                                       use_file_suffix = use_file_suffix, 
+                                       use_dir_suffix = use_dir_suffix,
+                                       config_name = ".note")
   classification_paths <- rep(note_paths, vapply(classification, length, integer(1)))
   ul_classification <- unlist(classification, recursive = FALSE)
   hierarchy_class <- unique(ul_classification)
@@ -585,7 +597,13 @@ make_website <- function(path, output, clean = TRUE, overwrite = FALSE, theme = 
                       function(x) classification_paths[vapply(ul_classification, 
                                                          identical, y = x, logical(1))])
   note_paths <- unique(unlist(hierarchy))
-  classification <- get_note_hierarchy(note_paths, root = path)
+  classification <- get_note_hierarchy(note_paths, root = path, cumulative = cumulative, 
+                                       use_file_names = use_file_names, 
+                                       use_dir_names = use_dir_names, 
+                                       use_config_files = use_config_files, name_sep = name_sep,
+                                       use_file_suffix = use_file_suffix, 
+                                       use_dir_suffix = use_dir_suffix,
+                                       config_name = ".note")
   # Copy note directory ----------------------------------------------------------------------------
   output <- file.path(output, "website")
   content <- file.path(output, "content")
