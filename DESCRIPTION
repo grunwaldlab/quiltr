@@ -18,4 +18,6 @@ Imports: knitr,
     rmarkdown,
     yaml,
     rstudioapi
-Suggests: testthat
+Suggests: testthat,
+    knitr
+VignetteBuilder: knitr
