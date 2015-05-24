@@ -7,8 +7,16 @@
 make_hierarchy_html(hierarchy, page_paths, notebook_name = "Notebook")
 }
 \arguments{
-\item{notebook_path}{(\code{character} of length 1) The path to a notebook or one of its
-subdirectories.}
+\item{hierarchy}{(\code{list} of \code{character}) Locations in the menu hierarchy.}
+
+\item{page_paths}{(\code{character}) The path to website site pages (.html files) corresponding
+argument \code{hierarchy}.}
+
+\item{notebook_name}{(\code{character} of length 1) The name of the notebook. This is displayed
+as the link to the home page.}
+}
+\value{
+(\code{character} of length 1) The html code to make hierarchical menu
 }
 \description{
 Parses the names of note directories to create html for a hierarchical menu.

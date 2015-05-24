@@ -7,10 +7,6 @@
 get_note_hierarchy(path, root, cumulative = TRUE, use_file_names = TRUE,
   use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
   use_file_suffix = FALSE, use_dir_suffix = TRUE, config_name = ".note")
-
-get_note_hierarchy(path, root, cumulative = TRUE, use_file_names = TRUE,
-  use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
-  use_file_suffix = FALSE, use_dir_suffix = TRUE, config_name = ".note")
 }
 \arguments{
 \item{path}{(\code{character}) The paths to notes to assign hirearchical classifications to.}
@@ -40,22 +36,12 @@ name when split by the \code{name_sep} option.}
 names when split by the \code{name_sep} option.}
 
 \item{config_name}{(\code{character} of length 1) The name of configuration files.}
-
-\item{notebook_path}{(\code{character} of length 1) The path to a notebook or one of its
-subdirectories.}
-
-\item{implied}{(\code{logical} of length 1) If \code{TRUE}, return parts of the hierarchy that
-  no notes are assigned to, but are implied to exist (e.g. the "roots" of the hierarchy).}
 }
 \value{
-(\code{list} of \code{character}) A list of locations in the notebook hierarchy.
-
 (\code{list} of \code{character}) A list of locations in the notebook hierarchy
 corresponding to the input argument \code{path}.
 }
 \description{
-Return a list of all the locations in the notebook note classification hierarchy.
-
 Return a list of all the locations in the notebook note classification hierarchy.
 }
 

@@ -60,10 +60,14 @@ name when split by the \code{name_sep} option.}
 \item{use_dir_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of directory
 names when split by the \code{name_sep} option.}
 
-\item{config_name}{(\code{character} of length 1) The name of configuration files.
+\item{config_name}{(\code{character} of length 1) The name of configuration files.}
+}
+\value{
+(\code{character} of length 1) The file path to the created websites home page
+(\code{index.html})
 
 TODO: make option to accept Rmd and possible other note types.
-TODO: let notes occur  in multiple places in the hierarchy}
+TODO: let notes occur  in multiple places in the hierarchy
 }
 \description{
 Makes a website from a directory containing correctly formatted notes.

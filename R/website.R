@@ -1,5 +1,5 @@
 #===================================================================================================
-#' Generate _output.yaml
+#' Generate _output.yaml for website
 #' 
 #' Make the content of the file that contols knitting of the website page Rmds
 #' 
@@ -28,20 +28,6 @@ make_output_yaml <- function(theme = "journal") {
                                                           before_body = "before_body.html",
                                                           after_body = "after_body.html"))))
 }
-
-
-
-#===================================================================================================
-#' Get note content file paths
-#' 
-#' Get the paths to note content that should be displayed
-#' 
-#' @param note_path (\code{character} of length 1) The path to a note.
-#' 
-get_note_content_files <- function(note_path) {
-  list.files(path = note_path, pattern = "\\.html$", ignore.case = TRUE)
-}
-
 
 
 #===================================================================================================
@@ -93,52 +79,17 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme 
 
 
 #===================================================================================================
-#' Gets names of notes in a notebook
-#' 
-#' Returns the names/paths of notes in a given notebook.
-#' 
-#' @param notebook_path (\code{character} of length 1) The path to a notebook or one of its 
-#'   subdirectories.
-#' @param full_names (\code{logical} of length 1) If \code{TRUE}, return the full path to each note.
-get_note_paths <- function(notebook_path = get_project_root(), full_names = FALSE) {
-  notebook_path <- get_project_root(notebook_path)
-  note_path <- file.path(notebook_path, "content")
-  list.dirs(note_path, recursive = FALSE, full.names = full_names)  
-}
-
-#===================================================================================================
-#' Get notebook note hierarchy
-#' 
-#' Return a list of all the locations in the notebook note classification hierarchy.
-#' 
-#' @param notebook_path (\code{character} of length 1) The path to a notebook or one of its 
-#'   subdirectories.
-#' @param implied (\code{logical} of length 1) If \code{TRUE}, return parts of the hierarchy that
-#'   no notes are assigned to, but are implied to exist (e.g. the "roots" of the hierarchy).
-#'   
-#' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy.
-get_note_hierarchy <- function(notebook_path = get_project_root(), implied = TRUE) {
-  note_directories <- get_note_paths(notebook_path)
-  hierarchy <- lapply(strsplit(note_directories, "-"), `[`, -1)
-  if (implied) {
-    hierarchy <- unlist(lapply(hierarchy, function(x) lapply(seq_along(x), function(i) x[1:i])),
-                        recursive = FALSE)    
-  }
-  hierarchy <- unique(hierarchy)
-  hierarchy <- hierarchy[order(sapply(hierarchy, `[`, 1))]
-  return(hierarchy)
-}
-
-
-
-
-#===================================================================================================
 #' Creates hierarchical menu html from note names
 #' 
 #' Parses the names of note directories to create html for a hierarchical menu. 
 #' 
-#' @param notebook_path (\code{character} of length 1) The path to a notebook or one of its 
-#'   subdirectories.
+#' @param hierarchy (\code{list} of \code{character}) Locations in the menu hierarchy.
+#' @param page_paths (\code{character}) The path to website site pages (.html files) corresponding 
+#' argument \code{hierarchy}.
+#' @param notebook_name (\code{character} of length 1) The name of the notebook. This is displayed 
+#' as the link to the home page.
+#' 
+#' @return (\code{character} of length 1) The html code to make hierarchical menu
 make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Notebook") {
   # Parse note directory names ---------------------------------------------------------------------
   expand <- function(char) lapply(seq_along(char), function(i) char[1:i])
@@ -212,40 +163,6 @@ make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Notebook
                          '</div>',
                          '</div>')
   return(nav_bar_html)
-}
-
-#===================================================================================================
-#' Extract YAML attribute
-#' 
-#' Gets a given attribute, based on the key, from a YAML file. 
-#' 
-#' @param path (\code{character}) The path to a YAML file.
-#' @param attribute (\code{character} of length 1) The key of the attribute to get.
-#' @param default (\code{character} of length 1) the default to return of the key is not found.
-get_rmd_yaml <- function(path, attribute, default = "") {
-  do_once <- function(a_path) {
-    content <- readChar(a_path, nchars = 10000)
-    parsed_yaml <- yaml::yaml.load(stringr::str_match(content, "---\\\n(.*)---\\\n")[2])
-    if (attribute %in% names(parsed_yaml)) return(parsed_yaml[[attribute]])
-    return(as.character(default))
-  }
-  vapply(path, do_once, character(1)) 
-}
-
-
-#` http://rosettacode.org/wiki/Find_common_directory_path
-get_common_dir <- function(paths, delim = .Platform$file.sep)
-{
-  path_chunks <- strsplit(paths, delim)
-  
-  i <- 1
-  repeat({
-    current_chunk <- sapply(path_chunks, function(x) x[i])
-    if(any(current_chunk != current_chunk[1])) break
-    i <- i + 1
-  })
-  paste(path_chunks[[1]][seq_len(i - 1)], collapse = delim)
-  
 }
 
 
@@ -506,6 +423,9 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
 #' \code{name}
 #' @param location (\code{character} of length 1) Where to make the webpages
 #' @param apply_theme (\code{logical} of length 1) If \code{TRUE}, apply parent window CSS to iframes
+#' 
+#' @return (Named \code{character}) The file paths to created .html files named by their source Rmd
+#' files.
 make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = TRUE) {
   master_rmd_path <- file.path(location, name)
   if (clean) files_to_remove <- master_rmd_path
@@ -517,8 +437,6 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
   cat(parent_html, file = master_rmd_path, append = FALSE)
   rmarkdown::render(master_rmd_path)
 }
-
-
 
 
 #===================================================================================================
@@ -568,6 +486,9 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' names when split by the \code{name_sep} option.
 #' @param config_name (\code{character} of length 1) The name of configuration files.
 #'   
+#' @return (\code{character} of length 1) The file path to the created websites home page 
+#' (\code{index.html})
+#' 
 #' TODO: make option to accept Rmd and possible other note types.
 #' TODO: let notes occur  in multiple places in the hierarchy
 #' 
@@ -644,5 +565,5 @@ make_website <- function(path, output, clean = TRUE, overwrite = FALSE, theme = 
   hierarchy <- lapply(hierarchy_class,
                       function(x) relative_copy_class_path[vapply(ul_classification, 
                                                                   identical, y = x, logical(1))])
-  mapply(make_master_rmd, page_rmd_names, hierarchy, location = output)
+  mapply(make_master_rmd, page_rmd_names, hierarchy, location = output)[["index.Rmd"]]
 }

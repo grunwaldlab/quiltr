@@ -31,3 +31,41 @@ copy_folder_with_links <- function(from, to) {
   if (sum(path$type == "link") > 0) invisible(file.symlink(from = Sys.readlink(path$from[path$type == "link"]),
                                                            to = path$to[path$type == "link"]))
 }
+
+
+
+#===================================================================================================
+#' Extract YAML attribute
+#' 
+#' Gets a given attribute, based on the key, from a YAML file. 
+#' 
+#' @param path (\code{character}) The path to a YAML file.
+#' @param attribute (\code{character} of length 1) The key of the attribute to get.
+#' @param default (\code{character} of length 1) the default to return of the key is not found.
+get_rmd_yaml <- function(path, attribute, default = "") {
+  do_once <- function(a_path) {
+    content <- readChar(a_path, nchars = 10000)
+    parsed_yaml <- yaml::yaml.load(stringr::str_match(content, "---\\\n(.*)---\\\n")[2])
+    if (attribute %in% names(parsed_yaml)) return(parsed_yaml[[attribute]])
+    return(as.character(default))
+  }
+  vapply(path, do_once, character(1)) 
+}
+
+
+
+
+#` http://rosettacode.org/wiki/Find_common_directory_path
+get_common_dir <- function(paths, delim = .Platform$file.sep)
+{
+  path_chunks <- strsplit(paths, delim)
+  
+  i <- 1
+  repeat({
+    current_chunk <- sapply(path_chunks, function(x) x[i])
+    if(any(current_chunk != current_chunk[1])) break
+    i <- i + 1
+  })
+  paste(path_chunks[[1]][seq_len(i - 1)], collapse = delim)
+  
+}

@@ -16,6 +16,10 @@ make_master_rmd(name, files, location, clean = FALSE, apply_theme = TRUE)
 
 \item{apply_theme}{(\code{logical} of length 1) If \code{TRUE}, apply parent window CSS to iframes}
 }
+\value{
+(Named \code{character}) The file paths to created .html files named by their source Rmd
+files.
+}
 \description{
 Make webpage out of iframes.
 }

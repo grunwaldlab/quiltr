@@ -2,7 +2,7 @@
 % Please edit documentation in R/website.R
 \name{make_output_yaml}
 \alias{make_output_yaml}
-\title{Generate _output.yaml}
+\title{Generate _output.yaml for website}
 \usage{
 make_output_yaml(theme = "journal")
 }
