@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/grunwaldlab/labtools.png?branch=master)](https://travis-ci.org/grunwaldlab/labtools?branch=master)
+
+
 # Labtools
 
 Lab tools is a R package currently under development to aid in the creation and maintenance of research notebooks. 
