@@ -1,9 +1,8 @@
-Package: labtools
-Title: Lab notebook tools
+Package: quiltr
+Title: Automated website creation from scattered HTML
 Version: 0.4.11
 Authors@R: "Zachary Foster <zacharyfoster1989@gmail.com> [aut, cre]"
-Description: A set of functions to aid in planning, documenting, and analyzing
-    labratory experiments using a markdown lab notebook.
+Description: Tools for making websites from HTML files scattered throughout a directory structure. The hierarchical menu of the website can be derived from HTML file names/paths or custom configuration files.
 Depends: 
     R (>= 3.1.0)
 License: Creative Commons
@@ -18,7 +17,9 @@ Imports: knitr,
     rmarkdown,
     yaml,
     rstudioapi,
-    XML
-Suggests: testthat,
-    knitr
+    XML,
+    stringr,
+    reshape2,
+    devtools
+Suggests: testthat
 VignetteBuilder: knitr

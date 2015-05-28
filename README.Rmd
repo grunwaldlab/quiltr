@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/grunwaldlab/labtools.png?branch=master)](https://travis-ci.org/grunwaldlab/labtools?branch=master)
+[![Build Status](https://travis-ci.org/grunwaldlab/quiltr.png?branch=master)](https://travis-ci.org/grunwaldlab/quiltr?branch=master)
 
 
-# Labtools
+# Quiltr
 
-Lab tools is a R package currently under development to aid in the creation and maintenance of research notebooks. 
+Quiltr is an R package currently under development to aid in the creation and maintenance of research notebooks. 
 By leveraging the functionality of `knitr`, `git`, and the Bootstrap web framework, this package allows for efficient creation of HTML lab notebooks from notes in Rmd files. 
 This facilitates reproducible, version controlled, easily shared research notes/analyses on all major operating systems using free, open source software. 
 
@@ -15,7 +15,7 @@ Currently, the primary focuses are:
 
 ## Installation
 
-Labtools is an R package available on GitHub, so it can be installed from the RStudio console or an R command line session using the `devtools` command `install_github`.
+quiltr is an R package available on GitHub, so it can be installed from the RStudio console or an R command line session using the `devtools` command `install_github`.
 First, make sure `devtools` is installed:
 
 ```{r, eval=FALSE}
@@ -25,13 +25,13 @@ install.packages("devtools")
 Next, install the package from GitHub by entering:
 
 ```{r, eval=FALSE}
-devtools::install_github("grunwaldlab/labtools")
+devtools::install_github("grunwaldlab/quiltr")
 ```
 
 The package should now be installed and can be loaded using:
 
 ```{r, eval=FALSE}
-library(labtools)
+library(quiltr)
 ```
 
 ## Basic usage
@@ -41,7 +41,7 @@ library(labtools)
 To start a new lab notebook type:
 
 ```{r, eval=FALSE}
-library(labtools)
+library(quiltr)
 new_notebook()
 ```
 
