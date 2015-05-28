@@ -14,6 +14,9 @@ make_master_rmd(name, files, location, clean = FALSE, apply_theme = TRUE)
 
 \item{location}{(\code{character} of length 1) Where to make the webpages}
 
+\item{clean}{(\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
+use.}
+
 \item{apply_theme}{(\code{logical} of length 1) If \code{TRUE}, apply parent window CSS to iframes}
 }
 \value{

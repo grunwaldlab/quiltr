@@ -23,7 +23,7 @@ use.}
 same name as the output directory will be overwritten.}
 
 \item{theme}{(\code{character} of length 1) The bootstrap theme used in the website. For current
-options, see \link{http://rmarkdown.rstudio.com/html_document_format.html#appearance-and-style}
+options, see \url{http://rmarkdown.rstudio.com/html_document_format.html#appearance-and-style}
 \itemize{
   \item "default"
   \item "cerulean"

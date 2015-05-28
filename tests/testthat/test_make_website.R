@@ -1,4 +1,4 @@
-library(labtools)
+library(quiltr)
 context("Website creation")
 
 
@@ -19,8 +19,13 @@ test_that("note files are found", {
 
 
 test_that("dependencies can be found", {
+  print(getwd())
   paths <- c("test_notebook/note_a.html", "test_notebook/dir_2/note_c.html")
-  expect_equal(length(get_file_dependencies("test_notebook/dir_1/note_b.html", simplify = TRUE)), 1)
+  if (!grepl(".Rcheck", getwd(), fixed = TRUE)) {
+    # The following tests if links and their targets are collapsed to a single dependency,
+    #    but the links are clobbered when copying the test directory during R CMD CHECK
+    expect_equal(length(get_file_dependencies("test_notebook/dir_1/note_b.html", simplify = TRUE)), 1)    
+  }
   expect_is(get_file_dependencies(paths), "list")
   expect_is(get_file_dependencies(paths, simplify = TRUE), "character")
   expect_warning(get_file_dependencies("test_notebook/note_f.html"), "dependencies do not exist")

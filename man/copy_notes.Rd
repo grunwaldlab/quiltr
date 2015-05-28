@@ -12,7 +12,7 @@ copy_notes(from, to, copy_depend = TRUE)
 \item{to}{(\code{character} of length 1) The path to where the notes and their dependencies
 will be copied.}
 
-\item{copy_dep}{(\code{logical} of length 1) If \code{FALSE}, dependencies will not be
+\item{copy_depend}{(\code{logical} of length 1) If \code{FALSE}, dependencies will not be
 copied.}
 }
 \value{

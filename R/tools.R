@@ -1,7 +1,7 @@
 #===================================================================================================
 #' Copy folders with links
 #' 
-#' Copies folders like \link{\code{file.copy}} except it replicates links correctly on unix-like 
+#' Copies folders like \code{\link{file.copy}} except it replicates links correctly on unix-like 
 #' systems.
 #' 
 #' @param from (\code{character}) The path to the folder to be copied

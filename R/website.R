@@ -4,7 +4,7 @@
 #' Make the content of the file that contols knitting of the website page Rmds
 #' 
 #' @param theme (\code{character} of length 1) The bootstrap theme used in the website. For current
-#' options, see \link{http://rmarkdown.rstudio.com/html_document_format.html#appearance-and-style}
+#' options, see \url{http://rmarkdown.rstudio.com/html_document_format.html#appearance-and-style}
 #  At the time of writing, valid options are:
 #' \itemize{
 #'   \item "default"
@@ -62,7 +62,7 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme 
     paste0('<iframe src="', file, '" ', iframe_att, '></iframe>\n\n')
   }
   make_child_rmd_code <- function(file) {
-    paste0("```{r child = '", rmd_names, "'}\n```\n\n")
+    paste0("```{r child = '", file, "'}\n```\n\n")
   }
   make_code <- function(file, title, count) {
     if (!is.na(title)) title_code <- paste0("## ", title, "\n\n") else title_code <- ""
@@ -290,7 +290,7 @@ get_file_dependencies <- function(path, simplify = FALSE) {
 #' @param from (\code{character}) The paths to notes to copy.
 #' @param to (\code{character} of length 1) The path to where the notes and their dependencies 
 #' will be copied.
-#' @param copy_dep (\code{logical} of length 1) If \code{FALSE}, dependencies will not be 
+#' @param copy_depend (\code{logical} of length 1) If \code{FALSE}, dependencies will not be 
 #' copied.
 #' 
 #' @return (\code{character}) Paths of where the notes were copied to.
@@ -422,6 +422,8 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
 #' @param files (\code{list} of \code{character}) The file in each page, corresponding to argument
 #' \code{name}
 #' @param location (\code{character} of length 1) Where to make the webpages
+#' @param clean (\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
+#' use.
 #' @param apply_theme (\code{logical} of length 1) If \code{TRUE}, apply parent window CSS to iframes
 #' 
 #' @return (Named \code{character}) The file paths to created .html files named by their source Rmd
@@ -455,7 +457,7 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' @param overwrite (\code{logical} of length 1) If \code{TRUE}, an existing directory with the 
 #' same name as the output directory will be overwritten. 
 #' @param theme (\code{character} of length 1) The bootstrap theme used in the website. For current
-#' options, see \link{http://rmarkdown.rstudio.com/html_document_format.html#appearance-and-style}
+#' options, see \url{http://rmarkdown.rstudio.com/html_document_format.html#appearance-and-style}
 #  At the time of writing, valid options are:
 #' \itemize{
 #'   \item "default"

@@ -1,4 +1,4 @@
 library(testthat)
-library(labtools)
+library(quiltr)
 
-test_check("labtools")
+test_check("quiltr")

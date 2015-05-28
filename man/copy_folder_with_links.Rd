@@ -12,7 +12,7 @@ copy_folder_with_links(from, to)
 \item{to}{(\code{character}) Where to copy the folder to.}
 }
 \description{
-Copies folders like \link{\code{file.copy}} except it replicates links correctly on unix-like
+Copies folders like \code{\link{file.copy}} except it replicates links correctly on unix-like
 systems.
 }
 
