@@ -330,21 +330,21 @@ copy_notes <- function(from, to, copy_depend = TRUE) {
 #' be used to determine the hierarchy.
 #' @param use_config_files (\code{logical} of length 1) If \code{TRUE}, configuration
 #' files along the notes' file path will be used to determine the hierarchy. The name of 
-#' configuration files is specified by the \code{config_name} option.
+#' configuration files is specified by the \code{note_config_name} option.
 #' @param name_sep (\code{character} of length 1) A character to split file/directory names by when
 #' using them for parts of the hierarchy.
 #' @param use_file_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of a file
 #' name when split by the \code{name_sep} option.
 #' @param use_dir_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of directory
 #' names when split by the \code{name_sep} option.
-#' @param config_name (\code{character} of length 1) The name of configuration files.
+#' @param note_config_name (\code{character} of length 1) The name of configuration files.
 #'   
 #' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy 
 #' corresponding to the input argument \code{path}.
 get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = TRUE,
                                use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
                                use_file_suffix = FALSE, use_dir_suffix = TRUE,
-                               config_name = ".note") {
+                               note_config_name = ".note.yml") {
   # Make input file paths absolute -----------------------------------------------------------------
   path <- normalizePath(path)
   root <- normalizePath(root)
@@ -375,7 +375,7 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
           addition <- addition[seq(1, length.out = length(addition) - 1)]
       }
       # Apply configuration file effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      config_path <- file.path(dirname(current_path), config_name)
+      config_path <- file.path(dirname(current_path), note_config_name)
       if (use_config_files && file.exists(config_path)) {
         config <- yaml::yaml.load_file(config_path)
         for (pattern in names(config)) {
@@ -437,7 +437,7 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
   parent_html <- make_parent_html(files = files, titles = NA,
                                   rmd_header = note_yaml, apply_theme = apply_theme)
   cat(parent_html, file = master_rmd_path, append = FALSE)
-  rmarkdown::render(master_rmd_path)
+  rmarkdown::render(master_rmd_path, quiet = TRUE)
 }
 
 
@@ -479,14 +479,21 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' be used to determine the hierarchy.
 #' @param use_config_files (\code{logical} of length 1) If \code{TRUE}, configuration
 #' files along the notes' file path will be used to determine the hierarchy. The name of 
-#' configuration files is specified by the \code{config_name} option.
+#' configuration files is specified by the \code{note_config_name} option.
 #' @param name_sep (\code{character} of length 1) A character to split file/directory names by when
 #' using them for parts of the hierarchy.
 #' @param use_file_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of a file
 #' name when split by the \code{name_sep} option.
 #' @param use_dir_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of directory
 #' names when split by the \code{name_sep} option.
-#' @param config_name (\code{character} of length 1) The name of configuration files.
+#' @param note_config_name (\code{character} of length 1) The name of note placement configuration files.
+#' @param site_config_name (\code{character} of length 1) The name of the website building configuration file.
+#' It does not need to exist, but if it does in a directory specified by \code{site_config_file}, it is used
+#' automatically. To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
+#' @param site_config_file (\code{character} of length 1) The path to a configuration file specifing
+#'  this function's option values or to the directory is is located in. The file should be in YAML format.
+#'  To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
+#' @param output_dir_name (\code{character} of length 1) The name of the output directory. 
 #'   
 #' @return (\code{character} of length 1) The file path to the created websites home page 
 #' (\code{index.html})
@@ -495,16 +502,45 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' TODO: let notes occur  in multiple places in the hierarchy
 #' 
 #' @export
-make_website <- function(path, output, clean = TRUE, overwrite = FALSE, theme = "journal",
+make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite = FALSE, theme = "journal",
                          apply_theme = TRUE, cumulative = TRUE, use_file_names = TRUE,
                          use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
                          use_file_suffix = FALSE, use_dir_suffix = TRUE,
-                         config_name = ".note") {
+                         note_config_name = ".note.yml", site_config_name = ".website_config.yml", 
+                         site_config_file = path, output_dir_name = "website") {
   # Parse arguments --------------------------------------------------------------------------------
   path <- normalizePath(path)
   output <- normalizePath(output)
+  # Read any configuration files -------------------------------------------------------------------
+  if (!is.na(site_config_name) && !is.na(site_config_file) &&
+      !is.null(site_config_name) && !is.null(site_config_file)) {
+    if (!file.exists(site_config_file)) stop(paste0("Cannot find website configuration file at '",
+                                                    site_config_file, "'. Path does not exist."))
+    if (file.info(site_config_file)$isdir) 
+      config_path <- file.path(site_config_file, site_config_name)
+    else
+      config_path <- site_config_file
+    if (file.exists(config_path)) {
+      message(paste0("Using configuration file found at ", config_path,
+                     ". Set option 'site_config_name' or 'site_config_file' to NA or NULL to ",
+                     "ignore this configuration file."))
+      config_data <- yaml::yaml.load_file(config_path)
+      for(i in seq(from = 1, length.out = length(config_data)))
+        assign(x = names(config_data)[i], value = config_data[[i]])
+    }
+  }
   # Get note files ---------------------------------------------------------------------------------
   note_paths <- get_note_files(path)
+  # Make output directory --------------------------------------------------------------------------
+  output <- file.path(output, output_dir_name)
+  content <- file.path(output, "content")
+  if (file.exists(output)) {
+    if (overwrite)
+      unlink(output, recursive = TRUE) else
+        stop("Website exsits at ", output, ". Use `overwrite = TRUE` to replace.")
+  }
+  dir.create(output)
+  dir.create(content)  
   # Filter for notes in hirearchy ------------------------------------------------------------------
   classification <- get_note_hierarchy(note_paths, root = path, cumulative = cumulative, 
                                        use_file_names = use_file_names, 
@@ -512,7 +548,7 @@ make_website <- function(path, output, clean = TRUE, overwrite = FALSE, theme = 
                                        use_config_files = use_config_files, name_sep = name_sep,
                                        use_file_suffix = use_file_suffix, 
                                        use_dir_suffix = use_dir_suffix,
-                                       config_name = ".note")
+                                       note_config_name = note_config_name)
   classification_paths <- rep(note_paths, vapply(classification, length, integer(1)))
   ul_classification <- unlist(classification, recursive = FALSE)
   hierarchy_class <- unique(ul_classification)
@@ -526,17 +562,8 @@ make_website <- function(path, output, clean = TRUE, overwrite = FALSE, theme = 
                                        use_config_files = use_config_files, name_sep = name_sep,
                                        use_file_suffix = use_file_suffix, 
                                        use_dir_suffix = use_dir_suffix,
-                                       config_name = ".note")
+                                       note_config_name = note_config_name)
   # Copy note directory ----------------------------------------------------------------------------
-  output <- file.path(output, "website")
-  content <- file.path(output, "content")
-  if (file.exists(output)) {
-    if (overwrite)
-      unlink(output, recursive = TRUE) else
-        stop("Website exsits at ", output, ". Use `overwrite = TRUE` to replace.")
-  }
-  dir.create(output)
-  dir.create(content)
   note_copy_path <- copy_notes(note_paths, content)
   # Make website menu ------------------------------------------------------------------------------
   page_names <- vapply(hierarchy_class, paste, character(1), collapse = "-")

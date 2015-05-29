@@ -4,11 +4,13 @@
 \alias{make_website}
 \title{Make a website from notes}
 \usage{
-make_website(path, output, clean = TRUE, overwrite = FALSE,
-  theme = "journal", apply_theme = TRUE, cumulative = TRUE,
-  use_file_names = TRUE, use_dir_names = TRUE, use_config_files = TRUE,
-  name_sep = "-", use_file_suffix = FALSE, use_dir_suffix = TRUE,
-  config_name = ".note")
+make_website(path = getwd(), output = path, clean = TRUE,
+  overwrite = FALSE, theme = "journal", apply_theme = TRUE,
+  cumulative = TRUE, use_file_names = TRUE, use_dir_names = TRUE,
+  use_config_files = TRUE, name_sep = "-", use_file_suffix = FALSE,
+  use_dir_suffix = TRUE, note_config_name = ".note.yml",
+  site_config_name = ".website_config.yml", site_config_file = path,
+  output_dir_name = "website")
 }
 \arguments{
 \item{path}{(\code{character}) One or more directories in which to look for note files.}
@@ -49,7 +51,7 @@ be used to determine the hierarchy.}
 
 \item{use_config_files}{(\code{logical} of length 1) If \code{TRUE}, configuration
 files along the notes' file path will be used to determine the hierarchy. The name of
-configuration files is specified by the \code{config_name} option.}
+configuration files is specified by the \code{note_config_name} option.}
 
 \item{name_sep}{(\code{character} of length 1) A character to split file/directory names by when
 using them for parts of the hierarchy.}
@@ -60,7 +62,17 @@ name when split by the \code{name_sep} option.}
 \item{use_dir_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of directory
 names when split by the \code{name_sep} option.}
 
-\item{config_name}{(\code{character} of length 1) The name of configuration files.}
+\item{note_config_name}{(\code{character} of length 1) The name of note placement configuration files.}
+
+\item{site_config_name}{(\code{character} of length 1) The name of the website building configuration file.
+It does not need to exist, but if it does in a directory specified by \code{site_config_file}, it is used
+automatically. To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.}
+
+\item{site_config_file}{(\code{character} of length 1) The path to a configuration file specifing
+this function's option values or to the directory is is located in. The file should be in YAML format.
+To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.}
+
+\item{output_dir_name}{(\code{character} of length 1) The name of the output directory.}
 }
 \value{
 (\code{character} of length 1) The file path to the created websites home page

@@ -6,7 +6,8 @@
 \usage{
 get_note_hierarchy(path, root, cumulative = TRUE, use_file_names = TRUE,
   use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
-  use_file_suffix = FALSE, use_dir_suffix = TRUE, config_name = ".note")
+  use_file_suffix = FALSE, use_dir_suffix = TRUE,
+  note_config_name = ".note.yml")
 }
 \arguments{
 \item{path}{(\code{character}) The paths to notes to assign hirearchical classifications to.}
@@ -24,7 +25,7 @@ be used to determine the hierarchy.}
 
 \item{use_config_files}{(\code{logical} of length 1) If \code{TRUE}, configuration
 files along the notes' file path will be used to determine the hierarchy. The name of
-configuration files is specified by the \code{config_name} option.}
+configuration files is specified by the \code{note_config_name} option.}
 
 \item{name_sep}{(\code{character} of length 1) A character to split file/directory names by when
 using them for parts of the hierarchy.}
@@ -35,7 +36,7 @@ name when split by the \code{name_sep} option.}
 \item{use_dir_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of directory
 names when split by the \code{name_sep} option.}
 
-\item{config_name}{(\code{character} of length 1) The name of configuration files.}
+\item{note_config_name}{(\code{character} of length 1) The name of configuration files.}
 }
 \value{
 (\code{list} of \code{character}) A list of locations in the notebook hierarchy
