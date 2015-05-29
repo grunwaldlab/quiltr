@@ -12,16 +12,16 @@ vignette: >
 ## Introduction
 
 The primary puropse of this package is to provide a way to combine `.html` files scattered throughout a file system into a single website with a hierarchical dropdown menu.
-The locations html files are displayed on the website and the menu itself are determined by the names of the files/directories in html files' path or customized using configuration files.
+The locations html files are displayed on the website and the hierarchy of the menu itself is determined by the names of the files/directories in html files' path or customized using configuration files.
 The benifit of this system is that there are very few restrictions on the layout of the file sturcture and no knowlage of web design needed.
-It is so flexible that website can be made for any directory containing `.html` files, regardless if the html files were made for this purpose.
+It is so flexible that website can be made for any directory containing `.html` files, regardless if the html files were made for this purpose or not.
 
-## How it works
+### How it works
 
 A single function called `make_website` is given a target directory containing `.html` files and a location to output a website directory. 
-In the website directory, a copy of the target directory is made with only the `.html` files and any local files they reference (via HTML tag attributes like `src` and `href`). 
-`.html` files are then generated for each location in the menu hierarchy that display the conent of relevant input files.
-Together, these two sets of files consitute a portable website that can be uploaded to a web server.
+In the website directory, a copy of the target directory is made with only the `.html` files and any local files (e.g. images) they reference (via HTML tag attributes like `src` and `href`). 
+An `.html` file for each page of the website (i.e. each location in the menu) is then generated for  to display the conent of input `.html` files assigned to that location.
+Together, the partial copy of the target directory and the page `.html` files consitute a portable website that can be uploaded to a web server.
 If the contents of the target directory change the function can be run again to update the website.
 
-## 
+### Basic 

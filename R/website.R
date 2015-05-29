@@ -493,7 +493,9 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' @param site_config_file (\code{character} of length 1) The path to a configuration file specifing
 #'  this function's option values or to the directory is is located in. The file should be in YAML format.
 #'  To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
-#' @param output_dir_name (\code{character} of length 1) The name of the output directory. 
+#' @param output_dir_name (\code{character} of length 1) The name of the output directory.
+#' @param open (\code{logical} of length 1) If \code{TRUE}, open the newly created website in an 
+#' internet browser.
 #'   
 #' @return (\code{character} of length 1) The file path to the created websites home page 
 #' (\code{index.html})
@@ -507,7 +509,7 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
                          use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
                          use_file_suffix = FALSE, use_dir_suffix = TRUE,
                          note_config_name = ".note.yml", site_config_name = ".website_config.yml", 
-                         site_config_file = path, output_dir_name = "website") {
+                         site_config_file = path, output_dir_name = "website", open = FALSE) {
   argument_names <- names(as.list(args(make_website)))
   argument_names <- argument_names[-length(argument_names)]
   arg_missing <- eval(c(missing(path), missing(output), missing(clean), missing(overwrite),
@@ -515,7 +517,7 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
                      missing(use_file_names), missing(use_dir_names), missing(use_config_files),
                      missing(name_sep), missing(use_file_suffix), missing(use_dir_suffix),
                      missing(note_config_name), missing(site_config_name),
-                     missing(site_config_file), missing(output_dir_name)))
+                     missing(site_config_file), missing(output_dir_name), missing(open)))
   # Parse arguments --------------------------------------------------------------------------------
   path <- normalizePath(path)
   output <- normalizePath(output)
@@ -539,6 +541,7 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
   }
   # Get note files ---------------------------------------------------------------------------------
   note_paths <- get_note_files(path)
+  if (length(note_paths) == 0) stop(paste0("No HTML files found in '", path, "'"))
   # Detect/delete old website ----------------------------------------------------------------------
   output_path <- file.path(output, output_dir_name)
   content <- file.path(output_path, "content")
@@ -610,6 +613,6 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
   arguments <- mget(argument_names)
   cat(yaml::as.yaml(arguments), file = new_config_path)
   # Open new website -------------------------------------------------------------------------------
-  if (rstudioapi::isAvailable()) rstudioapi::viewer(home_path)
+  if (rstudioapi::isAvailable() && open) rstudioapi::viewer(home_path)
   return(home_path)
 }
