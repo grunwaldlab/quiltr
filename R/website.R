@@ -259,7 +259,7 @@ get_file_dependencies <- function(path, simplify = FALSE) {
   standardize_path <- function(path, context) {
     from_root <- grepl(paste0("^", .Platform$file.sep), path)
     path[!from_root] <- file.path(dirname(context), path[!from_root])
-    normalizePath(path)
+    suppressWarnings(normalizePath(path))
   }
   output <- mapply(standardize_path, output, path, SIMPLIFY = FALSE)
   # Remove any files that do not exist -------------------------------------------------------------
