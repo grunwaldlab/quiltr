@@ -508,6 +508,14 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
                          use_file_suffix = FALSE, use_dir_suffix = TRUE,
                          note_config_name = ".note.yml", site_config_name = ".website_config.yml", 
                          site_config_file = path, output_dir_name = "website") {
+  argument_names <- names(as.list(args(make_website)))
+  argument_names <- argument_names[-length(argument_names)]
+  arg_missing <- eval(c(missing(path), missing(output), missing(clean), missing(overwrite),
+                     missing(theme), missing(apply_theme), missing(cumulative),
+                     missing(use_file_names), missing(use_dir_names), missing(use_config_files),
+                     missing(name_sep), missing(use_file_suffix), missing(use_dir_suffix),
+                     missing(note_config_name), missing(site_config_name),
+                     missing(site_config_file), missing(output_dir_name)))
   # Parse arguments --------------------------------------------------------------------------------
   path <- normalizePath(path)
   output <- normalizePath(output)
@@ -526,21 +534,20 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
                      "ignore this configuration file."))
       config_data <- yaml::yaml.load_file(config_path)
       for(i in seq(from = 1, length.out = length(config_data)))
-        assign(x = names(config_data)[i], value = config_data[[i]])
+        if (arg_missing[i]) assign(x = names(config_data)[i], value = config_data[[i]])
     }
   }
   # Get note files ---------------------------------------------------------------------------------
   note_paths <- get_note_files(path)
-  # Make output directory --------------------------------------------------------------------------
-  output <- file.path(output, output_dir_name)
-  content <- file.path(output, "content")
-  if (file.exists(output)) {
+  # Detect/delete old website ----------------------------------------------------------------------
+  output_path <- file.path(output, output_dir_name)
+  content <- file.path(output_path, "content")
+  if (file.exists(output_path)) {
     if (overwrite)
-      unlink(output, recursive = TRUE) else
-        stop("Website exsits at ", output, ". Use `overwrite = TRUE` to replace.")
+      unlink(output_path, recursive = TRUE)
+    else
+        stop("Website exsits at ", output_path, ". Use `overwrite = TRUE` to replace.")
   }
-  dir.create(output)
-  dir.create(content)  
   # Filter for notes in hirearchy ------------------------------------------------------------------
   classification <- get_note_hierarchy(note_paths, root = path, cumulative = cumulative, 
                                        use_file_names = use_file_names, 
@@ -563,6 +570,9 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
                                        use_file_suffix = use_file_suffix, 
                                        use_dir_suffix = use_dir_suffix,
                                        note_config_name = note_config_name)
+  # Make output directory --------------------------------------------------------------------------
+  dir.create(output_path)
+  dir.create(content)  
   # Copy note directory ----------------------------------------------------------------------------
   note_copy_path <- copy_notes(note_paths, content)
   # Make website menu ------------------------------------------------------------------------------
@@ -571,30 +581,35 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
   page_names <- gsub(" ", "_", page_names)
   page_rmd_names <- paste0(page_names, ".Rmd")
   page_html_names <- paste0(page_names, ".html")
-  page_html_paths <- file.path(output, page_html_names)
-  pre_body_html_path <- file.path(output, "before_body.html")
+  page_html_paths <- file.path(output_path, page_html_names)
+  pre_body_html_path <- file.path(output_path, "before_body.html")
   cat(make_hierarchy_html(hierarchy_class, page_html_names), file = pre_body_html_path)
   # Make other dependencies ------------------------------------------------------------------------
   dependencies <- vapply(c("in_header.html", "after_body.html"),
                          function(x) system.file("file_templates", x, package = "labtools"), 
                          character(1))
-  file.copy(from = dependencies, to = output)
-  output_yaml_path <- file.path(output, "_output.yaml")
+  file.copy(from = dependencies, to = output_path)
+  output_yaml_path <- file.path(output_path, "_output.yaml")
   cat(make_output_yaml(theme = theme), file = output_yaml_path)
   # Step up clean up -------------------------------------------------------------------------------
   if (clean) {
-    files_to_remove <- file.path(output, c("in_header.html", "after_body.html",
+    files_to_remove <- file.path(output_path, c("in_header.html", "after_body.html",
                                            "before_body.html","_output.yaml",
                                            page_rmd_names))
     on.exit(lapply(files_to_remove[file.exists(files_to_remove)], file.remove))
   }  
   # Make website pages -----------------------------------------------------------------------------
-  relative_copy_path <- gsub(pattern = paste0("^", output, .Platform$file.sep), "", note_copy_path)
-  relative_copy_class_path <-rep(relative_copy_path, vapply(classification, length, integer(1)))
+  relative_copy_path <- gsub(pattern = paste0("^", output_path, .Platform$file.sep), "", note_copy_path)
+  relative_copy_class_path <- rep(relative_copy_path, vapply(classification, length, integer(1)))
   hierarchy <- lapply(hierarchy_class,
                       function(x) relative_copy_class_path[vapply(ul_classification, 
                                                                   identical, y = x, logical(1))])
-  home_path <- mapply(make_master_rmd, page_rmd_names, hierarchy, location = output)[["index.Rmd"]]
+  home_path <- mapply(make_master_rmd, page_rmd_names, hierarchy, location = output_path)[["index.Rmd"]]
+  # Make configuration file ------------------------------------------------------------------------
+  new_config_path <- file.path(output_path, ".website_config.yml")
+  arguments <- mget(argument_names)
+  cat(yaml::as.yaml(arguments), file = new_config_path)
+  # Open new website -------------------------------------------------------------------------------
   if (rstudioapi::isAvailable()) rstudioapi::viewer(home_path)
   return(home_path)
 }
