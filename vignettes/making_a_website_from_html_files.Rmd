@@ -11,17 +11,84 @@ vignette: >
 
 ## Introduction
 
-The primary puropse of this package is to provide a way to combine `.html` files scattered throughout a file system into a single website with a hierarchical dropdown menu.
+The primary purpose of this package is to provide a way to combine `.html` files scattered throughout a file system into a single website with a hierarchical dropdown menu.
 The locations html files are displayed on the website and the hierarchy of the menu itself is determined by the names of the files/directories in html files' path or customized using configuration files.
-The benifit of this system is that there are very few restrictions on the layout of the file sturcture and no knowlage of web design needed.
+The benefit of this system is that there are very few restrictions on the layout of the file structure and no knowledge of web design needed. 
+This allows HTML notes to provide integrated documentation of a project rather than the documentation enforcing the file structure.
 It is so flexible that website can be made for any directory containing `.html` files, regardless if the html files were made for this purpose or not.
 
-### How it works
+
+
+## How it works
 
 A single function called `make_website` is given a target directory containing `.html` files and a location to output a website directory. 
 In the website directory, a copy of the target directory is made with only the `.html` files and any local files (e.g. images) they reference (via HTML tag attributes like `src` and `href`). 
-An `.html` file for each page of the website (i.e. each location in the menu) is then generated for  to display the conent of input `.html` files assigned to that location.
-Together, the partial copy of the target directory and the page `.html` files consitute a portable website that can be uploaded to a web server.
+A `.html` file for each page of the website (i.e. each location in the menu) is then generated for  to display the content of input `.html` files assigned to that location.
+Together, the partial copy of the target directory and the page `.html` files constitute a portable website that can be uploaded to a web server.
 If the contents of the target directory change the function can be run again to update the website.
 
-### Basic 
+
+
+### Inferring menu hierarchy 
+
+#### Using directory path
+
+#### Using file nane
+
+#### Usign custom configurartion files
+
+### Making individual web pages
+
+
+
+### Website build configuration file
+
+
+
+## Aruments and options
+
+### Main arguments
+
+#### Target directory (`path`):
+
+#### Output directory (`output`):
+
+
+### Website menu hierarchy options
+
+#### Using file names (`use_file_names`):
+
+#### Using directory path names (`use_dir_names`):
+
+#### Splitting file path names by spearator (`name_sep`):
+
+#### Including last part of file name in hierarchy (`use_file_suffix`):
+
+#### Including last part of directory path in hierarchy (`use_dir_suffix`):
+
+#### Using configuration for custom placement (`use_config_files`):
+
+#### Specify name of custom placement configuration files (`note_config_name`):
+
+#### Specify name of website configuration file (`site_config_name`):
+
+#### Specify a website configuration file (`site_config_file`):
+
+
+### Website appearance options
+
+#### Bootstrap theme (`theme`):
+
+#### Applying theme to embedded HTML content (`apply_theme`):
+
+
+
+### Output file structure options
+
+#### Specify output directory names (`output_dir_name`):
+
+#### Remove intermediate files (`clean`):
+
+#### Overwrite previous output (`overwrite`):
+
+
