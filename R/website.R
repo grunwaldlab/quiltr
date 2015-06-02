@@ -589,7 +589,7 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
   cat(make_hierarchy_html(hierarchy_class, page_html_names), file = pre_body_html_path)
   # Make other dependencies ------------------------------------------------------------------------
   dependencies <- vapply(c("in_header.html", "after_body.html"),
-                         function(x) system.file("file_templates", x, package = "labtools"), 
+                         function(x) system.file("file_templates", x, package = "quiltr"), 
                          character(1))
   file.copy(from = dependencies, to = output_path)
   output_yaml_path <- file.path(output_path, "_output.yaml")
