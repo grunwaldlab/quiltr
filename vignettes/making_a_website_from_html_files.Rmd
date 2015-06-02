@@ -4,7 +4,7 @@ author: "Zachary Foster"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Making a website from HTML files}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -66,10 +66,16 @@ For example, if you had the following 3 HTML files on your computer...
 
 Which parts of the file path are used and how they are processed is affected by a variety of options. 
 The example showed above corresponds to the default options values, but many variations are possible.
+Below is an example of its output...
+
+```{r make_test_website_1, echo=FALSE, results='hide', eval=FALSE}
+# This is not run automatically due to rmarkdown issue #248, but is used to make the website example
+quiltr::make_website(path = "vignette_examples/test_website_1", output = "inst/doc", overwrite = TRUE, output_dir_name = "test_website_1")
+```
 
 <style>
     #wrap { width: 700px; height: 500px; padding: 0; overflow: hidden; }
-    #frame { width: 1000px; height: 500px; border: 1px solid black; }
+    #frame { width: 1000px; height: 714px; border: 1px solid black; }
     #frame {
         -ms-zoom: 0.7;
         -moz-transform: scale(0.7);
@@ -81,9 +87,7 @@ The example showed above corresponds to the default options values, but many var
     }
 </style>
 
-<div id="wrap">
-<iframe id="frame" src="test_website_1/website/index.html"></iframe>
-</div>
+<div id="wrap"><iframe id="frame" src="test_website_1/index.html"></iframe></div>
 
 
 #### Using content placement configurartion files
