@@ -95,7 +95,6 @@ quiltr::make_website(path = "vignette_examples/test_website_1", output = "inst/d
 
 
 The example below is the same as the previous one except for the addition of two configuration files named `.note_config`.
-The name of the configuration files can be specified when building the website, so they can be named anything as long as it is consistnet.
 
 ```
 /home/your_name/documents/notes/old/note_1.html
@@ -107,12 +106,30 @@ The name of the configuration files can be specified when building the website, 
 /home/your_name/documents/notes/new/note_5.html
 ```
 
+The name of the configuration files can be specified when building the website, so they can be named anything as long as it is consistnet.
+The configuration files have the following content: 
+
+`/home/your_name/documents/notes/old/note_config.yml`:
+
+```{r, echo=FALSE, comment=""}
+cat(readChar("../vignette_examples/test_website_2/old/note_config.yml", nchars = 10000))
+```
+
+`/home/your_name/documents/notes/old/sub_dir/note_config.yml`:
+
+```{r, echo=FALSE, comment=""}
+cat(readChar("../vignette_examples/test_website_2/old/sub_dir/note_config.yml", nchars = 10000))
+```
 
 
-```{r make_test_website_1, echo=FALSE, results='hide', eval=FALSE}
+```{r make_test_website_2, echo=FALSE, results='hide', eval=FALSE}
 # This is not run automatically due to rmarkdown issue #248, but is used to make the website example
 quiltr::make_website(path = "vignette_examples/test_website_2", output = "inst/doc", overwrite = TRUE, output_dir_name = "test_website_2", note_config_name = "note_config.yml")
 ```
+
+
+<div id="wrap"><iframe id="frame" src="test_website_2/index.html"></iframe></div>
+
 
 ### How content is combined on each page
 
