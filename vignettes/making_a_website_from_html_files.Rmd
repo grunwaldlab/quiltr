@@ -67,8 +67,28 @@ For example, if you had the following 3 HTML files on your computer...
 Which parts of the file path are used and how they are processed is affected by a variety of options. 
 The example showed above corresponds to the default options values, but many variations are possible.
 
+<style>
+    #wrap { width: 700px; height: 500px; padding: 0; overflow: hidden; }
+    #frame { width: 1000px; height: 500px; border: 1px solid black; }
+    #frame {
+        -ms-zoom: 0.7;
+        -moz-transform: scale(0.7);
+        -moz-transform-origin: 0 0;
+        -o-transform: scale(0.7);
+        -o-transform-origin: 0 0;
+        -webkit-transform: scale(0.7);
+        -webkit-transform-origin: 0 0;
+    }
+</style>
 
-#### Usign content placement configurartion files
+<div id="wrap">
+<iframe id="frame" src="test_website_1/website/index.html"></iframe>
+</div>
+
+
+#### Using content placement configurartion files
+
+
 
 ### How content is combined on each page
 
