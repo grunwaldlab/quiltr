@@ -380,7 +380,7 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
         config <- yaml::yaml.load_file(config_path)
         for (pattern in names(config)) {
           matches <- Sys.glob(file.path(dirname(current_path), pattern))
-          if (current_path %in% matches) {
+          if (current_path %in% matches || path %in% matches) {
             if (is.null(config[[pattern]][1])) {
               hierarchy <- list()
               addition <- NULL
