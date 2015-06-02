@@ -13,8 +13,8 @@ vignette: >
 
 The primary purpose of this package is to provide a way to combine `.html` files scattered throughout a file system into a single website with a hierarchical dropdown menu.
 The package was designed to facilitate embedding notes into computational science projects and making research notebooks.
-For this reason, quiltr is most appropriate for creating websites documenting projects, where ease of use, transparency, and reliability are the priority.
-Making simple static websites for other purposes using quiltr is also appropriate, but it is not designed be an all-purpose website generator such as Jykell or Drupal.
+For this reason, quiltr is most appropriate for creating websites to document projects, where ease of use, transparency, and reliability are the priority.
+Making simple static websites for other purposes is also possible, but quiltr is not designed be an all-purpose website generator such as Jykell or Drupal.
 All of the content of the webpage besides the dropdown menu and other basic site structure elements is in the form of HTML files created by the user.
 HTML files can be made using a varity of software and any HTML file should work.
 Rmarkdown is particularly suited to be used with quiltr; together the two can be used to create online lab notebooks without any knowlage of web design or HTML, for free, on any operating system.
@@ -22,31 +22,58 @@ Rmarkdown is particularly suited to be used with quiltr; together the two can be
 
 ## How it works
 
-The locations html files are displayed on the website and the hierarchy of the menu itself are determined by the names of the files/directories in html files' path or customized using configuration files.
+The locations html file content is displayed on the website and the hierarchy of the menu itself are determined by the names of the files/directories in html files' path or customized using configuration files in the same directories.
 The benefit of this system is that there are very few restrictions on the layout of the file structure and no knowledge of web design needed beyond the ability to create HTML content (e.g. using Rmd or Word).
 This allows for HTML notes embedded in an analysis directory to provide integrated documentation.
 It is so flexible that website can be made for any directory containing `.html` files, regardless if the html files or the directory were made for this purpose.
 
 A single function called `make_website` is given a target directory containing `.html` files and a location to output a website directory. 
-In the website directory, a copy of the target directory is made with only the `.html` files and any local files (e.g. images) they reference (via HTML tag attributes like `src` and `href`). 
-A `.html` file for each page of the website (i.e. each location in the menu) is then generated for  to display the content of input `.html` files assigned to that location.
+In the website output directory, a copy of the target directory is made with only the `.html` files and any local files (e.g. images) they reference (via HTML tag attributes like `src` and `href`). 
+A `.html` file for each page of the website (i.e. each location in the menu) is then generated to display the content of input `.html` files assigned to that location.
 Together, the partial copy of the target directory and the page `.html` files constitute a portable website that can be uploaded to a web server.
 If the contents of the target directory change the function can be run again to update the website.
 
 
-
 ### Inferring menu hierarchy 
 
-#### Using directory path
+The most useful feature of quiltr is inferring a menu hierarcy from the context of HTML files.
+There are two general ways to go about doing this: using file path/name elements and using configuration files to specify custom locations.
+Using file path information is probably most appropireate for documenting a computational analysis or research notebook directory since it takes the least upkeep effort and the organization of the project itself is evident in the website.
+Using configuration files can be more invloved, but allows for a completly customized hierarchy regardless of the directory or name of HTML conent files making it more approporiate for more conventional websites.
+In both cases, the menu can have infinite levels and is mobile-friendly.
 
-#### Using file nane
 
-#### Usign custom configurartion files
+#### Using file path information
+
+The placement of HTML content can pe determined by the names of directories in its path relative to some "root" directory.
+The depth 
+For example, if you had the following 3 HTML files on your computer...
+
+```
+/home/your_name/documents/notes/old/note_1.html
+/home/your_name/documents/notes/old/note_2.html
+/home/your_name/documents/notes/old/sub_dir/note_3.html
+/home/your_name/documents/notes/old/sub_dir/another_sub_dir/note_4.html
+/home/your_name/documents/notes/new/note_5.html
+```
+
+...and you specified that the "root" of the target directory is `/home/your_name/documents/notes`, then: 
+
+* note 1 and 2 would appear together on a page of the website reached by the `old` menu item
+* note 3 would appear on a page accessed by a submenu (`old` > `sub_dir`)
+* note 4 would appear on a page accessed by a submenu (`old` > `sub_dir` > `another_sub_dir`)
+* note 5 would appear on a page accessed by the menu item `new`
+
+Which parts of the file path are used and how they are processed is affected by a variety of options. 
+The example showed above corresponds to the default options values, but many variations are possible.
+
+
+#### Usign content placement configurartion files
 
 ### How content is combined on each page
 
 
-### Website build configuration file
+### Using a website build configuration file
 
 
 
