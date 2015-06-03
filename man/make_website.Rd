@@ -10,7 +10,7 @@ make_website(path = getwd(), output = path, clean = TRUE,
   use_config_files = TRUE, name_sep = "-", use_file_suffix = FALSE,
   use_dir_suffix = TRUE, note_config_name = ".note.yml",
   site_config_name = ".website_config.yml", site_config_file = path,
-  output_dir_name = "website")
+  output_dir_name = "website", open = FALSE)
 }
 \arguments{
 \item{path}{(\code{character}) One or more directories in which to look for note files.}
@@ -73,6 +73,9 @@ this function's option values or to the directory is is located in. The file sho
 To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.}
 
 \item{output_dir_name}{(\code{character} of length 1) The name of the output directory.}
+
+\item{open}{(\code{logical} of length 1) If \code{TRUE}, open the newly created website in an
+internet browser.}
 }
 \value{
 (\code{character} of length 1) The file path to the created websites home page
