@@ -8,8 +8,8 @@ make_website(path = getwd(), output = path, clean = TRUE,
   overwrite = FALSE, theme = "journal", apply_theme = TRUE,
   cumulative = TRUE, use_file_names = TRUE, use_dir_names = TRUE,
   use_config_files = TRUE, name_sep = "-", use_file_suffix = FALSE,
-  use_dir_suffix = TRUE, note_config_name = ".note.yml",
-  site_config_name = ".website_config.yml", site_config_file = path,
+  use_dir_suffix = TRUE, note_config_name = "placement.yml",
+  site_config_name = "website_build_config.yml", site_config_file = path,
   output_dir_name = "website", open = FALSE)
 }
 \arguments{

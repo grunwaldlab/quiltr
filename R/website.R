@@ -508,7 +508,7 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
                          apply_theme = TRUE, cumulative = TRUE, use_file_names = TRUE,
                          use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
                          use_file_suffix = FALSE, use_dir_suffix = TRUE,
-                         note_config_name = ".note.yml", site_config_name = ".website_config.yml", 
+                         note_config_name = "placement.yml", site_config_name = "website_build_config.yml", 
                          site_config_file = path, output_dir_name = "website", open = FALSE) {
   argument_names <- names(as.list(args(make_website)))
   argument_names <- argument_names[-length(argument_names)]
@@ -518,6 +518,7 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
                      missing(name_sep), missing(use_file_suffix), missing(use_dir_suffix),
                      missing(note_config_name), missing(site_config_name),
                      missing(site_config_file), missing(output_dir_name), missing(open)))
+  names(arg_missing) <- argument_names
   # Parse arguments --------------------------------------------------------------------------------
   path <- normalizePath(path)
   output <- normalizePath(output)
@@ -536,7 +537,7 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
                      "ignore this configuration file."))
       config_data <- yaml::yaml.load_file(config_path)
       for(i in seq(from = 1, length.out = length(config_data)))
-        if (arg_missing[i]) assign(x = names(config_data)[i], value = config_data[[i]])
+        if (arg_missing[names(config_data)[i]]) assign(x = names(config_data)[i], value = config_data[[i]])
     }
   }
   # Get note files ---------------------------------------------------------------------------------
