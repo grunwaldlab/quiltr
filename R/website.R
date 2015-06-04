@@ -73,8 +73,12 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme 
     } 
   }
   # Generate Rmd document ---------------------------------------------------------------------------
-  paste0(make_rmd_header(rmd_header),
-         paste0(mapply(make_code, file = files, title = titles, count = 1:length(files)), collapse = ""))
+  if (length(files) > 0)
+    iframe_code <- paste0(mapply(make_code, file = files, title = titles, count = 1:length(files)),
+                          collapse = "")
+  else 
+    iframe_code <-""
+  paste0(make_rmd_header(rmd_header), iframe_code)
 }
 
 
@@ -579,6 +583,8 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
   classification_paths <- rep(note_paths, vapply(classification, length, integer(1)))
   ul_classification <- unlist(classification, recursive = FALSE)
   hierarchy_class <- unique(ul_classification)
+  if (!0 %in% sapply(hierarchy_class, length))
+    hierarchy_class <- c(list(character(0)), hierarchy_class)
   hierarchy <- lapply(hierarchy_class,
                       function(x) classification_paths[vapply(ul_classification, 
                                                          identical, y = x, logical(1))])
