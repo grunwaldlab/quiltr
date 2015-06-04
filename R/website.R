@@ -209,7 +209,7 @@ get_html_dependencies <- function(path) {
   # define attributes of html tags to get the content of -------------------------------------------          
   xpath_tags <- c("//@src", "//@href")
   # define regular expressions to filter results ---------------------------------------------------
-  excluded_dependencies <- c("^data:", "^https:", "^http:", "^mailto:")
+  excluded_dependencies <- c("^data:", "^https:", "^http:", "^mailto:", "^#")
   # define function to process a single html file --------------------------------------------------
   get_dependency <- function(path) {
     # Extract values of tag attributes - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
