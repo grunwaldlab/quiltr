@@ -1,18 +1,10 @@
 ---
-title: "Making a website from HTML files"
-author: "Zachary Foster"
+title: Introduction to `make_website`
 output:
-  rmarkdown::html_vignette:
+  html_document:
     toc: true
-    css: custom.css
   self_contained: false
-vignette: >
-  %\VignetteIndexEntry{Making a website from HTML files}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\usepackage[utf8]{inputenc}
 ---
-
-## Introduction
 
 The primary purpose of this package is to provide a way to combine HTML files scattered throughout a file system into a single website with a hierarchical dropdown menu.
 The package was designed to facilitate embedding notes into computational science projects and making research notebooks.
@@ -79,7 +71,7 @@ Below is an example of its output.
 
 ```{r make_test_website_1, echo=FALSE, results='hide', eval=FALSE}
 # This is not run automatically due to rmarkdown issue #248, but is used to make the website example
-quiltr::make_website(path = "vignette_examples/test_website_1", output = "inst/doc", overwrite = TRUE, output_dir_name = "test_website_1", theme = "cerulean")
+quiltr::make_website(path = "vignette_examples/test_website_1", output = "inst/doc/website_source", overwrite = TRUE, output_dir_name = "test_website_1", theme = "cerulean")
 ```
 
 <style>
@@ -123,13 +115,13 @@ The configuration files listed above in the example have the following content:
 `/home/your_name/documents/notes/old/note_config.yml`:
 
 ```{r, echo=FALSE, comment=""}
-cat(readChar("../vignette_examples/test_website_2/old/note_config.yml", nchars = 10000))
+cat(readChar("../../../vignette_examples/test_website_2/old/note_config.yml", nchars = 10000))
 ```
 
 `/home/your_name/documents/notes/old/sub_dir/note_config.yml`:
 
 ```{r, echo=FALSE, comment=""}
-cat(readChar("../vignette_examples/test_website_2/old/sub_dir/note_config.yml", nchars = 10000))
+cat(readChar("../../../vignette_examples/test_website_2/old/sub_dir/note_config.yml", nchars = 10000))
 ```
 
 The first configuration file causes the content of `note_1.html` to be displayed in the menu location `custom` > `placement` instead of `old`. 
@@ -142,7 +134,7 @@ Below is the result of building the above directory structure using default opti
 
 ```{r make_test_website_2, echo=FALSE, results='hide', eval=FALSE}
 # This is not run automatically due to rmarkdown issue #248, but is used to make the website example
-quiltr::make_website(path = "vignette_examples/test_website_2", output = "inst/doc", overwrite = TRUE, output_dir_name = "test_website_2", note_config_name = "note_config.yml", theme = "cerulean")
+quiltr::make_website(path = "vignette_examples/test_website_2", output = "inst/doc/website_source", overwrite = TRUE, output_dir_name = "test_website_2", note_config_name = "note_config.yml", theme = "cerulean")
 ```
 
 

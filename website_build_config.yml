@@ -1,4 +1,7 @@
-path: ./inst/doc
+path: ./website_source
+output: .
 theme: cosmo
 use_dir_names: false
 use_file_suffix: true
+cumulative: false
+overwrite: true
