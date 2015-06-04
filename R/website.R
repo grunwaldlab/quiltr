@@ -391,10 +391,11 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
       }
       # Apply configuration file effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       if (use_config_files) {
-        rel_path <- strsplit(gsub(paste0("^", root, .Platform$file.sep), "", dirname(current_path)), .Platform$file.sep)[[1]]
+        rel_path <- strsplit(gsub(paste0("^", root), "", dirname(current_path)), .Platform$file.sep)[[1]]
         if (root == dirname(current_path)) rel_path <- ""
         config_locations <- lapply(1:length(rel_path), function(i) rel_path[1:i])
         config_locations <- sapply(config_locations, function(x) do.call(file.path, as.list(x)))
+        config_locations <- gsub(paste0("^", .Platform$file.sep), "", config_locations)
         for (config_location in config_locations) {
           if (config_location != "") 
             config_path <- file.path(root, config_location, note_config_name)
