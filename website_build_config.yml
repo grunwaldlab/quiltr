@@ -1,9 +1,0 @@
-path: ./website_source
-output: .
-name: Quiltr
-theme: cosmo
-use_dir_names: false
-use_file_suffix: true
-cumulative: false
-overwrite: true
-partial_copy: false
