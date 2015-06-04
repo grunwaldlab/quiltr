@@ -357,7 +357,7 @@ copy_notes <- function(from, to, copy_depend = TRUE, partial_copy = TRUE) {
 get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = TRUE,
                                use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
                                use_file_suffix = FALSE, use_dir_suffix = TRUE,
-                               note_config_name = ".note.yml") {
+                               note_config_name = "placement.yml") {
   # Make input file paths absolute -----------------------------------------------------------------
   path <- normalizePath(path)
   root <- normalizePath(root)
@@ -391,7 +391,7 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
       }
       # Apply configuration file effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       if (use_config_files) {
-        rel_path <- strsplit(gsub(paste0("^", root), "", dirname(current_path)), .Platform$file.sep)[[1]]
+        rel_path <- strsplit(gsub(paste0("^", root, .Platform$file.sep), "", dirname(current_path)), .Platform$file.sep)[[1]]
         if (root == dirname(current_path)) rel_path <- ""
         config_locations <- lapply(1:length(rel_path), function(i) rel_path[1:i])
         config_locations <- sapply(config_locations, function(x) do.call(file.path, as.list(x)))

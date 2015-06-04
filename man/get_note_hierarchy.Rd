@@ -7,7 +7,7 @@
 get_note_hierarchy(path, root, cumulative = TRUE, use_file_names = TRUE,
   use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
   use_file_suffix = FALSE, use_dir_suffix = TRUE,
-  note_config_name = ".note.yml")
+  note_config_name = "placement.yml")
 }
 \arguments{
 \item{path}{(\code{character}) The paths to notes to assign hirearchical classifications to.}
