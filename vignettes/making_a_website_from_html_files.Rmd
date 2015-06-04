@@ -149,12 +149,15 @@ Also, the original file is available for viewing or download (in Firefox: `right
 
 ### Using a website build configuration file
 
-In addition to the configuration files used to determine content location, there is another type of configuration file used to specify default website building options. 
-This configuration file is in YAML format and contains the values of some or all of the options accepted by the `make_website` function.
-Option values specified replace the defaults when running `make_website` on the directory containing the configuration file, although options specified in the configuration file can still be overwritten by function options used. 
-There is one of this type of the configuration file per website. 
-They can be used to store the options used to build a specific website in the source of the website itself.
-The configuration file used can be specified by a `make_website` option, so that an existing website can be rebuilt without having to remember the options used.
+In addition to the configuration files used to determine content website location, there is another type of configuration file used to specify default website building options. 
+This configuration file is also in YAML format and contains the values of some or all of the options accepted by the `make_website` function.
+Option values specified replace the defaults when running `make_website`, although options specified in the configuration file can still be overwritten by function options specified when running the function. 
+There can be one website build configuration file per website, typically in the root of target directory although any configuration file can be specified using the `site_config_file` option. 
+By defualt, a website build configuration file in the target directory will be used if it exists. 
+The configuration file can be used to rebuild the website without having to remember the options used every time.
+
+In addition to the configuration file in the target directory, every time a website is made, a configuration file contatining the option values used in that instance is created in the output directory. 
+By refernecing this file with the `site_config_file` option of `make_website`, the website can be rebuilt using the same options as last time. 
 Below is an example of website build configuration file content:
 
 ```
