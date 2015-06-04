@@ -4,19 +4,21 @@
 \alias{make_website}
 \title{Make a website from notes}
 \usage{
-make_website(path = getwd(), output = path, clean = TRUE,
+make_website(path = getwd(), output = path, name = "Home", clean = TRUE,
   overwrite = FALSE, theme = "journal", apply_theme = TRUE,
   cumulative = TRUE, use_file_names = TRUE, use_dir_names = TRUE,
   use_config_files = TRUE, name_sep = "-", use_file_suffix = FALSE,
   use_dir_suffix = TRUE, note_config_name = "placement.yml",
   site_config_name = "website_build_config.yml", site_config_file = path,
-  output_dir_name = "website", open = FALSE)
+  output_dir_name = "website", partial_copy = TRUE, open = FALSE)
 }
 \arguments{
 \item{path}{(\code{character}) One or more directories in which to look for note files.}
 
 \item{output}{(\code{character} of length 1) Location to write the output directory. The website
 will be made in a directory called "website" in this location.}
+
+\item{name}{(\code{character} of length 1) The name on the link to the homepage of the website.}
 
 \item{clean}{(\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
 use.}
@@ -73,6 +75,11 @@ this function's option values or to the directory is is located in. The file sho
 To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.}
 
 \item{output_dir_name}{(\code{character} of length 1) The name of the output directory.}
+
+\item{partial_copy}{(\code{logical} of length 1) If \code{FALSE}, The entire target directory
+of the notes will be copied instead of just the notes and their dependencies. It is possible that more than
+just the target directory will be copied if there are files in the target directory with dependencies outside
+it. Enough of the file structure will be copied to included all dependencies.}
 
 \item{open}{(\code{logical} of length 1) If \code{TRUE}, open the newly created website in an
 internet browser.}

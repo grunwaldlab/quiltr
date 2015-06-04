@@ -110,23 +110,8 @@ img {
 <li>note 5 would appear on a page accessed by the menu item <code>new</code></li>
 </ul>
 <p>Which parts of the file path are used and how they are processed is affected by a variety of options. The example showed above corresponds to the default options values, but many variations are possible. Below is an example of its output.</p>
-<style>
-    #wrap { width: 700px; height: 350px; padding: 0; overflow: hidden; }
-    #frame { width: 1100px; height: 550px; }
-    #frame {
-        -ms-zoom: 0.6363636;
-        -moz-transform: scale(0.6363636);
-        -moz-transform-origin: 0 0;
-        -o-transform: scale(0.6363636);
-        -o-transform-origin: 0 0;
-        -webkit-transform: scale(0.6363636);
-        -webkit-transform-origin: 0 0;
-    }
-</style>
-<div id="wrap">
-<iframe id="frame" src="test_website_1/index.html">
+<iframe width="100%" height="500px" src="test_website_1/index.html">
 </iframe>
-</div>
 </div>
 <div id="using-content-placement-configurartion-files" class="section level3">
 <h3>Using content placement configurartion files</h3>
@@ -156,10 +141,8 @@ img {
 <li>All HTML files in any sub directory (relative to <code>/home/your_name/documents/notes/old/sub_dir</code>) will not be included in the website due to <code>NULL</code> being the only element specified. In this case, <code>note_4.html</code> will not be included.</li>
 </ul>
 <p>Below is the result of building the above directory structure using default options:</p>
-<div id="wrap">
-<iframe id="frame" src="test_website_2/index.html">
+<iframe width="100%" height="500px" src="test_website_2/index.html">
 </iframe>
-</div>
 </div>
 </div>
 <div id="using-a-website-build-configuration-file" class="section level2">

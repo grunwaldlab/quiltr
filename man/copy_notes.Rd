@@ -4,7 +4,7 @@
 \alias{copy_notes}
 \title{Copy notes and their dependencies}
 \usage{
-copy_notes(from, to, copy_depend = TRUE)
+copy_notes(from, to, copy_depend = TRUE, partial_copy = TRUE)
 }
 \arguments{
 \item{from}{(\code{character}) The paths to notes to copy.}
@@ -14,6 +14,9 @@ will be copied.}
 
 \item{copy_depend}{(\code{logical} of length 1) If \code{FALSE}, dependencies will not be
 copied.}
+
+\item{partial_copy}{(\code{logical} of length 1) If \code{FALSE}, The entire root directory
+of the notes will be copied instead of just the notes and their dependencies.}
 }
 \value{
 (\code{character}) Paths of where the notes were copied to.

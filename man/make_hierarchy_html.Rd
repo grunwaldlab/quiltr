@@ -4,7 +4,7 @@
 \alias{make_hierarchy_html}
 \title{Creates hierarchical menu html from note names}
 \usage{
-make_hierarchy_html(hierarchy, page_paths, notebook_name = "Notebook")
+make_hierarchy_html(hierarchy, page_paths, notebook_name = "Home")
 }
 \arguments{
 \item{hierarchy}{(\code{list} of \code{character}) Locations in the menu hierarchy.}

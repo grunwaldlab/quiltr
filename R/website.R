@@ -52,7 +52,10 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme 
   }
   # Define functions to make components ------------------------------------------------------------
   make_rmd_header <- function(rmd_header) {
-    paste0('---\n', yaml::as.yaml(rmd_header), "---\n\n")
+    if (length(rmd_header > 0))
+      paste0('---\n', yaml::as.yaml(rmd_header), "---\n\n")
+    else
+      ""
   }
   make_iframe_code <- function(file, count) {
     on_load <- paste0('autoResize(\'iframe', count, '\');')
@@ -94,7 +97,7 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme 
 #' as the link to the home page.
 #' 
 #' @return (\code{character} of length 1) The html code to make hierarchical menu
-make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Notebook") {
+make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Home") {
   # Parse note directory names ---------------------------------------------------------------------
   expand <- function(char) lapply(seq_along(char), function(i) char[1:i])
   full_hierarchy <- unique(unlist(lapply(hierarchy, expand), recursive = FALSE))
@@ -296,9 +299,11 @@ get_file_dependencies <- function(path, simplify = FALSE) {
 #' will be copied.
 #' @param copy_depend (\code{logical} of length 1) If \code{FALSE}, dependencies will not be 
 #' copied.
+#' @param partial_copy (\code{logical} of length 1) If \code{FALSE}, The entire root directory 
+#' of the notes will be copied instead of just the notes and their dependencies.
 #' 
 #' @return (\code{character}) Paths of where the notes were copied to.
-copy_notes <- function(from, to, copy_depend = TRUE) {
+copy_notes <- function(from, to, copy_depend = TRUE, partial_copy = TRUE) {
   # Make input file paths absolute -----------------------------------------------------------------
   from_path <- normalizePath(from)
   to <- normalizePath(to)
@@ -311,9 +316,13 @@ copy_notes <- function(from, to, copy_depend = TRUE) {
   from_root <- get_common_dir(from_path)
   to_path <- file.path(to, gsub(paste0("^", dirname(from_root), .Platform$file.sep), "", from_path))
   # Copy files and directory structure -------------------------------------------------------------
-  for (dir_to_make in unique(dirname(to_path))) 
-    if (!file.exists(dir_to_make)) dir.create(dir_to_make, recursive = TRUE)
-  invisible(file.copy(from = from_path, to = to_path, overwrite = TRUE))
+  if (partial_copy) {
+    for (dir_to_make in unique(dirname(to_path))) 
+      if (!file.exists(dir_to_make)) dir.create(dir_to_make, recursive = TRUE)
+    invisible(file.copy(from = from_path, to = to_path, overwrite = TRUE))
+  } else {
+    file.copy(from_root, to, recursive = TRUE)
+  }
   # Return the locations of input file copies ------------------------------------------------------
   to_path[1:length(from)]
 }
@@ -452,10 +461,8 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
   master_rmd_path <- file.path(location, name)
   if (clean) files_to_remove <- master_rmd_path
   if (file.exists(master_rmd_path)) file.remove(master_rmd_path)
-  note_title <-  rev(strsplit(tools::file_path_sans_ext(name)[1], '-')[[1]])[1]
-  note_yaml <- list(title = note_title)
   parent_html <- make_parent_html(files = files, titles = NA,
-                                  rmd_header = note_yaml, apply_theme = apply_theme)
+                                  rmd_header = list(), apply_theme = apply_theme)
   cat(parent_html, file = master_rmd_path, append = FALSE)
   rmarkdown::render(master_rmd_path, quiet = TRUE)
 }
@@ -472,6 +479,7 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' @param path (\code{character}) One or more directories in which to look for note files.
 #' @param output (\code{character} of length 1) Location to write the output directory. The website
 #' will be made in a directory called "website" in this location.
+#' @param name (\code{character} of length 1) The name on the link to the homepage of the website. 
 #' @param clean (\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
 #' use.
 #' @param overwrite (\code{logical} of length 1) If \code{TRUE}, an existing directory with the 
@@ -514,6 +522,10 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #'  this function's option values or to the directory is is located in. The file should be in YAML format.
 #'  To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
 #' @param output_dir_name (\code{character} of length 1) The name of the output directory.
+#' @param partial_copy (\code{logical} of length 1) If \code{FALSE}, The entire target directory 
+#' of the notes will be copied instead of just the notes and their dependencies. It is possible that more than
+#' just the target directory will be copied if there are files in the target directory with dependencies outside
+#' it. Enough of the file structure will be copied to included all dependencies. 
 #' @param open (\code{logical} of length 1) If \code{TRUE}, open the newly created website in an 
 #' internet browser.
 #'   
@@ -524,20 +536,22 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' TODO: let notes occur  in multiple places in the hierarchy
 #' 
 #' @export
-make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite = FALSE, theme = "journal",
-                         apply_theme = TRUE, cumulative = TRUE, use_file_names = TRUE,
+make_website <- function(path = getwd(), output = path, name = "Home", clean = TRUE, overwrite = FALSE,
+                         theme = "journal", apply_theme = TRUE, cumulative = TRUE, use_file_names = TRUE,
                          use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
                          use_file_suffix = FALSE, use_dir_suffix = TRUE,
                          note_config_name = "placement.yml", site_config_name = "website_build_config.yml", 
-                         site_config_file = path, output_dir_name = "website", open = FALSE) {
+                         site_config_file = path, output_dir_name = "website", partial_copy = TRUE,
+                         open = FALSE) {
   argument_names <- names(as.list(args(make_website)))
   argument_names <- argument_names[-length(argument_names)]
-  arg_missing <- eval(c(missing(path), missing(output), missing(clean), missing(overwrite),
+  arg_missing <- eval(c(missing(path), missing(output), missing(name), missing(clean), missing(overwrite),
                      missing(theme), missing(apply_theme), missing(cumulative),
                      missing(use_file_names), missing(use_dir_names), missing(use_config_files),
                      missing(name_sep), missing(use_file_suffix), missing(use_dir_suffix),
                      missing(note_config_name), missing(site_config_name),
-                     missing(site_config_file), missing(output_dir_name), missing(open)))
+                     missing(site_config_file), missing(output_dir_name), missing(partial_copy),
+                     missing(open)))
   names(arg_missing) <- argument_names
   # Parse arguments --------------------------------------------------------------------------------
   path <- normalizePath(path)
@@ -600,7 +614,7 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
   dir.create(output_path)
   dir.create(content)  
   # Copy note directory ----------------------------------------------------------------------------
-  note_copy_path <- copy_notes(note_paths, content)
+  note_copy_path <- copy_notes(note_paths, content, partial_copy = partial_copy)
   # Make website menu ------------------------------------------------------------------------------
   page_names <- vapply(hierarchy_class, paste, character(1), collapse = "-")
   page_names[page_names == ""] <- "index"
@@ -609,7 +623,7 @@ make_website <- function(path = getwd(), output = path, clean = TRUE, overwrite 
   page_html_names <- paste0(page_names, ".html")
   page_html_paths <- file.path(output_path, page_html_names)
   pre_body_html_path <- file.path(output_path, "before_body.html")
-  cat(make_hierarchy_html(hierarchy_class, page_html_names), file = pre_body_html_path)
+  cat(make_hierarchy_html(hierarchy_class, page_html_names, notebook_name = name), file = pre_body_html_path)
   # Make other dependencies ------------------------------------------------------------------------
   dependencies <- vapply(c("in_header.html", "after_body.html"),
                          function(x) system.file("file_templates", x, package = "quiltr"), 
