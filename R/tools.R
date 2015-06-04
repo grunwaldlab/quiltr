@@ -54,12 +54,18 @@ get_rmd_yaml <- function(path, attribute, default = "") {
 
 
 
-
-#` http://rosettacode.org/wiki/Find_common_directory_path
+#===================================================================================================
+#' Get a directory common to all paths
+#' 
+#' Get a directory common to all paths
+#' 
+#' @param paths (\code{character}) Input paths
+#' @param delim  (\code{character} of length 1) file path delimiter
+#' 
+#` form http://rosettacode.org/wiki/Find_common_directory_path
 get_common_dir <- function(paths, delim = .Platform$file.sep)
 {
   path_chunks <- strsplit(paths, delim)
-  
   i <- 1
   repeat({
     current_chunk <- sapply(path_chunks, function(x) x[i])
@@ -67,5 +73,4 @@ get_common_dir <- function(paths, delim = .Platform$file.sep)
     i <- i + 1
   })
   paste(path_chunks[[1]][seq_len(i - 1)], collapse = delim)
-  
 }
