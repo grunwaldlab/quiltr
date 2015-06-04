@@ -358,38 +358,54 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
       addition <- NULL
       # Get path to current directory level  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       current_path <- do.call(file.path, as.list(c(root, path_hierarchy[0:index])))
-      # Apply directory name effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (index != length(path_hierarchy) && use_dir_names) {
-        addition <- basename(current_path)
-        if (!is.na(name_sep) && !is.null(name_sep) && length(addition) > 0) 
-          addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
-        if (!use_dir_suffix)
-          addition <- addition[seq(1, length.out = length(addition) - 1)]
-      }
-      # Apply file name effects  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (index == length(path_hierarchy) && use_file_names) {
-        addition <- tools::file_path_sans_ext(basename(current_path))
-        if (!is.na(name_sep) && !is.null(name_sep) && length(addition) > 0) 
-          addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
-        if (!use_file_suffix)
-          addition <- addition[seq(1, length.out = length(addition) - 1)]
+      if (length(hierarchy) != 0) { #If it has not been removed from the hierarchy via config file
+        # Apply directory name effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (index != length(path_hierarchy) && use_dir_names) {
+          addition <- basename(current_path)
+          if (!is.na(name_sep) && !is.null(name_sep) && length(addition) > 0) 
+            addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
+          if (!use_dir_suffix)
+            addition <- addition[seq(1, length.out = length(addition) - 1)]
+        }
+        # Apply file name effects  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (index == length(path_hierarchy) && use_file_names) {
+          addition <- tools::file_path_sans_ext(basename(current_path))
+          if (!is.na(name_sep) && !is.null(name_sep) && length(addition) > 0) 
+            addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
+          if (!use_file_suffix)
+            addition <- addition[seq(1, length.out = length(addition) - 1)]
+        }
       }
       # Apply configuration file effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      config_path <- file.path(dirname(current_path), note_config_name)
-      if (use_config_files && file.exists(config_path)) {
-        config <- yaml::yaml.load_file(config_path)
-        for (pattern in names(config)) {
-          matches <- Sys.glob(file.path(dirname(current_path), pattern))
-          if (current_path %in% matches || path %in% matches) {
-            if (is.null(config[[pattern]][1])) {
-              hierarchy <- list()
-              addition <- NULL
-            } else if (config[[pattern]][1] == ".") {
-              if (length(config[[pattern]]) > 1)
-                addition <- config[[pattern]][2:length(config[[pattern]])]
-            } else {
-              hierarchy <-  list(character(0))
-              addition <- config[[pattern]]
+      if (use_config_files) {
+        rel_path <- strsplit(gsub(paste0("^", root), "", dirname(current_path)), .Platform$file.sep)[[1]]
+        if (root == dirname(current_path)) rel_path <- ""
+        config_locations <- lapply(1:length(rel_path), function(i) rel_path[1:i])
+        config_locations <- sapply(config_locations, function(x) do.call(file.path, as.list(x)))
+        for (config_location in config_locations) {
+          if (config_location != "") 
+            config_path <- file.path(root, config_location, note_config_name)
+          else 
+            config_path <- file.path(root, note_config_name)
+          if (file.exists(config_path)) {
+            config <- yaml::yaml.load_file(config_path)
+            for (pattern in names(config)) {
+              if (config_location != "") 
+                matches <- Sys.glob(file.path(root, config_location, pattern))
+              else 
+                matches <- Sys.glob(file.path(root, pattern))
+              if (current_path %in% matches || path %in% matches) {
+                if (is.null(config[[pattern]][1])) {
+                  hierarchy <- list()
+                  addition <- NULL
+                } else if (config[[pattern]][1] == ".") {
+                  if (length(config[[pattern]]) > 1)
+                    addition <- config[[pattern]][2:length(config[[pattern]])]
+                } else {
+                  hierarchy <-  list(character(0))
+                  addition <- config[[pattern]]
+                }
+              }
             }
           }
         }
