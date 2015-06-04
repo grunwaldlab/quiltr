@@ -3,4 +3,5 @@
 .RData
 packrat/lib*/
 packrat/src/
-inst/doc
+inst/doc/*.html
+inst/doc/**/

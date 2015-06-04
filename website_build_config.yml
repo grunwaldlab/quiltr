@@ -1,0 +1,4 @@
+path: ./inst/doc
+theme: cosmo
+use_dir_names: false
+use_file_suffix: true
