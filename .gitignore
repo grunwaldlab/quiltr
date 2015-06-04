@@ -4,4 +4,3 @@
 packrat/lib*/
 packrat/src/
 inst/doc
-vignette_examples/**/*.html
