@@ -10,7 +10,7 @@
 
 
 
-<title>old</title>
+<title></title>
 
 <script src="libs/jquery-1.11.0/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -130,33 +130,32 @@ img {
 <span class="icon-bar"></span>
 <span class="icon-bar"></span>
 </button>
-<a class="navbar-brand" href="index.html">Notebook</a>
+<a class="navbar-brand" href="index.html">Home</a>
 </div>
 <div class="collapse navbar-collapse">
 <ul class="nav navbar-nav">
 <li><a href="new.html">new</a></li>
 <li>
+<a href="absolute.html" class="dropdown-toggle" data-toggle="dropdown">absolute<b class="caret"></b></a>
+<ul class="dropdown-menu multi-level"><li><a href="absolute-placement.html">placement</a></li></ul></li>
+<li>
 <a href="old.html" class="dropdown-toggle" data-toggle="dropdown">old<b class="caret"></b></a>
 <ul class="dropdown-menu multi-level">
 <li class="dropdown dropdown-submenu">
 <a href="old-sub_dir.html" class="dropdown-toggle" data-toggle="dropdown">sub dir</a>
-<ul class="dropdown-menu"><li><a href="old-sub_dir-another_sub_dir.html">another sub dir</a></li></ul></li></ul></li>
+<ul class="dropdown-menu">
+<li class="dropdown dropdown-submenu">
+<a href="old-sub_dir-relative.html" class="dropdown-toggle" data-toggle="dropdown">relative</a>
+<ul class="dropdown-menu"><li><a href="old-sub_dir-relative-placement.html">placement</a></li></ul></li></ul></li></ul></li>
 </ul></div>
 </div>
 </div>
 
-<div id="header">
-<h1 class="title">old</h1>
-</div>
 
 
-<iframe src="content/test_website_2/old/note_1.html" width="100%" height="200px" id="iframe1" marginheight="0" frameborder="0" onLoad="apply_theme('iframe1'); autoResize('iframe1');">
+<iframe src="content/test_website_2/old/note_2.html" width="100%" height="200px" id="iframe1" marginheight="0" frameborder="0" onLoad="apply_theme('iframe1'); autoResize('iframe1');">
 </iframe>
-<iframe src="content/test_website_2/old/note_2.html" width="100%" height="200px" id="iframe2" marginheight="0" frameborder="0" onLoad="apply_theme('iframe2'); autoResize('iframe2');">
-</iframe>
-<iframe src="content/test_website_2/old/sub_dir/another_sub_dir/note_4.html" width="100%" height="200px" id="iframe3" marginheight="0" frameborder="0" onLoad="apply_theme('iframe3'); autoResize('iframe3');">
-</iframe>
-<iframe src="content/test_website_2/old/sub_dir/note_3.html" width="100%" height="200px" id="iframe4" marginheight="0" frameborder="0" onLoad="apply_theme('iframe4'); autoResize('iframe4');">
+<iframe src="content/test_website_2/old/sub_dir/note_3.html" width="100%" height="200px" id="iframe2" marginheight="0" frameborder="0" onLoad="apply_theme('iframe2'); autoResize('iframe2');">
 </iframe>
 
 

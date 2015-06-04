@@ -1,5 +1,6 @@
 path: /home/fosterz/repositories/quiltr/vignette_examples/test_website_2
-output: /home/fosterz/repositories/quiltr/inst/doc
+output: /home/fosterz/repositories/quiltr/website_source
+name: Home
 clean: yes
 overwrite: yes
 theme: cerulean
@@ -15,4 +16,5 @@ note_config_name: note_config.yml
 site_config_name: website_build_config.yml
 site_config_file: /home/fosterz/repositories/quiltr/vignette_examples/test_website_2
 output_dir_name: test_website_2
+partial_copy: yes
 open: no

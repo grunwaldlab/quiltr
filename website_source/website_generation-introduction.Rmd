@@ -71,7 +71,7 @@ Below is an example of its output.
 
 ```{r make_test_website_1, echo=FALSE, results='hide', eval=FALSE}
 # This is not run automatically due to rmarkdown issue #248, but is used to make the website example
-quiltr::make_website(path = "vignette_examples/test_website_1", output = "inst/doc/website_source", overwrite = TRUE, output_dir_name = "test_website_1", theme = "cerulean")
+quiltr::make_website(path = "vignette_examples/test_website_1", output = "website_source", overwrite = TRUE, output_dir_name = "test_website_1", theme = "cerulean")
 ```
 
 
@@ -121,7 +121,7 @@ Below is the result of building the above directory structure using default opti
 
 ```{r make_test_website_2, echo=FALSE, results='hide', eval=FALSE}
 # This is not run automatically due to rmarkdown issue #248, but is used to make the website example
-quiltr::make_website(path = "vignette_examples/test_website_2", output = "inst/doc/website_source", overwrite = TRUE, output_dir_name = "test_website_2", note_config_name = "note_config.yml", theme = "cerulean")
+quiltr::make_website(path = "vignette_examples/test_website_2", output = "website_source", overwrite = TRUE, output_dir_name = "test_website_2", note_config_name = "note_config.yml", theme = "cerulean")
 ```
 
 

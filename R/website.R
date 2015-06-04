@@ -646,7 +646,7 @@ make_website <- function(path = getwd(), output = path, name = "Home", clean = T
                                                                   identical, y = x, logical(1))])
   home_path <- mapply(make_master_rmd, page_rmd_names, hierarchy, location = output_path)[["index.Rmd"]]
   # Make configuration file ------------------------------------------------------------------------
-  new_config_path <- file.path(output_path, ".website_config.yml")
+  new_config_path <- file.path(output_path, site_config_name)
   arguments <- mget(argument_names)
   cat(yaml::as.yaml(arguments), file = new_config_path)
   # Open new website -------------------------------------------------------------------------------
