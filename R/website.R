@@ -538,7 +538,7 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' TODO: let notes occur  in multiple places in the hierarchy
 #' 
 #' @export
-make_website <- function(path = getwd(), output = path, name = "Home", clean = TRUE, overwrite = FALSE,
+make_website <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, overwrite = FALSE,
                          theme = "journal", apply_theme = TRUE, cumulative = TRUE, use_file_names = TRUE,
                          use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
                          use_file_suffix = FALSE, use_dir_suffix = TRUE,

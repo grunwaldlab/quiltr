@@ -4,7 +4,7 @@
 \alias{make_website}
 \title{Make a website from notes}
 \usage{
-make_website(path = getwd(), output = path, name = "Home", clean = TRUE,
+make_website(path = getwd(), output = NULL, name = "Home", clean = TRUE,
   overwrite = FALSE, theme = "journal", apply_theme = TRUE,
   cumulative = TRUE, use_file_names = TRUE, use_dir_names = TRUE,
   use_config_files = TRUE, name_sep = "-", use_file_suffix = FALSE,
