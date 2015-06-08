@@ -39,11 +39,20 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, ..
   on.exit(setwd(original_wd))
   setwd(repository)
   # Switch to gh-pages branch ----------------------------------------------------------------------
-  result <- system("git status",  ignore.stderr = TRUE, intern = TRUE)[[1]]
-  original_branch <- rev(strsplit(result, split = " ")[[1]])[1]
+  get_branch <- function() {
+    result <- system("git status",  ignore.stderr = TRUE, intern = TRUE)[[1]]
+    rev(strsplit(result, split = " ")[[1]])[1]    
+  }
+  original_branch <- get_branch()
   can_checkout <- system("git checkout gh-pages", ignore.stdout = TRUE, ignore.stderr = TRUE)
   if (can_checkout == 1)
     can_checkout <- system("git checkout -b gh-pages", ignore.stdout = TRUE, ignore.stderr = TRUE)
+  if (get_branch() != "gh-pages") {
+    result <- system("git checkout gh-pages", intern = TRUE)
+    message(result)
+    stop(paste0("Could not change to gh-pages branch. ",
+                "Check that is it possible to change branches."))    
+  }
   # Delete previous website ------------------------------------------------------------------------
   if (clear) {
     to_delete <- list.files(repository, include.dirs = TRUE, all.files = TRUE, full.names = TRUE)
