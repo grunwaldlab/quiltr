@@ -1,5 +1,5 @@
 path: ./inst/doc
-output: .
+output: NULL
 name: Quiltr
 theme: cosmo
 use_dir_names: false
