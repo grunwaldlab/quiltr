@@ -544,7 +544,7 @@ make_website <- function(path = getwd(), output = NULL, name = "Home", clean = T
                          use_file_suffix = FALSE, use_dir_suffix = TRUE,
                          note_config_name = "placement.yml", site_config_name = "website_build_config.yml", 
                          site_config_file = path, output_dir_name = "website", partial_copy = TRUE,
-                         open = FALSE) {
+                         open = TRUE) {
   argument_names <- names(as.list(args(make_website)))
   argument_names <- argument_names[-length(argument_names)]
   arg_missing <- eval(c(missing(path), missing(output), missing(name), missing(clean), missing(overwrite),

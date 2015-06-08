@@ -10,7 +10,7 @@ make_website(path = getwd(), output = NULL, name = "Home", clean = TRUE,
   use_config_files = TRUE, name_sep = "-", use_file_suffix = FALSE,
   use_dir_suffix = TRUE, note_config_name = "placement.yml",
   site_config_name = "website_build_config.yml", site_config_file = path,
-  output_dir_name = "website", partial_copy = TRUE, open = FALSE)
+  output_dir_name = "website", partial_copy = TRUE, open = TRUE)
 }
 \arguments{
 \item{path}{(\code{character}) One or more directories in which to look for note files.}
