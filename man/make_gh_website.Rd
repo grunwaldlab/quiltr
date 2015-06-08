@@ -17,9 +17,6 @@ on the \code{gh-pages} branch.}
 branch is deleted before the new website is copied.}
 
 \item{...}{all other options are passed to \code{\link{make_website}}.}
-
-\item{push}{(\code{character} of length 1) If supplied, the \code{gh-pages} branch is pushed
-to the specified remote. Usually this is \code{push = "origin"}.}
 }
 \description{
 WARNING: If you already have a website on a \code{gh-pages} branch then this function can

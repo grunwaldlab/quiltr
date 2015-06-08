@@ -82,9 +82,9 @@ get_common_dir <- function(paths, delim = .Platform$file.sep)
 #'
 #' Find a file in the current or a parent directory.
 #'
-#' @param path (\character) One or more directories in which to start looking. If multiple 
+#' @param path (\code{character}) One or more directories in which to start looking. If multiple 
 #' directories are given then the search is started in their common parent directory.
-#' @param query (\character) Name of the file to find.
+#' @param query (\code{character}) Name of the file to find.
 #' 
 get_file_in_parent <- function(path, query) {
   if (length(path) > 1) path <- get_common_dir(path)

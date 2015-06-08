@@ -7,10 +7,10 @@
 get_file_in_parent(path, query)
 }
 \arguments{
-\item{path}{(\character) One or more directories in which to start looking. If multiple
+\item{path}{(\code{character}) One or more directories in which to start looking. If multiple
 directories are given then the search is started in their common parent directory.}
 
-\item{query}{(\character) Name of the file to find.}
+\item{query}{(\code{character}) Name of the file to find.}
 }
 \description{
 Find a file in the current or a parent directory.

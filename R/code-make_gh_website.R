@@ -13,8 +13,6 @@
 #' after making the webpage.
 #' @param commit (\code{logical} of length 1) If \code{TRUE}, commit all changes made to the website
 #' on the \code{gh-pages} branch.
-#' @param push (\code{character} of length 1) If supplied, the \code{gh-pages} branch is pushed 
-#' to the specified remote. Usually this is \code{push = "origin"}.
 #' @param clear (\code{logical} of length 1) If \code{TRUE}, the contents of the \code{gh-pages}
 #' branch is deleted before the new website is copied. 
 #' @param ... all other options are passed to \code{\link{make_website}}.
