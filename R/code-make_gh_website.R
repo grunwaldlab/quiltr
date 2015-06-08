@@ -43,8 +43,7 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, push = NULL,
     can_checkout <- system("git checkout -b gh-pages", ignore.stdout = TRUE, ignore.stderr = TRUE)
   # Delete previous website ------------------------------------------------------------------------
   if (clear) {
-    to_delete <- list.files(repository, include.dirs = TRUE, all.files = TRUE, full.names = TRUE,
-                            recursive = TRUE)
+    to_delete <- list.files(repository, include.dirs = TRUE, all.files = TRUE, full.names = TRUE)
     to_delete <- to_delete[!grepl("\\.git", to_delete)]
     unlink(to_delete, recursive = TRUE)
   }
