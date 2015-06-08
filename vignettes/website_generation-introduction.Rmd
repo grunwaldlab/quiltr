@@ -11,6 +11,7 @@ vignette: >
 ---
 
 ```{r, echo=FALSE, results='hide'}
+if (!file.exists("../inst/doc")) dir.create("../inst/doc")
 file.copy(from = "test_website_1", to = "../inst/doc", recursive = TRUE, overwrite = TRUE)
 file.copy(from = "test_website_2", to = "../inst/doc", recursive = TRUE, overwrite = TRUE)
 file.copy(from = "custom.css", to = "../inst/doc", overwrite = TRUE)
