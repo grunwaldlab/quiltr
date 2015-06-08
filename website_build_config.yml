@@ -1,4 +1,4 @@
-path: ./website_source
+path: ./inst/doc
 output: .
 name: Quiltr
 theme: cosmo

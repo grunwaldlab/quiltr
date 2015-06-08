@@ -1,11 +1,17 @@
 ---
 title: Arguments and options for `make_website`
-output:
-  html_document:
+output: 
+  rmarkdown::html_vignette:
     toc: true
     toc_depth: 2
-  self_contained: false
+    css: custom.css
+vignette: >
+  %\VignetteIndexEntry{Arguments and options for `make_website`}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
 ---
+
+
 
 ## Main arguments
 

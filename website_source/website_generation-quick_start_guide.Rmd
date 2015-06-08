@@ -1,8 +1,0 @@
----
-title: Website generation quick-start guide
-output:
-  html_document:
-    toc: true
-  self_contained: false
----
-

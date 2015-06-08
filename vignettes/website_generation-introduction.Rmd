@@ -1,10 +1,21 @@
 ---
 title: Introduction to `make_website`
-output:
-  html_document:
+output: 
+  rmarkdown::html_vignette:
     toc: true
-  self_contained: false
+    css: custom.css
+vignette: >
+  %\VignetteIndexEntry{Introduction to `make_website`}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
 ---
+
+```{r, echo=FALSE, results='hide'}
+file.copy(from = "test_website_1", to = "../inst/doc", recursive = TRUE, overwrite = TRUE)
+file.copy(from = "test_website_2", to = "../inst/doc", recursive = TRUE, overwrite = TRUE)
+file.copy(from = "custom.css", to = "../inst/doc", overwrite = TRUE)
+```
+
 
 The primary purpose of this package is to provide a way to combine HTML files scattered throughout a file system into a single website with a hierarchical dropdown menu.
 The package was designed to facilitate embedding notes into computational science projects and making research notebooks.
