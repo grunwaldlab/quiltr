@@ -40,16 +40,22 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, br
     on.exit(system(paste("git checkout", original_branch), ignore.stdout = TRUE,
                    ignore.stderr = TRUE), add = TRUE)
   }
+  # Make website before stashing if its source is on the same branch -------------------------------
+  if (branch == get_branch()) {
+    website_path <- do.call(make_website, list(...))    
+  }
   # Stash state of current branch ------------------------------------------------------------------
   stash_result <- system("git stash --all", intern = TRUE)
   if (!"No local changes to save" %in% stash_result) {
     on.exit(system("git stash apply", ignore.stdout = TRUE, ignore.stderr = TRUE), add = TRUE)
   }
+  # Make website after stashing if its source is on a different branch -----------------------------
+  if (branch != get_branch()) {
+    system(paste("git checkout", branch), ignore.stdout = TRUE, ignore.stderr = TRUE)
+    website_path <- do.call(make_website, list(...))
+  }
+  # Return to original working directory when done -------------------------------------------------
   on.exit(setwd(original_wd), add = TRUE)
-  # Change to website source branch ----------------------------------------------------------------
-  system(paste("git checkout", branch), ignore.stdout = TRUE, ignore.stderr = TRUE)
-  # Make website -----------------------------------------------------------------------------------
-  website_path <- do.call(make_website, list(...))
   # Copy website to temporary directory ------------------------------------------------------------
   copy_location <- tempdir()
   file.copy(dirname(website_path), copy_location, overwrite = TRUE, recursive = TRUE)
