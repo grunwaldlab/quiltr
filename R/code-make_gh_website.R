@@ -49,7 +49,7 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, push = NULL,
     unlink(to_delete, recursive = TRUE)
   }
   # Copy website to repository ---------------------------------------------------------------------
-  file.copy(list.files(copy_path, all.files = TRUE, recursive = TRUE, full.names = TRUE), 
+  file.copy(list.files(copy_path, all.files = TRUE, include.dirs = TRUE, full.names = TRUE), 
             repository, overwrite = TRUE, recursive = TRUE)
   # Commit changes ---------------------------------------------------------------------------------
   if (commit) {
