@@ -479,7 +479,8 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' 
 #' @param path (\code{character}) One or more directories in which to look for note files.
 #' @param output (\code{character} of length 1) Location to write the output directory. The website
-#' will be made in a directory called "website" in this location.
+#' will be made in a directory called "website" in this location. If \code{NULL} or \code{NA}, make
+#' the website in a temporary directory. 
 #' @param name (\code{character} of length 1) The name on the link to the homepage of the website. 
 #' @param clean (\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
 #' use.
@@ -556,7 +557,10 @@ make_website <- function(path = getwd(), output = path, name = "Home", clean = T
   names(arg_missing) <- argument_names
   # Parse arguments --------------------------------------------------------------------------------
   path <- normalizePath(path)
-  output <- normalizePath(output)
+  if (is.null(output) || is.na(output))
+    output <- tempdir()
+  else
+    output <- normalizePath(output)
   # Read any configuration files -------------------------------------------------------------------
   if (!is.na(site_config_name) && !is.na(site_config_file) &&
       !is.null(site_config_name) && !is.null(site_config_file)) {

@@ -16,7 +16,8 @@ make_website(path = getwd(), output = path, name = "Home", clean = TRUE,
 \item{path}{(\code{character}) One or more directories in which to look for note files.}
 
 \item{output}{(\code{character} of length 1) Location to write the output directory. The website
-will be made in a directory called "website" in this location.}
+will be made in a directory called "website" in this location. If \code{NULL} or \code{NA}, make
+the website in a temporary directory.}
 
 \item{name}{(\code{character} of length 1) The name on the link to the homepage of the website.}
 
