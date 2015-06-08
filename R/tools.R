@@ -74,3 +74,28 @@ get_common_dir <- function(paths, delim = .Platform$file.sep)
   })
   paste(path_chunks[[1]][seq_len(i - 1)], collapse = delim)
 }
+
+
+#===================================================================================================
+#' Find files in parent directories
+#'
+#' Find a file in the current or a parent directory.
+#'
+#' @param path (\character) One or more directories in which to start looking. If multiple 
+#' directories are given then the search is started in their common parent directory.
+#' @param query (\character) Name of the file to find.
+#' 
+get_file_in_parent <- function(path, query) {
+  if (length(path) > 1) path <- get_common_dir(path)
+  path <- normalizePath(path)
+  if (!file.info(path)$isdir) stop("Path supplied is not a directory.")
+  path_part <- strsplit(path, .Platform$file.sep)[[1]]
+  while (length(path_part) > 0) {
+    search <- do.call(file.path, as.list(c(path_part, query)))
+    if (file.exists(search)) return(search)
+    path_part  <- path_part[-length(path_part)]
+  }
+  return(NULL)
+}
+
+
