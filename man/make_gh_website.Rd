@@ -24,6 +24,7 @@ to the specified remote. Usually this is \code{push = "origin"}.}
 \description{
 WARNING: If you already have a website on a \code{gh-pages} branch then this function can
 delete it when \code{clean = TRUE} (the defualt), so use with care.
+NOTE: Make sure to pull any changes to the \code{gh-pages} branch before running.
 Works like \code{\link{make_website}}, except it places the output in a \code{gh-pages} branch
 of the current git repository so that it is available online at
 \code{http://user_name.github.io/repository_name/}.
