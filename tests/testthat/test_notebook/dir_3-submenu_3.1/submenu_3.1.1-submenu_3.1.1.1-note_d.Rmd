@@ -1,5 +1,0 @@
----
-output: html_fragment
----
-
-# Note D
