@@ -18,7 +18,11 @@
 #' @param ... all other options are passed to \code{\link{make_website}}.
 #' 
 #' @export
-make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, ...) {
+make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, branch = "master", ...) {
+  get_branch <- function() {
+    result <- system("git status",  ignore.stderr = TRUE, intern = TRUE)[[1]]
+    rev(strsplit(result, split = " ")[[1]])[1]    
+  }
   if ("path" %in% names(list(...)))
     path <- list(...)$path
   else
@@ -27,31 +31,30 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, ..
   git_path <- get_file_in_parent(path, ".git")
   if (is.null(git_path)) stop("Not currently in a git repository.")
   repository <- dirname(git_path)
-  # Check that current branch is clean -------------------------------------------------------------
-  if (!"nothing to commit, working directory clean" %in% system("git status", intern = TRUE)) {
-    stop("Current git branch is not clean. Commit changes and/or ignore untracked files.")
+  # Change current working directory ---------------------------------------------------------------
+  original_wd <- getwd()
+  setwd(repository)
+  # Switch back to original branch when done -------------------------------------------------------
+  original_branch <- get_branch()
+  if (reset_branch) {
+    on.exit(system(paste("git checkout", original_branch), ignore.stdout = TRUE,
+                   ignore.stderr = TRUE), add = TRUE)
   }
+  # Stash state of current branch ------------------------------------------------------------------
+  stash_result <- system("git stash --all", intern = TRUE)
+  if (!"No local changes to save" %in% stash_result) {
+    on.exit(system("git stash apply", ignore.stdout = TRUE, ignore.stderr = TRUE), add = TRUE)
+  }
+  on.exit(setwd(original_wd), add = TRUE)
+  # Change to website source branch ----------------------------------------------------------------
+  system(paste("git checkout", branch), ignore.stdout = TRUE, ignore.stderr = TRUE)
   # Make website -----------------------------------------------------------------------------------
   website_path <- do.call(make_website, list(...))
   # Copy website to temporary directory ------------------------------------------------------------
   copy_location <- tempdir()
   file.copy(dirname(website_path), copy_location, overwrite = TRUE, recursive = TRUE)
   copy_path <- file.path(copy_location, basename(dirname(website_path)))
-  # Change current working directory ---------------------------------------------------------------
-  original_wd <- getwd()
-  on.exit(setwd(original_wd))
-  setwd(repository)
-  # Switch back to original branch when done -------------------------------------------------------
-  if (reset_branch) {
-    on.exit(system(paste("git checkout", original_branch), ignore.stdout = TRUE,
-                     ignore.stderr = TRUE))
-  }
   # Switch to gh-pages branch ----------------------------------------------------------------------
-  get_branch <- function() {
-    result <- system("git status",  ignore.stderr = TRUE, intern = TRUE)[[1]]
-    rev(strsplit(result, split = " ")[[1]])[1]    
-  }
-  original_branch <- get_branch()
   can_checkout <- system("git checkout gh-pages", ignore.stdout = TRUE, ignore.stderr = TRUE)
   if (can_checkout == 1)
     can_checkout <- system("git checkout -b gh-pages", ignore.stdout = TRUE, ignore.stderr = TRUE)

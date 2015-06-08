@@ -4,7 +4,8 @@
 \alias{make_gh_website}
 \title{Make a github pages website}
 \usage{
-make_gh_website(reset_branch = TRUE, commit = TRUE, clear = TRUE, ...)
+make_gh_website(reset_branch = TRUE, commit = TRUE, clear = TRUE,
+  branch = "master", ...)
 }
 \arguments{
 \item{reset_branch}{(\code{logical} of length 1) If \code{TRUE}, change back to the current git branch
