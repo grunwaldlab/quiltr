@@ -19,8 +19,7 @@
 #' @param ... all other options are passed to \code{\link{make_website}}.
 #' 
 #' @export
-make_gh_website <- function(reset_branch = TRUE, commit = TRUE, push = NULL, 
-                            clear = TRUE, ...) {
+make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, ...) {
   if ("path" %in% names(list(...)))
     path <- list(...)$path
   else
@@ -30,11 +29,15 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, push = NULL,
   if (is.null(git_path)) stop("Not currently in a git repository.")
   repository <- dirname(git_path)
   # Make website -----------------------------------------------------------------------------------
-  website_path <- make_website(...)
+  website_path <- do.call(make_website, list(...))
   # Copy website to temporary directory ------------------------------------------------------------
   copy_location <- tempdir()
   file.copy(dirname(website_path), copy_location, overwrite = TRUE, recursive = TRUE)
   copy_path <- file.path(copy_location, basename(dirname(website_path)))
+  # Change current working directory ---------------------------------------------------------------
+  original_wd <- getwd()
+  on.exit(setwd(original_wd))
+  setwd(repository)
   # Switch to gh-pages branch ----------------------------------------------------------------------
   result <- system("git status",  ignore.stderr = TRUE, intern = TRUE)[[1]]
   original_branch <- rev(strsplit(result, split = " ")[[1]])[1]
@@ -58,15 +61,14 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, push = NULL,
     result <- system('git commit -a -m "Automated commit by quiltr::make_gh_website"',
                      ignore.stdout = TRUE, ignore.stderr = TRUE)    
   }
-  # Push changes to remote -------------------------------------------------------------------------
-  if (!is.null(push)) {
-    result <- system(paste("git push", push, "gh-pages"), ignore.stdout = TRUE,
-                     ignore.stderr = TRUE)
-  }
   # Switch back to original branch -----------------------------------------------------------------
   if (reset_branch) {
     result <- system(paste("git checkout", original_branch), ignore.stdout = TRUE,
                      ignore.stderr = TRUE)
   }
+  message(paste0("Website made in the 'gh-pages' branch of '", repository,
+                 "'\nTo make the website available online:\n",
+                 "\t1) Move current working directory to '", repository, "'\n",
+                 "\t2) Type 'git push origin gh-pages'"))
   return(website_path)
 }

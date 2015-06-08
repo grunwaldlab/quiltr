@@ -65,6 +65,7 @@ get_rmd_yaml <- function(path, attribute, default = "") {
 #` form http://rosettacode.org/wiki/Find_common_directory_path
 get_common_dir <- function(paths, delim = .Platform$file.sep)
 {
+  if (length(paths) < 2) return(paths)
   path_chunks <- strsplit(paths, delim)
   i <- 1
   repeat({
