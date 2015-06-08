@@ -555,12 +555,7 @@ make_website <- function(path = getwd(), output = path, name = "Home", clean = T
                      missing(site_config_file), missing(output_dir_name), missing(partial_copy),
                      missing(open)))
   names(arg_missing) <- argument_names
-  # Parse arguments --------------------------------------------------------------------------------
-  path <- normalizePath(path)
-  if (is.null(output) || is.na(output))
-    output <- tempdir()
-  output <- normalizePath(output)
-  # Read any configuration files -------------------------------------------------------------------
+ # Read any configuration files -------------------------------------------------------------------
   if (!is.na(site_config_name) && !is.na(site_config_file) &&
       !is.null(site_config_name) && !is.null(site_config_file)) {
     if (!file.exists(site_config_file)) stop(paste0("Cannot find website configuration file at '",
@@ -578,7 +573,12 @@ make_website <- function(path = getwd(), output = path, name = "Home", clean = T
         if (arg_missing[names(config_data)[i]]) assign(x = names(config_data)[i], value = config_data[[i]])
     }
   }
-  # Detect/delete old website ----------------------------------------------------------------------
+ # Parse arguments --------------------------------------------------------------------------------
+ path <- normalizePath(path)
+ if (is.null(output) || is.na(output))
+   output <- tempdir()
+ output <- normalizePath(output)
+ # Detect/delete old website ----------------------------------------------------------------------
   output_path <- file.path(output, output_dir_name)
   content <- file.path(output_path, "content")
   if (file.exists(output_path)) {
