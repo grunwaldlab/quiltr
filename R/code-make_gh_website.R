@@ -45,6 +45,8 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, push = NULL,
   if (clear) {
     to_delete <- list.files(repository, include.dirs = TRUE, all.files = TRUE, full.names = TRUE)
     to_delete <- to_delete[!grepl("\\.git", to_delete)]
+    to_delete <- to_delete[!grepl(file.path(repository, "."), to_delete, fixed = TRUE)]
+    to_delete <- to_delete[!grepl(file.path(repository, ".."), to_delete, fixed = TRUE)]
     unlink(to_delete, recursive = TRUE)
   }
   # Copy website to repository ---------------------------------------------------------------------
