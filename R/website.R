@@ -559,8 +559,7 @@ make_website <- function(path = getwd(), output = path, name = "Home", clean = T
   path <- normalizePath(path)
   if (is.null(output) || is.na(output))
     output <- tempdir()
-  else
-    output <- normalizePath(output)
+  output <- normalizePath(output)
   # Read any configuration files -------------------------------------------------------------------
   if (!is.na(site_config_name) && !is.na(site_config_file) &&
       !is.null(site_config_name) && !is.null(site_config_file)) {
@@ -579,9 +578,6 @@ make_website <- function(path = getwd(), output = path, name = "Home", clean = T
         if (arg_missing[names(config_data)[i]]) assign(x = names(config_data)[i], value = config_data[[i]])
     }
   }
-  # Get note files ---------------------------------------------------------------------------------
-  note_paths <- get_note_files(path)
-  if (length(note_paths) == 0) stop(paste0("No HTML files found in '", path, "'"))
   # Detect/delete old website ----------------------------------------------------------------------
   output_path <- file.path(output, output_dir_name)
   content <- file.path(output_path, "content")
@@ -591,6 +587,9 @@ make_website <- function(path = getwd(), output = path, name = "Home", clean = T
     else
         stop("Website exsits at ", output_path, ". Use `overwrite = TRUE` to replace.")
   }
+  # Get note files ---------------------------------------------------------------------------------
+  note_paths <- get_note_files(path)
+  if (length(note_paths) == 0) stop(paste0("No HTML files found in '", path, "'"))
   # Filter for notes in hirearchy ------------------------------------------------------------------
   classification <- get_note_hierarchy(note_paths, root = path, cumulative = cumulative, 
                                        use_file_names = use_file_names, 
