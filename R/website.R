@@ -575,8 +575,10 @@ make_website <- function(path = getwd(), output = NULL, name = "Home", clean = T
   }
  # Parse arguments --------------------------------------------------------------------------------
  path <- normalizePath(path)
- if (is.null(output) || is.na(output))
-   output <- tempdir()
+ if (is.null(output) || is.na(output)) {
+   output <- tempfile()
+   dir.create(output)
+ }
  output <- normalizePath(output)
  # Detect/delete old website ----------------------------------------------------------------------
   output_path <- file.path(output, output_dir_name)
