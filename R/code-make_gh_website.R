@@ -27,6 +27,10 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, ..
   git_path <- get_file_in_parent(path, ".git")
   if (is.null(git_path)) stop("Not currently in a git repository.")
   repository <- dirname(git_path)
+  # Check that current branch is clean -------------------------------------------------------------
+  if (!"nothing to commit, working directory clean" %in% system("git status", intern = TRUE)) {
+    stop("Current git branch is not clean. Commit changes and/or ignore untracked files.")
+  }
   # Make website -----------------------------------------------------------------------------------
   website_path <- do.call(make_website, list(...))
   # Copy website to temporary directory ------------------------------------------------------------
@@ -59,16 +63,21 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, ..
   }
   # Check that local gh-pages is up to date -------------------------------------------------------
   result <- system2(strsplit("git fetch -v --dry-run", split = " ")[[1]],  stdout=TRUE, stderr=TRUE)
-  if (!any(grepl("^ = \\[up to date\\]      gh-pages   -> ", result)))
+  if (any(grepl(" gh-pages   ->", result))
+      && !any(grepl("^ = \\[up to date\\]      gh-pages", result))) {
     stop("The local copy of the 'gh-pages' branch is out of date. Pull changes before proceeding.")
+  }
   # Delete previous website ------------------------------------------------------------------------
   if (clear) {
     to_delete <- list.files(repository, include.dirs = TRUE, all.files = TRUE, full.names = TRUE)
-    to_delete <- to_delete[!grepl("\\.git", to_delete)]
-    to_delete <- to_delete[!grepl(file.path(repository, "."), to_delete, fixed = TRUE)]
-    to_delete <- to_delete[!grepl(file.path(repository, ".."), to_delete, fixed = TRUE)]
+    to_delete <- to_delete[!grepl("\\.git$", to_delete)]
+    to_delete <- to_delete[!grepl(file.path(repository, ".$"), to_delete)]
+    to_delete <- to_delete[!grepl(file.path(repository, "..$"), to_delete)]
+    to_delete <- to_delete[!grepl(file.path(repository, ".Rproj.user$"), to_delete)]
     unlink(to_delete, recursive = TRUE)
   }
+  # Add .gitignore file ----------------------------------------------------------------------------
+  cat(".Rproj.user\n.Rhistory\n.RData\n", file = file.path(repository, ".gitignore"))
   # Copy website to repository ---------------------------------------------------------------------
   file.copy(list.files(copy_path, all.files = TRUE, include.dirs = TRUE, full.names = TRUE), 
             repository, overwrite = TRUE, recursive = TRUE)
