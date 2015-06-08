@@ -37,6 +37,11 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, ..
   original_wd <- getwd()
   on.exit(setwd(original_wd))
   setwd(repository)
+  # Switch back to original branch when done -------------------------------------------------------
+  if (reset_branch) {
+    on.exit(system(paste("git checkout", original_branch), ignore.stdout = TRUE,
+                     ignore.stderr = TRUE))
+  }
   # Switch to gh-pages branch ----------------------------------------------------------------------
   get_branch <- function() {
     result <- system("git status",  ignore.stderr = TRUE, intern = TRUE)[[1]]
@@ -52,6 +57,10 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, ..
     stop(paste0("Could not change to gh-pages branch. ",
                 "Check that is it possible to change branches."))    
   }
+  # Check that local gh-pages is up to date -------------------------------------------------------
+  result <- system2(strsplit("git fetch -v --dry-run", split = " ")[[1]],  stdout=TRUE, stderr=TRUE)
+  if (!any(grepl("^ = \\[up to date\\]      gh-pages   -> ", result)))
+    stop("The local copy of the 'gh-pages' branch is out of date. Pull changes before proceeding.")
   # Delete previous website ------------------------------------------------------------------------
   if (clear) {
     to_delete <- list.files(repository, include.dirs = TRUE, all.files = TRUE, full.names = TRUE)
@@ -68,11 +77,6 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, ..
     result <- system("git add -A", ignore.stdout = TRUE, ignore.stderr = TRUE)
     result <- system('git commit -a -m "Automated commit by quiltr::make_gh_website"',
                      ignore.stdout = TRUE, ignore.stderr = TRUE)    
-  }
-  # Switch back to original branch -----------------------------------------------------------------
-  if (reset_branch) {
-    result <- system(paste("git checkout", original_branch), ignore.stdout = TRUE,
-                     ignore.stderr = TRUE)
   }
   message(paste0("Website made in the 'gh-pages' branch of '", repository,
                  "'\nTo make the website available online:\n",
