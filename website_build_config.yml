@@ -1,5 +1,5 @@
-path: /home/fosterz/repositories/quiltr/inst/doc
-output: /tmp/RtmpMOY0vv/file36e968f50c47
+path: /home/local/USDA-ARS/fosterz/repositories/quiltr/inst/doc
+output: /tmp/Rtmp5sGXQf/file4b0d26373d39
 name: Quiltr
 clean: yes
 overwrite: yes
@@ -14,7 +14,7 @@ use_file_suffix: yes
 use_dir_suffix: yes
 note_config_name: placement.yml
 site_config_name: website_build_config.yml
-site_config_file: /home/fosterz/repositories/quiltr
+site_config_file: /home/local/USDA-ARS/fosterz/repositories/quiltr
 output_dir_name: website
 partial_copy: no
 open: yes

@@ -82,19 +82,20 @@ code > span.er { color: #ff0000; font-weight: bold; }
 /home/your_name/documents/notes/new/note_5.html</code></pre>
 <p>…and you specified that the target directory is <code>/home/your_name/documents/notes</code>, then:</p>
 <ul>
-<li>note 1 and 2 would appear together on a page of the website reached by the <code>old</code> menu item</li>
-<li>note 3 would appear on a page accessed by a sub-menu (<code>old</code> &gt; <code>sub_dir</code>)</li>
-<li>note 4 would appear on a page accessed by a sub-menu (<code>old</code> &gt; <code>sub_dir</code> &gt; <code>another_sub_dir</code>)</li>
-<li>note 5 would appear on a page accessed by the menu item <code>new</code></li>
+<li>note 1 and 2 would appear together on a page of the website reached by the <strong>old</strong> menu item</li>
+<li>note 3 would appear on a page accessed by a sub-menu (<strong>old</strong> &gt; <strong>sub_dir</strong>)</li>
+<li>note 4 would appear on a page accessed by a sub-menu (<strong>old</strong> &gt; <strong>sub_dir</strong> &gt; <strong>another_sub_dir</strong>)</li>
+<li>note 5 would appear on a page accessed by the menu item <strong>new</strong></li>
 </ul>
 <p>Which parts of the file path are used and how they are processed is affected by a variety of options. The example showed below corresponds to the default options values, but many variations are possible.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">quilt</span>(<span class="dt">path =</span> <span class="st">&quot;/home/your_name/documents/notes&quot;</span>)</code></pre>
-<iframe width="100%" height="500px" src="test_website_1/index.html">
-</iframe>
+<iframe width="100%" height="500px" src="test_website_1/index.html"></iframe>
+
+
 </div>
 <div id="using-content-placement-configurartion-files" class="section level3">
 <h3>Using content placement configurartion files</h3>
-<p>Configuration files can be used to specify the location in the menu hierarchy of specific HTML files. This can be used in combination with or independent of the file path information when determining display location. The example below is the same as the previous one except for the addition of two configuration files named <code>.note_config</code>:</p>
+<p>Configuration files can be used to specify the location in the menu hierarchy of specific HTML files. This can be used in combination with or independent of the file path information when determining display location. The example below is the same as the previous one except for the addition of two configuration files named “.note_config.yml”:</p>
 <pre><code>/home/your_name/documents/notes/old/note_1.html
 /home/your_name/documents/notes/old/note_2.html
 /home/your_name/documents/notes/old/note_config.yml
@@ -102,7 +103,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 /home/your_name/documents/notes/old/sub_dir/note_config.yml
 /home/your_name/documents/notes/old/sub_dir/another_sub_dir/note_4.html
 /home/your_name/documents/notes/new/note_5.html</code></pre>
-<p>The name of the configuration files can be specified when building the website, so they can be named anything; in this instance they are named <code>note_config.yml</code>. The content of the configuration files should be a named list in YAML format, where the name is a file path relative to the configuration files’ location and the elements of the list are website menu locations. The file path can include wildcards or other common file path syntax. The configuration files listed above in the example have the following content:</p>
+<p>The name of the configuration files can be specified when building the website, so they can be named anything; in this instance they are named “.note_config.yml”. The content of the configuration files should be a named list in YAML format, where the name is a file path relative to the configuration files’ location and the elements of the list are website menu locations. The file path can include wildcards or other common file path syntax. The configuration files listed above in the example have the following content:</p>
 <p><code>/home/your_name/documents/notes/old/note_config.yml</code>:</p>
 <pre><code>'note_1.html':
 - absolute
@@ -114,20 +115,22 @@ code > span.er { color: #ff0000; font-weight: bold; }
 - placement
 
 '*/*.html': NULL</code></pre>
-<p>The first configuration file causes the content of <code>note_1.html</code> to be displayed in the menu location <code>custom</code> &gt; <code>placement</code> instead of <code>old</code>. The second has two effects:</p>
+<p>The first configuration file causes the content of “note_1.html” to be displayed in the menu location <strong>custom</strong> &gt; <strong>placement</strong> instead of <strong>old</strong>. The second has two effects:</p>
 <ul>
-<li>The the levels <code>relative</code> &gt; <code>placement</code> are added to the menu location that <code>note_3.html</code> is displayed under. The <code>.</code> as the first list element causes the following levels to be added to the menu path instead of replacing it. The location in the hierarchy is therefore <code>old</code> &gt; <code>sub_dir</code> &gt; <code>relative</code> &gt; <code>placement</code>.</li>
-<li>All HTML files in any sub directory (relative to <code>/home/your_name/documents/notes/old/sub_dir</code>) will not be included in the website due to <code>NULL</code> being the only element specified. In this case, <code>note_4.html</code> will not be included.</li>
+<li>The the levels <strong>relative</strong> &gt; <strong>placement</strong> are added to the menu location that “note_3.html” is displayed under. The <code>.</code> as the first list element causes the following levels to be added to the menu path instead of replacing it. The location in the hierarchy is therefore <strong>old</strong> &gt; <strong>sub_dir</strong> &gt; <strong>relative</strong> &gt; <strong>placement</strong>.</li>
+<li>All HTML files in any sub directory (relative to <code>/home/your_name/documents/notes/old/sub_dir</code>) will not be included in the website due to <code>NULL</code> being the only element specified. In this case, “note_4.html” will not be included.</li>
 </ul>
 <p>Below is the result of building the above directory structure using default options:</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">quilt</span>(<span class="dt">path =</span> <span class="st">&quot;/home/your_name/documents/notes&quot;</span>, <span class="dt">note_config_name =</span> <span class="st">&quot;note_config.yml&quot;</span>)</code></pre>
-<iframe width="100%" height="500px" src="test_website_2/index.html">
-</iframe>
+<iframe width="100%" height="500px" src="test_website_2/index.html"></iframe>
+
+
+
 </div>
 </div>
 <div id="using-a-website-build-configuration-file" class="section level2">
 <h2>Using a website build configuration file</h2>
-<p>In addition to the configuration files used to determine content location, there is another type used to specify default website building options. This configuration file is also in YAML format and contains the values of some or all of the options accepted by the <code>quilt</code> function. Option values specified here replace the defaults when running <code>quilt</code>, although options specified in the configuration file can still be overwritten by function options used. Unlike the content placement configuration files, only one of this type of this type can be used each time a website is built. They are useful for storing the options used to build a specific website in its source directory so that rebuilding the website can be simplified to running <code>quilt()</code> in the project directory. Below is an example of website build configuration file content. In the context of the previous examples, this configuration file would be saved at <code>/home/your_name/documents/notes/build_config.yml</code>.</p>
+<p>In addition to the configuration files used to determine content location, there is another type used to specify default website building options. This configuration file is also in YAML format and contains the values of some or all of the options accepted by the <code>quilt</code> function. Option values specified here replace the defaults when running <code>quilt</code>, although options specified in the configuration file can still be overwritten by function options used. Unlike the content placement configuration files, only one of this type of this type can be used each time a website is built. They are useful for storing the options used to build a specific website in its source directory so that rebuilding the website can be simplified to running <code>quilt()</code> in the project directory. Below is an example of website build configuration file content. In the context of the previous examples, this configuration file would be saved at “/home/your_name/documents/notes/build_config.yml”.</p>
 <pre><code>clean: false
 theme: cosmo
 note_config_name: note_config.yml</code></pre>

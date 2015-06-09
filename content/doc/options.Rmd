@@ -34,13 +34,13 @@ Currently, intermediate levels in the menu hierarchy cannot be selected, but the
 Once that happens, this option will become more relevant. 
 
 If `TRUE`, each pace of HTML content are displayed on every level of its menu classification. 
-For example, if `note_1.html` is assigned to `a` > `b` > `c` and `note_2.html` is assigned to `a` > `b`, then the `a` page and `a` > `b` page will display both notes. 
+For example, if "note_1.html" is assigned to **a** > **b** > **c** and "note_2.html" is assigned to **a** > **b**, then the **a** page and **a** > **b** page will display both notes. 
 The default is `TRUE`.
 
 ### Using file names (`use_file_names`):
 
 If `TRUE`, the names of HTML content files will be used when inferring the menu hierarchy.
-In other words, the name of the HTML file (minus the `.html`) will be in the website menu.
+In other words, the name of the HTML file (minus the ".html") will be in the website menu.
 The file name can be split using the `name_sep` option into multiple levels in the menu. 
 See the `name_sep` documentation for more details. 
 The default is `FALSE`.
@@ -82,13 +82,13 @@ The default is `TRUE`.
 ### Specify name of custom placement configuration files (`note_config_name`):
 
 The name of configuration files anywhere in the target directory that specify the location of HTML file content in the menu hierarchy. 
-The default is `.note.yml`.
+The default is ".note.yml".
 
 ### Specify name of website configuration file (`site_config_name`):
 
 The name of the configuration file used to provide default option values for this function. 
 If one exists, it should be in the root of the target directory.
-The default is `.website_config.yml`.
+The default is ".website_config.yml".
 
 
 ### Specify a website configuration file (`site_config_file`):
@@ -123,7 +123,7 @@ At the time of writing, the following themes were available:
 * united
 * cosmo
 
-The default is `journal`.
+The default is "journal".
 
 ### Applying theme to embedded HTML content (`apply_theme`):
 
@@ -135,7 +135,7 @@ The default is `FALSE`.
 ### Specify output directory names (`output_dir_name`):
 
 The name of the output directory made in the location specified by argument `ouput` containing the website.
-The default is `website`. 
+The default is "website". 
 
 ### Remove intermediate files (`clean`):
 

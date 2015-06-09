@@ -10,7 +10,7 @@
 
 
 
-<title>Website generation quick-start guide</title>
+<title>Uploading to GitHub Pages</title>
 
 
 
@@ -24,11 +24,75 @@
 
 
 <div id="header">
-<h1 class="title">Website generation quick-start guide</h1>
+<h1 class="title">Uploading to GitHub Pages</h1>
 </div>
 
 
-
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Quiltr projects work well with <a href="https://git-scm.com/">git</a> version control since all of the input and output is in the form of text files. One perk of using git is <a href="https://github.com/">GitHub</a> which offers unlimited free public repository hosting. Repositories on GitHub can have an associated website at <a href="https://pages.github.com/">GitHub Pages</a> by adding a “gh-pages” branch containing the website source. For example, this website lives in the “gh-pages” branch of the <a href="https://github.com/grunwaldlab/quiltr/tree/gh-pages">Quiltr repository</a>. To make it easy to host Quiltr output on GitHub Pages, there is a wrapper function called <code>make_gh_website</code> that will build a website using <code>quilt</code> and put its output in the “gh-pages” branch of a git repository.</p>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>The <code>make_gh_website</code> function is used in the same way as <code>quilt</code> and accepts all of its arguments. This makes it easy to develop and test websites using <code>quilt</code> and then use <code>make_gh_website</code> with the same parameters to put the website online when it is ready. The <code>make_gh_website</code> function will make automated commits of automatically produced HTML, so to avoid inflating the repository, <code>make_gh_website</code> should only be used to update websites, rather than for testing. A typical work flow would be:</p>
+<ol style="list-style-type: decimal">
+<li>Make new git repository at GitHub</li>
+<li>Clone (i.e. download) the new repository to your computer</li>
+<li>Make an R project out of the repository using <a href="http://www.rstudio.com/">RStudio</a></li>
+<li>Add a configuration file to govern website build</li>
+<li>Add/change <a href="http://rmarkdown.rstudio.com/">Rmarkdown</a> files and <a href="http://yihui.name/knitr/">knit</a> them to HTML files.</li>
+<li>Preview website using <code>quilt()</code> in the repository directory</li>
+<li>Repeat steps 5 and 6 until the site is ready to go online</li>
+<li>Run <code>make_gh_website()</code> to make it available on GitHub Pages.</li>
+</ol>
+</div>
+<div id="workflow" class="section level2">
+<h2>Workflow</h2>
+<p>This is just one example of many possible workflows, chosen for ease use. For the purposes of demonstration, I will start by explaining how to make a new git repository on GitHub. If you already have a git repository on GitHub, you can use that and skip to the sections on adding a configuration file and HTML content.</p>
+<div id="ingredients" class="section level3">
+<h3>Ingredients</h3>
+<p>To follow the example workflow below, you will need:</p>
+<ul>
+<li>Quiltr</li>
+<li><a href="https://git-scm.com/">git</a></li>
+<li><a href="http://www.rstudio.com/">RStudio</a></li>
+<li>A <a href="https://github.com/">GitHub</a> account</li>
+</ul>
+</div>
+<div id="making-a-new-git-repository" class="section level3">
+<h3>1) Making a new git repository</h3>
+<p>To start a new repository, go to <a href="https://github.com/">GitHub</a> and log in. Click on the <strong>+</strong> sign on the top right, next to your user name, and choose “New Repository”. Choose a name for the repository (this will be the directory name on you computer) and select to “Initialize this repository with a README”. Initializing with a README simplifies the process of getting a copy on your computer.</p>
+</div>
+<div id="downloading-the-new-repository" class="section level3">
+<h3>2) Downloading the new repository</h3>
+<p>The repository now exists on GitHub, but we need a copy of it on a computer to do anything to it. Git can be used to download a copy, but it needs a SSH clone URL. This can be found on the repository’s GitHub page at the bottom the menu on the right. Open up a terminal (aka command line prompt) and change directories to the place you want to download the repository to. Enter <code>git clone git@github.com:user/repo.git</code>, where <code>git@github.com:user/repo.git</code> is the SSH clone URL you copied. This command should create a new directory in the current working directory with the same name as your repository. If this is the first time using GitHub on your computer, you will need to <a href="https://help.github.com/articles/generating-ssh-keys/">set up a SSH key pair</a>.</p>
+</div>
+<div id="making-an-r-project" class="section level3">
+<h3>3) Making an R project</h3>
+<p>It is not necessary to use <a href="http://www.rstudio.com/">RStudio</a> or make the repository into an R project, but both add enough convenience to make doing it worthwhile. Start RStudio and select “New Project…” from the dropdown menu location at the top right. In the window that pops up, select “Existing Directory” and specify the repository directory. This will add a few files to the repository and change the current working directory to the repository (You can see this to the right of the “Console” header). One of the files made is a “repo.Rproj” file (where “repo” is your repository name), which can be used to open the project again in RStudio.</p>
+</div>
+<div id="adding-a-website-configuration-file" class="section level3">
+<h3>4) Adding a website configuration file</h3>
+<p>Although not necessary, website build configuration files are useful for storing <code>quilt</code> parameters in the source of the website. This allows <code>quilt</code> to be run with no options when in the project directory (where RStudio always starts when opening R projects). The values of <code>quilt</code> options are important when deciding file names and directory structure of HTML content, but for demonstration, lets only specify a few options and not worry about it too much. Make a new text file (upper left drop down menu in RStudio) named “website_build_config.yml” and save the following content in it:</p>
+<pre><code>theme: spacelab
+cumulative: false</code></pre>
+<p>To see what effect this has and other available options, see the documentation on <code>quilt</code> options.</p>
+</div>
+<div id="adding-html-content" class="section level3">
+<h3>5) Adding HTML content</h3>
+<p>Now we can finally start adding the content of the soon-to-be website. See the introduction section for how file and directory names affect where the content is displayed on the website. In this example, we will add HTML files indirectly by adding Rmd files. However, HTML files from any source should work as well.</p>
+<p>Make a new Rmd file using the drop down menu at the top left. The default settings are fine for our purposes, but any configuration that outputs HTML should work. To make this the home page, save the Rmd under any name without dashes (“-”) in it. After saving the file, press the “Knit” button above the text editor window. This will create an HTML file with the same name, but an “.html” extension instead of “.Rmd”.</p>
+<p>By default, the <code>quilt</code> function splits file names on dashes when inferring website menu location for content. It also ignores the trailing element when the file name is split by default; in this case of a file name without dashes, the whole name is ignored and the content is displayed on the home page. Add other Rmd files with dashes in the names to place more content in other parts of the website. For example, a file named “notes-part_1-a_random_note.Rmd” would output “notes-part_1-a_random_note.html” which would be displayed under the <strong>notes</strong> &gt; <strong>part 1</strong> menu location on the website.</p>
+</div>
+<div id="previewing-the-webpage" class="section level3">
+<h3>6) Previewing the webpage</h3>
+<p>To build a webpage from the HTML files in the repository directory, simply enter <code>quilt()</code> in the R console window. By default, the website will be saved to a temporary directory and displayed in the RStudio “Viewer” window. Make any desired changes to the HTML content (via Rmd changes followed by “Knit”) and repeat until satisfied.</p>
+</div>
+<div id="publishing-the-site-on-github-pages" class="section level3">
+<h3>7) Publishing the site on GitHub Pages</h3>
+<p>When the site is ready to go online, enter <code>make_gh_website(push = TRUE)</code> in the R console. If everything worked, the site should be viewable online at the URL returned by the function.</p>
+</div>
+</div>
 
 
 

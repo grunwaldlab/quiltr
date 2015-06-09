@@ -62,10 +62,10 @@ For example, if you had the following 5 HTML files on your computer...
 
 ...and you specified that the target directory is `/home/your_name/documents/notes`, then: 
 
-* note 1 and 2 would appear together on a page of the website reached by the `old` menu item
-* note 3 would appear on a page accessed by a sub-menu (`old` > `sub_dir`)
-* note 4 would appear on a page accessed by a sub-menu (`old` > `sub_dir` > `another_sub_dir`)
-* note 5 would appear on a page accessed by the menu item `new`
+* note 1 and 2 would appear together on a page of the website reached by the **old** menu item
+* note 3 would appear on a page accessed by a sub-menu (**old** > **sub_dir**)
+* note 4 would appear on a page accessed by a sub-menu (**old** > **sub_dir** > **another_sub_dir**)
+* note 5 would appear on a page accessed by the menu item **new**
 
 Which parts of the file path are used and how they are processed is affected by a variety of options. 
 The example showed below corresponds to the default options values, but many variations are possible.
@@ -86,7 +86,7 @@ quilt(path = "/home/your_name/documents/notes")
 
 Configuration files can be used to specify the location in the menu hierarchy of specific HTML files.
 This can be used in combination with or independent of the file path information when determining display location.
-The example below is the same as the previous one except for the addition of two configuration files named `.note_config`:
+The example below is the same as the previous one except for the addition of two configuration files named ".note_config.yml":
 
 ```
 /home/your_name/documents/notes/old/note_1.html
@@ -98,7 +98,7 @@ The example below is the same as the previous one except for the addition of two
 /home/your_name/documents/notes/new/note_5.html
 ```
 
-The name of the configuration files can be specified when building the website, so they can be named anything; in this instance they are named `note_config.yml`.
+The name of the configuration files can be specified when building the website, so they can be named anything; in this instance they are named ".note_config.yml".
 The content of the configuration files should be a named list in YAML format, where the name is a file path relative to the configuration files' location and the elements of the list are website menu locations.
 The file path can include wildcards or other common file path syntax. 
 The configuration files listed above in the example have the following content: 
@@ -115,11 +115,11 @@ cat(readChar("../vignette_examples/test_website_2/old/note_config.yml", nchars =
 cat(readChar("../vignette_examples/test_website_2/old/sub_dir/note_config.yml", nchars = 10000))
 ```
 
-The first configuration file causes the content of `note_1.html` to be displayed in the menu location `custom` > `placement` instead of `old`. 
+The first configuration file causes the content of "note_1.html" to be displayed in the menu location **custom** > **placement** instead of **old**. 
 The second has two effects:
 
-* The the levels `relative` > `placement` are added to the menu location that `note_3.html` is displayed under. The `.` as the first list element causes the following levels to be added to the menu path instead of replacing it. The location in the hierarchy is therefore `old` > `sub_dir` > `relative` > `placement`.
-* All HTML files in any sub directory (relative to `/home/your_name/documents/notes/old/sub_dir`) will not be included in the website due to `NULL` being the only element specified. In this case, `note_4.html` will not be included. 
+* The the levels **relative** > **placement** are added to the menu location that "note_3.html" is displayed under. The `.` as the first list element causes the following levels to be added to the menu path instead of replacing it. The location in the hierarchy is therefore **old** > **sub_dir** > **relative** > **placement**.
+* All HTML files in any sub directory (relative to `/home/your_name/documents/notes/old/sub_dir`) will not be included in the website due to `NULL` being the only element specified. In this case, "note_4.html" will not be included. 
 
 Below is the result of building the above directory structure using default options:
 
@@ -144,7 +144,7 @@ Option values specified here replace the defaults when running `quilt`, although
 Unlike the content placement configuration files, only one of this type of this type can be used each time a website is built. 
 They are useful for storing the options used to build a specific website in its source directory so that rebuilding the website can be simplified to running `quilt()` in the project directory.
 Below is an example of website build configuration file content. 
-In the context of the previous examples, this configuration file would be saved at `/home/your_name/documents/notes/build_config.yml`.
+In the context of the previous examples, this configuration file would be saved at "/home/your_name/documents/notes/build_config.yml".
 
 ```
 clean: false
