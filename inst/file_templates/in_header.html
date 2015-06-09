@@ -41,7 +41,7 @@ function autoResize(id){
     if(document.getElementById){
         newheight=document.getElementById(id).contentWindow.document.body.scrollHeight;
     }
-    document.getElementById(id).height= (Math.round( newheight * 1.12)) + "px";
+    document.getElementById(id).height= (Math.round( newheight * 1.2)) + "px";
 }
 //-->
 </script>
@@ -52,7 +52,7 @@ function autoResize(id){
 <!--
 function apply_theme(id){
   var cssLink = document.createElement("link");
-  cssLink.href = document.getElementsByTagName("link")[0].getAttribute("href"); 
+  cssLink.href = Array(document.getElementById(id).getAttribute("src").split("/").length).join("../").concat(document.getElementsByTagName("link")[0].getAttribute("href")); 
   cssLink.rel = "stylesheet"; 
   cssLink.type = "text/css"; 
   document.getElementById(id).contentWindow.document.head.appendChild(cssLink);
