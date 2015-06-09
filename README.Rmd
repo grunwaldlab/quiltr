@@ -3,13 +3,43 @@
 [![Build Status](https://travis-ci.org/grunwaldlab/quiltr.png?branch=master)](https://travis-ci.org/grunwaldlab/quiltr?branch=master)
 [![codecov.io](https://codecov.io/github/grunwaldlab/quiltr/coverage.svg?branch=master)](https://codecov.io/github/grunwaldlab/quiltr?branch=master)
 
-Quiltr is an R package currently under development to aid in the creation and maintenance of research notebooks. 
-By leveraging the functionality of `knitr`, `git`, and the Bootstrap web framework, this package allows for efficient creation of HTML lab notebooks from notes in Rmd files. 
-This facilitates reproducible, version controlled, easily shared research notes/analyses on all major operating systems using free, open source software. 
+## What it is
 
-Currently, the primary focus of the package is automated website creation by combining HTML files scattered throughout a directory structure.
-The hierarchical menu of the website can be derived from HTML file names/paths or custom configuration files. 
-This is done without imposing/assuming any particular directory structure or HTML syntax, making it extremely flexible and easy to use. 
+Quiltr is an R package used to combine HTML files scattered throughout a file system into a single website organized by a hierarchical drop-down menu.
+It is designed to facilitate embedding notes into computational science projects and making research notebooks.
+For this reason, quiltr is most appropriate for creating websites to document projects, where ease of use, transparency, and reliability are the priority.
+
+
+## What it is not
+
+Making simple static websites for other purposes is also possible, but quiltr is not designed be an all-purpose website generator such as [Jekyll](http://jekyllrb.com/) or [Drupal](https://www.drupal.org/).
+It makes static webpages that have to be rebuilt each time their source change.
+
+
+## What it does
+
+Quiltr consolidates any set of HTML files in any directory structure into a website.
+All of the raw content of the website, besides the drop down menu and other basic site structure elements, is derived from the HTML files.
+The organization of the website and where HTML file content is displayed can be determined by the names of the files/directories or customized using configuration files.
+There is also a wrapper function that makes it easy to upload and modify websites on [GitHub Pages](https://pages.github.com/) (where this site is hosted).
+
+
+## Why use it
+
+The benefit of this system is that there are very few restrictions on the layout of the file structure and no knowledge of web design needed beyond the ability to create HTML content (e.g. using Rmd or Word).
+[Rmarkdown](http://rmarkdown.rstudio.com/) is particularly suited to be used with quiltr since it can create HTML from the easily learned Markdown language.
+Together, Quiltr and Markdown can be used to create websites without any knowledge of web design or HTML for free on any operating system.
+It is so flexible that a website can be made from any directory containing HTML files, regardless if the HTML files or the directory were made for this purpose.
+
+
+## An example
+
+In the case of documenting computer science projects, the choice of directory structure can be governed by the needs of the project rather than the documentation.
+R packages are a good example, in that they require a very specific directory structure, yet have should have integrated, easily accessible documentation, such as vingettes. 
+Quiltr can be used to integrate vignettes into a website. 
+This website is the result of running the `quilt` function on the Quiltr package source and each page is one of the vignettes you access individually by typing `browseVignettes(package = "quiltr")` into an R terminal. 
+A single function call rebuilds the website and uploads it to GitHub pages each time changes are made. 
+
 
 ## Installation
 
@@ -31,9 +61,3 @@ The package should now be installed and can be loaded using:
 ```{r, eval=FALSE}
 library(quiltr)
 ```
-
-## Documentation
-
-The documentation for Quiltr can be found on our website at:
-
-http://grunwaldlab.github.io/quiltr
