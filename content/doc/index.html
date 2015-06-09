@@ -54,7 +54,26 @@ code > span.er { color: #ff0000; font-weight: bold; }
 </div>
 
 
-<p>Currently, the primary focus of the package is automated website creation by combining HTML files scattered throughout a directory structure. The hierarchical menu of the website can be derived from HTML file names/paths or custom configuration files. This is done without imposing/assuming any particular directory structure or HTML syntax, making it extremely flexible and easy to use.</p>
+<div id="what-it-is" class="section level2">
+<h2>What it is</h2>
+<p>Quiltr is an R package used to combine HTML files scattered throughout a file system into a single website organized by a hierarchical drop-down menu. It is designed to facilitate embedding notes into computational science projects and making research notebooks. For this reason, quiltr is most appropriate for creating websites to document projects, where ease of use, transparency, and reliability are the priority.</p>
+</div>
+<div id="what-it-is-not" class="section level2">
+<h2>What it is not</h2>
+<p>Making simple static websites for other purposes is also possible, but quiltr is not designed be an all-purpose website generator such as <a href="http://jekyllrb.com/">Jekyll</a> or <a href="https://www.drupal.org/">Drupal</a>. It makes static webpages that have to be rebuilt each time their source change.</p>
+</div>
+<div id="what-it-does" class="section level2">
+<h2>What it does</h2>
+<p>Quiltr consolidates any set of HTML files in any directory structure into a website. All of the raw content of the website, besides the drop down menu and other basic site structure elements, is derived from the HTML files. The organization of the website and where HTML file content is displayed can be determined by the names of the files/directories or customized using configuration files. There is also a wrapper function that makes it easy to upload and modify websites on <a href="https://pages.github.com/">GitHub Pages</a> (where this site is hosted).</p>
+</div>
+<div id="why-use-it" class="section level2">
+<h2>Why use it</h2>
+<p>The benefit of this system is that there are very few restrictions on the layout of the file structure and no knowledge of web design needed beyond the ability to create HTML content (e.g. using Rmd or Word). <a href="http://rmarkdown.rstudio.com/">Rmarkdown</a> is particularly suited to be used with quiltr since it can create HTML from the easily learned Markdown language. Together, Quiltr and Markdown can be used to create websites without any knowledge of web design or HTML for free on any operating system. It is so flexible that a website can be made from any directory containing HTML files, regardless if the HTML files or the directory were made for this purpose.</p>
+</div>
+<div id="an-example" class="section level2">
+<h2>An example</h2>
+<p>In the case of documenting computer science projects, the choice of directory structure can be governed by the needs of the project rather than the documentation. R packages are a good example, in that they require a very specific directory structure, yet have should have integrated, easily accessible documentation, such as vingettes. Quiltr can be used to integrate vignettes into a website. This website is the result of running the <code>quilt</code> function on the Quiltr package source and each page is one of the vignettes you access individually by typing <code>browseVignettes(package = &quot;quiltr&quot;)</code> into an R terminal. A single function call rebuilds the website and uploads it to GitHub pages each time changes are made.</p>
+</div>
 <div id="installation" class="section level2">
 <h2>Installation</h2>
 <p>quiltr is an R package available on GitHub, so it can be installed from the RStudio console or an R command line session using the <code>devtools</code> command <code>install_github</code>. First, make sure <code>devtools</code> is installed:</p>

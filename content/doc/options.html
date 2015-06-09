@@ -10,7 +10,7 @@
 
 
 
-<title>Arguments and options for make_website</title>
+<title>Arguments and options for quilt</title>
 
 
 
@@ -24,27 +24,19 @@
 
 
 <div id="header">
-<h1 class="title">Arguments and options for <code>make_website</code></h1>
+<h1 class="title">Arguments and options for <code>quilt</code></h1>
 </div>
 
-<div id="TOC">
-<ul>
-<li><a href="#main-arguments">Main arguments</a></li>
-<li><a href="#website-menu-hierarchy-options">Website menu hierarchy options</a></li>
-<li><a href="#website-appearance-options">Website appearance options</a></li>
-<li><a href="#output-file-structure-options">Output file structure options</a></li>
-</ul>
-</div>
 
 <div id="main-arguments" class="section level2">
 <h2>Main arguments</h2>
 <div id="target-directory-path" class="section level3">
 <h3>Target directory (<code>path</code>):</h3>
-<p>This is the directory in which to search HTML content files. It is also the root directory used to inferr the website menu hierarcy when <code>use_dir_names = TRUE</code>. The default is the current working directory.</p>
+<p>This is the directory in which to search HTML content files. It is also the root directory used to infer the website menu hierarchy when <code>use_dir_names = TRUE</code>. The default is the current working directory.</p>
 </div>
 <div id="output-directory-output" class="section level3">
 <h3>Output directory (<code>output</code>):</h3>
-<p>The path to where an output directory will be made with a name speficied by <code>output_dir_name</code>. The default is the value of the <code>path</code> argument.</p>
+<p>The path to where an output directory will be made with a name specified by <code>output_dir_name</code>. The default is the value of the <code>path</code> argument.</p>
 </div>
 </div>
 <div id="website-menu-hierarchy-options" class="section level2">
@@ -52,31 +44,31 @@
 <div id="displaying-content-on-every-page-in-its-menu-hierarchy-cumulative" class="section level3">
 <h3>Displaying content on every page in its menu hierarchy (<code>cumulative</code>):</h3>
 <p>Currently, intermediate levels in the menu hierarchy cannot be selected, but there are plans to make them clickable. Once that happens, this option will become more relevant.</p>
-<p>If <code>TRUE</code>, each peice of HTML content are displayed on every level of its menu classification. For examle, if <code>note_1.html</code> is assigned to <code>a</code> &gt; <code>b</code> &gt; <code>c</code> and <code>note_2.html</code> is assigned to <code>a</code> &gt; <code>b</code>, then the <code>a</code> page and <code>a</code> &gt; <code>b</code> page will display both notes. The default is <code>TRUE</code>.</p>
+<p>If <code>TRUE</code>, each pace of HTML content are displayed on every level of its menu classification. For example, if <code>note_1.html</code> is assigned to <code>a</code> &gt; <code>b</code> &gt; <code>c</code> and <code>note_2.html</code> is assigned to <code>a</code> &gt; <code>b</code>, then the <code>a</code> page and <code>a</code> &gt; <code>b</code> page will display both notes. The default is <code>TRUE</code>.</p>
 </div>
 <div id="using-file-names-use_file_names" class="section level3">
 <h3>Using file names (<code>use_file_names</code>):</h3>
-<p>If <code>TRUE</code>, the names of HTML content files will be used when infering the menu hierarchy. In other words, the name of the HTML file (minus the <code>.html</code>) will be in the website menu. The file name can be split using the <code>name_sep</code> option into multiple levels in the menu. See the <code>name_sep</code> documentation for more details. The default is <code>FALSE</code></p>
+<p>If <code>TRUE</code>, the names of HTML content files will be used when inferring the menu hierarchy. In other words, the name of the HTML file (minus the <code>.html</code>) will be in the website menu. The file name can be split using the <code>name_sep</code> option into multiple levels in the menu. See the <code>name_sep</code> documentation for more details. The default is <code>FALSE</code>.</p>
 </div>
 <div id="using-directory-path-names-use_dir_names" class="section level3">
 <h3>Using directory path names (<code>use_dir_names</code>):</h3>
-<p>If <code>TRUE</code>, the directory path of HTML content files relative to the target directory (<code>path</code>) will be used when infering the menu hierarchy. In other words, directory names in the target directory will be in the website menu. The directory names can be split using the <code>name_sep</code> option into multiple levels in the menu. See the <code>name_sep</code> documentation for more details. The default is <code>TRUE</code></p>
+<p>If <code>TRUE</code>, the directory path of HTML content files relative to the target directory (<code>path</code>) will be used when inferring the menu hierarchy. In other words, directory names in the target directory will be in the website menu. The directory names can be split using the <code>name_sep</code> option into multiple levels in the menu. See the <code>name_sep</code> documentation for more details. The default is <code>TRUE</code>.</p>
 </div>
 <div id="splitting-file-path-names-by-spearator-name_sep" class="section level3">
 <h3>Splitting file path names by spearator (<code>name_sep</code>):</h3>
-<p>A character to split directory and file names by before using the information to infer the menu hierarchy. This allows for multiple levels in a hierarchy to be defined in the same directory. This option only has an effect if <code>use_file_names = TRUE</code> or <code>use_dir_names = TRUE</code>. Set to <code>NULL</code> to not split names. The defualt is <code>-</code>.</p>
+<p>A character to split directory and file names by before using the information to infer the menu hierarchy. This allows for multiple levels in a hierarchy to be defined in the same directory. This option only has an effect if <code>use_file_names = TRUE</code> or <code>use_dir_names = TRUE</code>. Set to <code>NULL</code> to not split names. The default is <code>-</code>.</p>
 </div>
 <div id="including-last-part-of-file-name-in-hierarchy-use_file_suffix" class="section level3">
 <h3>Including last part of file name in hierarchy (<code>use_file_suffix</code>):</h3>
-<p>When a file name is split using <code>name_sep</code>, include the last peice in the menu hierarchy. Only has an effect if <code>use_file_names = TRUE</code> and <code>name_sep != NULL</code>. The default is <code>FALSE</code>.</p>
+<p>When a file name is split using <code>name_sep</code>, include the last pace in the menu hierarchy. Only has an effect if <code>use_file_names = TRUE</code> and <code>name_sep != NULL</code>. The default is <code>FALSE</code>.</p>
 </div>
 <div id="including-last-part-of-directory-path-in-hierarchy-use_dir_suffix" class="section level3">
 <h3>Including last part of directory path in hierarchy (<code>use_dir_suffix</code>):</h3>
-<p>When a directory name is split using <code>name_sep</code>, include the last peice in the menu hierarchy. Only has an effect if <code>use_file_names = TRUE</code> and <code>name_sep != NULL</code>. The default is <code>TRUE</code>.</p>
+<p>When a directory name is split using <code>name_sep</code>, include the last pace in the menu hierarchy. Only has an effect if <code>use_file_names = TRUE</code> and <code>name_sep != NULL</code>. The default is <code>TRUE</code>.</p>
 </div>
 <div id="using-configuration-for-custom-placement-use_config_files" class="section level3">
 <h3>Using configuration for custom placement (<code>use_config_files</code>):</h3>
-<p>Use configuration files that specify the location of HTML file content in the menu hierarchy. These files must be named as specified by option <code>note_config_name</code> and occure anywhere in the target directory. The default is <code>TRUE</code>.</p>
+<p>Use configuration files that specify the location of HTML file content in the menu hierarchy. These files must be named as specified by option <code>note_config_name</code> and occur anywhere in the target directory. The default is <code>TRUE</code>.</p>
 </div>
 <div id="specify-name-of-custom-placement-configuration-files-note_config_name" class="section level3">
 <h3>Specify name of custom placement configuration files (<code>note_config_name</code>):</h3>
@@ -84,15 +76,15 @@
 </div>
 <div id="specify-name-of-website-configuration-file-site_config_name" class="section level3">
 <h3>Specify name of website configuration file (<code>site_config_name</code>):</h3>
-<p>The name of the configuration file used to provide defualt option values for this function. If one exists, it should be in the root of the target directory. The default is <code>.website_config.yml</code>.</p>
+<p>The name of the configuration file used to provide default option values for this function. If one exists, it should be in the root of the target directory. The default is <code>.website_config.yml</code>.</p>
 </div>
 <div id="specify-a-website-configuration-file-site_config_file" class="section level3">
 <h3>Specify a website configuration file (<code>site_config_file</code>):</h3>
-<p>The path to a build configuration file containing defualt option values for this function in YAML format. In can also be the path to a directory where a file exists that is named the same as <code>site_config_name</code>. Below is an example of possible content:</p>
+<p>The path to a build configuration file containing default option values for this function in YAML format. In can also be the path to a directory where a file exists that is named the same as <code>site_config_name</code>. Below is an example of possible content:</p>
 <pre><code>clean: false
 theme: cosmo
 note_config_name: note_config.yml</code></pre>
-<p>The defualt is to look for a configuration file named as specified by option <code>site_config_name</code> in the target directory (argument <code>path</code>).</p>
+<p>The default is to look for a configuration file named as specified by option <code>site_config_name</code> in the target directory (argument <code>path</code>).</p>
 </div>
 </div>
 <div id="website-appearance-options" class="section level2">
@@ -114,14 +106,14 @@ note_config_name: note_config.yml</code></pre>
 </div>
 <div id="applying-theme-to-embedded-html-content-apply_theme" class="section level3">
 <h3>Applying theme to embedded HTML content (<code>apply_theme</code>):</h3>
-<p>If <code>TRUE</code>, apply Bootstrap theme CSS to note content. This might not work on all browsers yet. The default is <code>FALSE</code>.</p>
+<p>If <code>TRUE</code>, apply Bootstrap theme CSS used in the menu to HTML content. The default is <code>FALSE</code>.</p>
 </div>
 </div>
 <div id="output-file-structure-options" class="section level2">
 <h2>Output file structure options</h2>
 <div id="specify-output-directory-names-output_dir_name" class="section level3">
 <h3>Specify output directory names (<code>output_dir_name</code>):</h3>
-<p>The name of the output directory made in the locaiton specified by argument <code>ouput</code> containing the website. The default is <code>website</code>.</p>
+<p>The name of the output directory made in the location specified by argument <code>ouput</code> containing the website. The default is <code>website</code>.</p>
 </div>
 <div id="remove-intermediate-files-clean" class="section level3">
 <h3>Remove intermediate files (<code>clean</code>):</h3>
@@ -129,8 +121,12 @@ note_config_name: note_config.yml</code></pre>
 </div>
 <div id="overwrite-previous-output-overwrite" class="section level3">
 <h3>Overwrite previous output (<code>overwrite</code>):</h3>
-<p>If <code>TRUE</code>, an existing directory with the same name as the output directory will be overwritten. This is <code>FALSE</code> by default to avoid accedental deletions.</p>
-<p><strong>WARNING:</strong> it is possible to accedentally delete whole directories when <code>overwrite = TRUE</code>. For example, consider the result of trying to output in root (<code>/</code>) when <code>output_dir_name = 'home'</code> and <code>overwrite = TRUE</code>.</p>
+<p>If <code>TRUE</code>, an existing directory with the same name as the output directory will be overwritten. This is <code>FALSE</code> by default to avoid accidental deletions.</p>
+<p><strong>WARNING:</strong> it is possible to accidentally delete whole directories when <code>overwrite = TRUE</code>. For example, consider the result of trying to output in root (<code>/</code>) when <code>output_dir_name = 'home'</code> and <code>overwrite = TRUE</code>.</p>
+</div>
+<div id="copy-entire-source-directory-partial_copy" class="section level3">
+<h3>Copy entire source directory (<code>partial_copy</code>):</h3>
+<p>If <code>FALSE</code>, The entire target directory of will be copied instead of just the HTML files and their dependencies. It is possible that more than just the target directory will be copied if there are files in the target directory with dependencies outside it. Enough of the file structure will be copied to included all dependencies. The default is <code>TRUE</code>.</p>
 </div>
 </div>
 
