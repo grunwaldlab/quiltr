@@ -1,9 +1,11 @@
 ## ---- echo=FALSE, results='hide'-----------------------------------------
-if (!file.exists("../inst/doc")) dir.create("../inst/doc")
-file.copy(from = "test_website_1", to = "../inst/doc", recursive = TRUE, overwrite = TRUE)
-file.copy(from = "test_website_2", to = "../inst/doc", recursive = TRUE, overwrite = TRUE)
-file.copy(from = "custom.css", to = "../inst/doc", overwrite = TRUE)
-file.copy(from = "placement.yml", to = "../inst/doc", overwrite = TRUE)
+doc_path <- "../inst/doc"
+if (file.exists(doc_path)) unlink(doc_path, recursive = TRUE)
+dir.create(doc_path)
+file.copy(from = "test_website_1", to = doc_path, recursive = TRUE, overwrite = TRUE)
+file.copy(from = "test_website_2", to = doc_path, recursive = TRUE, overwrite = TRUE)
+file.copy(from = "custom.css", to = doc_path, overwrite = TRUE)
+file.copy(from = "placement.yml", to = doc_path, overwrite = TRUE)
 
 ## ----make_test_website_1, echo=FALSE, results='hide', eval=FALSE---------
 #  # This is not run automatically due to rmarkdown issue #248, but is used to make the website example
