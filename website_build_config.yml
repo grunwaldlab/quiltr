@@ -1,7 +1,7 @@
 path: ./inst/doc
 output: NULL
 name: Quiltr
-theme: cosmo
+theme: flatly
 use_dir_names: false
 use_file_suffix: true
 cumulative: false

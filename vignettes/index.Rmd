@@ -1,0 +1,36 @@
+---
+title: The `quiltr` Package
+output: 
+  rmarkdown::html_vignette:
+    toc: false
+    css: custom.css
+vignette: >
+  %\VignetteIndexEntry{Package introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+Currently, the primary focus of the package is automated website creation by combining HTML files scattered throughout a directory structure.
+The hierarchical menu of the website can be derived from HTML file names/paths or custom configuration files. 
+This is done without imposing/assuming any particular directory structure or HTML syntax, making it extremely flexible and easy to use. 
+
+## Installation
+
+quiltr is an R package available on GitHub, so it can be installed from the RStudio console or an R command line session using the `devtools` command `install_github`.
+First, make sure `devtools` is installed:
+
+```{r, eval=FALSE}
+install.packages("devtools")
+```
+
+Next, install the package from GitHub by entering:
+
+```{r, eval=FALSE}
+devtools::install_github("grunwaldlab/quiltr")
+```
+
+The package should now be installed and can be loaded using:
+
+```{r, eval=FALSE}
+library(quiltr)
+```
