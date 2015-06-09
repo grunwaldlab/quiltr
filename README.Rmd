@@ -21,7 +21,7 @@ It makes static webpages that have to be rebuilt each time their source change.
 Quiltr consolidates any set of HTML files in any directory structure into a website.
 All of the raw content of the website, besides the drop down menu and other basic site structure elements, is derived from the HTML files.
 The organization of the website and where HTML file content is displayed can be determined by the names of the files/directories or customized using configuration files.
-There is also a wrapper function that makes it easy to upload and modify websites on [GitHub Pages](https://pages.github.com/) (where this site is hosted).
+There is also a wrapper function that makes it easy to upload and modify websites on [GitHub Pages](https://pages.github.com/) (where the [documentation](http://grunwaldlab.github.io/quiltr) is hosted).
 
 
 ## Why use it
