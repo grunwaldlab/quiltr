@@ -36,7 +36,7 @@ It is so flexible that a website can be made from any directory containing HTML 
 
 In the case of documenting computer science projects, the choice of directory structure can be governed by the needs of the project rather than the documentation.
 R packages are a good example, in that they require a very specific directory structure, yet have should integrated, easily accessible documentation, such as vingettes. 
-Quiltr can be used to integrate vignettes into a website. 
+Quiltr can be used to consolidate vignettes into a website. 
 [This website](http://grunwaldlab.github.io/quiltr) is the result of running the `quilt` function on the Quiltr package source and each page is one of the vignettes you access individually by typing `browseVignettes(package = "quiltr")` into an R terminal. 
 A single function call rebuilds the website and uploads it to GitHub pages each time changes are made. 
 
