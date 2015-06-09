@@ -1,0 +1,11 @@
+---
+title: The `quiltr` Package
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    css: custom.css
+vignette: >
+  %\VignetteIndexEntry{Package introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
