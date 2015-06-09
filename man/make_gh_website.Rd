@@ -5,7 +5,7 @@
 \title{Make a github pages website}
 \usage{
 make_gh_website(reset_branch = TRUE, commit = TRUE, clear = TRUE,
-  branch = "master", ...)
+  push = FALSE, branch = "master", remote = "origin", ...)
 }
 \arguments{
 \item{reset_branch}{(\code{logical} of length 1) If \code{TRUE}, change back to the current git branch
@@ -16,6 +16,16 @@ on the \code{gh-pages} branch.}
 
 \item{clear}{(\code{logical} of length 1) If \code{TRUE}, the contents of the \code{gh-pages}
 branch is deleted before the new website is copied.}
+
+\item{push}{(\code{logical} of length 1) If \code{TRUE}, push the modifications made to
+the \code{gh-pages} branch to the remote specified by \code{remote}. This makes the changes
+appear online.}
+
+\item{branch}{(\code{character} of length 1) The name of the branch in the repository that the
+website source exists. This is typically 'master'.}
+
+\item{remote}{(\code{character} of length 1) The name of the remote to push any changes to. Also
+affects the inferred location of the website online.}
 
 \item{...}{all other options are passed to \code{\link{make_website}}.}
 }

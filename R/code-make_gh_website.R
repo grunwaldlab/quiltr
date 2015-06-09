@@ -15,10 +15,18 @@
 #' on the \code{gh-pages} branch.
 #' @param clear (\code{logical} of length 1) If \code{TRUE}, the contents of the \code{gh-pages}
 #' branch is deleted before the new website is copied. 
+#' @param push (\code{logical} of length 1) If \code{TRUE}, push the modifications made to
+#' the \code{gh-pages} branch to the remote specified by \code{remote}. This makes the changes 
+#' appear online.
+#' @param branch (\code{character} of length 1) The name of the branch in the repository that the
+#' website source exists. This is typically 'master'. 
+#' @param remote (\code{character} of length 1) The name of the remote to push any changes to. Also
+#' affects the inferred location of the website online. 
 #' @param ... all other options are passed to \code{\link{make_website}}.
 #' 
 #' @export
-make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, branch = "master", ...) {
+make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, push = FALSE,
+                            branch = "master", remote = "origin", ...) {
   get_branch <- function() {
     result <- system("git status",  ignore.stderr = TRUE, intern = TRUE)[[1]]
     rev(strsplit(result, split = " ")[[1]])[1]    
@@ -96,9 +104,26 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, br
     result <- system('git commit -a -m "Automated commit by quiltr::make_gh_website"',
                      ignore.stdout = TRUE, ignore.stderr = TRUE)    
   }
-  message(paste0("Website made in the 'gh-pages' branch of '", repository,
-                 "'\nTo make the website available online:\n",
-                 "\t1) Move current working directory to '", repository, "'\n",
-                 "\t2) Type 'git push origin gh-pages'"))
+  # Infer website URL ------------------------------------------------------------------------------
+  remote_result <- system("git remote -v", intern = TRUE)
+  remote_result <- remote_result[grepl(paste0("^", remote, ".*\\(push\\)$"), remote_result)]
+  remote_result <- stringr::str_match(remote_result, ".*github\\.com:(.*)/(.*)\\.git")[, ]
+  remote_url <- paste0(strsplit(remote_result[1], split = "git@")[[1]][2])
+  user <- remote_result[2]
+  repo_name <- remote_result[3]
+  website_url <- paste0("http://", user, ".github.io/", repo_name, "/")
+  # Push changes -----------------------------------------------------------------------------------
+  if (push) {
+    system(paste0("git push ", remote, " gh-pages"), ignore.stdout = TRUE, ignore.stderr = TRUE)
+    message(paste0("Website made in the 'gh-pages' branch of '", repository,
+                   "' and pushed to '", remote_url, "'.\n",
+                   "The website should be available at: '", website_url, "'"))    
+  } else {
+    message(paste0("Website made in the 'gh-pages' branch of '", repository,
+                   "'\nTo make the website available online:\n",
+                   "\t1) Move current working directory to '", repository, "'\n",
+                   "\t2) Enter the following in a terminal: 'git push ", remote, " gh-pages'\n", 
+                   "Once pushed, the website should be available at: '", website_url, "'"))    
+  }
   return(website_path)
 }
