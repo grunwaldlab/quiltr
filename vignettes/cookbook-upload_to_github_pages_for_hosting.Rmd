@@ -10,15 +10,16 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-
-
-## Summary
+## Introduction
 
 Quiltr projects work well with [git](https://git-scm.com/) version control since all of the input and output is in the form of text files. 
 One perk of using git is [GitHub](https://github.com/) which offers unlimited free public repository hosting.
 Repositories on GitHub can have an associated website at [GitHub Pages](https://pages.github.com/) by adding a "gh-pages" branch containing the website source.
 For example, this website lives in the "gh-pages" branch of the [Quiltr repository](https://github.com/grunwaldlab/quiltr/tree/gh-pages).
 To make it easy to host Quiltr output on GitHub Pages, there is a wrapper function called `make_gh_website` that will build a website using `quilt` and put its output in the "gh-pages" branch of a git repository.
+
+
+## Summary
 
 The `make_gh_website` function is used in the same way as `quilt` and accepts all of its arguments. 
 This makes it easy to develop and test websites using `quilt` and then use `make_gh_website` with the same parameters to put the website online when it is ready. 
@@ -34,14 +35,22 @@ A typical work flow would be:
 1. Repeat steps 5 and 6 until the site is ready to go online
 1. Run `make_gh_website()` to make it available on GitHub Pages.
 
-Below, each part of the workflow is explained in greater detail.
+
+## Workflow
+
 This is just one example of many possible workflows, chosen for ease use.
 For the purposes of demonstration, I will start by explaining how to make a new git repository on GitHub. 
 If you already have a git repository on GitHub, you can use that and skip to the sections on adding a configuration file and HTML content.
 
+### Ingredients 
 
+To follow the example workflow below, you will need:
 
-## Workflow
+* Quiltr
+* [git](https://git-scm.com/)
+* [RStudio](http://www.rstudio.com/)
+* A [GitHub](https://github.com/) account
+
 
 ### 1) Making a new git repository
 
@@ -57,7 +66,7 @@ The repository now exists on GitHub, but we need a copy of it on a computer to d
 Git can be used to download a copy, but it needs a SSH clone URL. 
 This can be found on the repository's GitHub page at the bottom the menu on the right.
 Open up a terminal (aka command line prompt) and change directories to the place you want to download the repository to. 
-Enter `git clone git@github.com:user/repo.git`, where "git@github.com:user/repo.git" is the SSH clone URL you copied.
+Enter `git clone git@github.com:user/repo.git`, where `git@github.com:user/repo.git` is the SSH clone URL you copied.
 This command should create a new directory in the current working directory with the same name as your repository.
 If this is the first time using GitHub on your computer, you will need to [set up a SSH key pair](https://help.github.com/articles/generating-ssh-keys/).
 
