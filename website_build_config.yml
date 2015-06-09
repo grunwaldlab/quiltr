@@ -1,5 +1,5 @@
-path: ./inst/doc
-output: .
+path: /home/fosterz/repositories/quiltr/inst/doc
+output: /tmp/RtmpipSnUF/file3f47545d114
 name: Quiltr
 clean: yes
 overwrite: yes
@@ -17,4 +17,4 @@ site_config_name: website_build_config.yml
 site_config_file: /home/fosterz/repositories/quiltr
 output_dir_name: website
 partial_copy: no
-open: no
+open: yes
