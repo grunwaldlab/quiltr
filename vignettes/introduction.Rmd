@@ -1,11 +1,11 @@
 ---
-title: Introduction to `make_website`
+title: Introduction to `quilt`
 output: 
   rmarkdown::html_vignette:
     toc: true
     css: custom.css
 vignette: >
-  %\VignetteIndexEntry{Introduction to `make_website`}
+  %\VignetteIndexEntry{Introduction to `quilt`}
   %\VignetteEngine{knitr::rmarkdown}
   %\usepackage[utf8]{inputenc}
 ---
@@ -35,7 +35,7 @@ Rmarkdown is particularly suited to be used with quiltr; together the two can be
 
 ## Summary of how it works
 
-A single function called `make_website` is given a target directory containing HTML files to combine into a website and a location to output a website directory. Below is a simplified summary of how it works: 
+A single function called `quilt` is given a target directory containing HTML files to combine into a website and a location to output a website directory. Below is a simplified summary of how it works: 
 
 * In the website output directory, a copy of the target directory is made, copying only the HTML files and any local files (e.g. images) they reference (via HTML tag attributes like `src` and `href`). 
 * A menu hierarchy to organize content on the website is inferred from HTML file paths and/or configuration files dependeding on options used. 
@@ -86,7 +86,7 @@ Below is an example of its output.
 
 ```{r make_test_website_1, echo=FALSE, results='hide', eval=FALSE}
 # This is not run automatically due to rmarkdown issue #248, but is used to make the website example
-quiltr::make_website(path = "vignette_examples/test_website_1", output = "website_source", overwrite = TRUE, output_dir_name = "test_website_1", theme = "cerulean")
+quiltr::quilt(path = "vignette_examples/test_website_1", output = "website_source", overwrite = TRUE, output_dir_name = "test_website_1", theme = "cerulean")
 ```
 
 
@@ -136,7 +136,7 @@ Below is the result of building the above directory structure using default opti
 
 ```{r make_test_website_2, echo=FALSE, results='hide', eval=FALSE}
 # This is not run automatically due to rmarkdown issue #248, but is used to make the website example
-quiltr::make_website(path = "vignette_examples/test_website_2", output = "website_source", overwrite = TRUE, output_dir_name = "test_website_2", note_config_name = "note_config.yml", theme = "cerulean")
+quiltr::quilt(path = "vignette_examples/test_website_2", output = "website_source", overwrite = TRUE, output_dir_name = "test_website_2", note_config_name = "note_config.yml", theme = "cerulean")
 ```
 
 
@@ -149,11 +149,11 @@ quiltr::make_website(path = "vignette_examples/test_website_2", output = "websit
 ## Using a website build configuration file
 
 In addition to the configuration files used to determine content location, there is another type of configuration file used to specify default website building options. 
-This configuration file is also in YAML format and contains the values of some or all of the options accepted by the `make_website` function.
-Option values specified replace the defaults when running `make_website`, although options specified in the configuration file can still be overwritten by function options used. 
+This configuration file is also in YAML format and contains the values of some or all of the options accepted by the `quilt` function.
+Option values specified replace the defaults when running `quilt`, although options specified in the configuration file can still be overwritten by function options used. 
 Unlike the content placement comfiguration files, only one of this type of this type can be used each time a website is built. 
 They can be used to store the options used to build a specific website in the source directory.
-The configuration file used can be specified by a `make_website` option, so that an existing website can be rebuilt without having to remember the options used.
+The configuration file used can be specified by a `quilt` option, so that an existing website can be rebuilt without having to remember the options used.
 Below is an example of website build configuration file content:
 
 ```
@@ -163,6 +163,6 @@ note_config_name: note_config.yml
 ```
 
 In the context of the previous examples, this configuration file would be saved at `/home/your_name/documents/notes/build_config.yml`.
-See the following section for potential `make_website` options used when building the website.
+See the following section for potential `quilt` options used when building the website.
 
 

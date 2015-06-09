@@ -1,12 +1,12 @@
 ---
-title: Arguments and options for `make_website`
+title: Arguments and options for `quilt`
 output: 
   rmarkdown::html_vignette:
     toc: true
     toc_depth: 2
     css: custom.css
 vignette: >
-  %\VignetteIndexEntry{Arguments and options for `make_website`}
+  %\VignetteIndexEntry{Arguments and options for `quilt`}
   %\VignetteEngine{knitr::rmarkdown}
   %\usepackage[utf8]{inputenc}
 ---

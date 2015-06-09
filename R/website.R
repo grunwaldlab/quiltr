@@ -539,14 +539,14 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' TODO: let notes occur  in multiple places in the hierarchy
 #' 
 #' @export
-make_website <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, overwrite = FALSE,
+quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, overwrite = FALSE,
                          theme = "journal", apply_theme = TRUE, cumulative = TRUE, use_file_names = TRUE,
                          use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
                          use_file_suffix = FALSE, use_dir_suffix = TRUE,
                          note_config_name = "placement.yml", site_config_name = "website_build_config.yml", 
                          site_config_file = path, output_dir_name = "website", partial_copy = TRUE,
                          open = TRUE) {
-  argument_names <- names(as.list(args(make_website)))
+  argument_names <- names(as.list(args(quilt)))
   argument_names <- argument_names[-length(argument_names)]
   arg_missing <- eval(c(missing(path), missing(output), missing(name), missing(clean), missing(overwrite),
                      missing(theme), missing(apply_theme), missing(cumulative),

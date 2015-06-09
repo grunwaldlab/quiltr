@@ -4,7 +4,7 @@
 #' 
 #' WARNING: If you already have a website on a \code{gh-pages} branch then this function can 
 #' delete it when \code{clean = TRUE} (the defualt), so use with care.
-#' Works like \code{\link{make_website}}, except it places the output in a \code{gh-pages} branch
+#' Works like \code{\link{quilt}}, except it places the output in a \code{gh-pages} branch
 #' of the current git repository so that it is available online at
 #' \code{http://user_name.github.io/repository_name/}.
 #' 
@@ -21,7 +21,7 @@
 #' website source exists. This is typically 'master'. 
 #' @param remote (\code{character} of length 1) The name of the remote to push any changes to. Also
 #' affects the inferred location of the website online. 
-#' @param ... all other options are passed to \code{\link{make_website}}.
+#' @param ... all other options are passed to \code{\link{quilt}}.
 #' 
 #' @export
 make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, push = FALSE,
@@ -33,7 +33,7 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, pu
   if ("path" %in% names(list(...)))
     path <- list(...)$path
   else
-    path <- eval(as.list(args(make_website))$path)
+    path <- eval(as.list(args(quilt))$path)
   # Check if in git repository ---------------------------------------------------------------------
   git_path <- get_file_in_parent(path, ".git")
   if (is.null(git_path)) stop("Not currently in a git repository.")
@@ -49,7 +49,7 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, pu
   }
   # Make website before stashing if its source is on the same branch -------------------------------
   if (branch == get_branch()) {
-    website_path <- do.call(make_website, list(...))    
+    website_path <- do.call(quilt, list(...))    
   }
   # Stash state of current branch ------------------------------------------------------------------
   stash_result <- system("git stash --all", intern = TRUE)
@@ -59,7 +59,7 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, pu
   # Make website after stashing if its source is on a different branch -----------------------------
   if (branch != get_branch()) {
     system(paste("git checkout", branch), ignore.stdout = TRUE, ignore.stderr = TRUE)
-    website_path <- do.call(make_website, list(...))
+    website_path <- do.call(quilt, list(...))
   }
   # Return to original working directory when done -------------------------------------------------
   on.exit(setwd(original_wd), add = TRUE)
