@@ -418,6 +418,7 @@ get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = T
                 } else {
                   hierarchy <-  list(character(0))
                   addition <- config[[pattern]]
+                  addition <- addition[addition != ""]
                 }
               }
             }
@@ -650,7 +651,8 @@ make_website <- function(path = getwd(), output = NULL, name = "Home", clean = T
   hierarchy <- lapply(hierarchy_class,
                       function(x) relative_copy_class_path[vapply(ul_classification, 
                                                                   identical, y = x, logical(1))])
-  home_path <- mapply(make_master_rmd, page_rmd_names, hierarchy, location = output_path)[["index.Rmd"]]
+  home_path <- mapply(make_master_rmd, page_rmd_names, hierarchy, location = output_path, 
+                      apply_theme = apply_theme, clean = clean)[["index.Rmd"]]
   # Make configuration file ------------------------------------------------------------------------
   new_config_path <- file.path(output_path, site_config_name)
   arguments <- mget(argument_names)
