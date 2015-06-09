@@ -1,9 +1,9 @@
 path: /home/fosterz/repositories/quiltr/inst/doc
-output: /tmp/Rtmp4LBnKT/file4fa56cd9a23b
+output: /tmp/Rtmp2DB8Bq/file1e2b6a8b2f12
 name: Quiltr
 clean: yes
 overwrite: yes
-theme: cosmo
+theme: flatly
 apply_theme: yes
 cumulative: no
 use_file_names: yes
