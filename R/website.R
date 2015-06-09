@@ -58,7 +58,7 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme 
       ""
   }
   make_iframe_code <- function(file, count) {
-    on_load <- paste0('autoResize(\'iframe', count, '\');')
+    on_load <- paste0('autoResize(\'iframe', count, '\'); export_links(\'iframe', count, '\');')
     if (apply_theme)  on_load <- paste0('apply_theme(\'iframe', count, '\'); ', on_load)
     iframe_att <- paste0('width="100%" height="200px" id="iframe', count,
     '" marginheight="0" frameborder="0" onLoad="', on_load, '"')

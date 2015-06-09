@@ -2,7 +2,7 @@
 title: Introduction to `quilt`
 output: 
   rmarkdown::html_vignette:
-    toc: true
+    toc: false
     css: custom.css
 vignette: >
   %\VignetteIndexEntry{Introduction to `quilt`}
@@ -20,28 +20,15 @@ file.copy(from = "custom.css", to = doc_path, overwrite = TRUE)
 file.copy(from = "placement.yml", to = doc_path, overwrite = TRUE)
 ```
 
+## How it works
 
-The primary purpose of this package is to provide a way to combine HTML files scattered throughout a file system into a single website with a hierarchical dropdown menu.
-The package was designed to facilitate embedding notes into computational science projects and making research notebooks.
-For this reason, quiltr is most appropriate for creating websites to document projects, where ease of use, transparency, and reliability are the priority.
-Making simple static websites for other purposes is also possible, but quiltr is not designed be an all-purpose website generator such as Jykell or Drupal.
+A single function called `quilt` is given a target directory containing HTML files and a location to output a website directory. Below is a summary of how it works: 
 
-All of the content of the webpage, besides the dropdown menu and other basic site structure elements, is in the form of HTML files created by the user.
-The organization of the website and where HTML file content is displayed can be determined by the names of the files/directories or customized using configuration files.
-The benefit of this system is that there are very few restrictions on the layout of the file structure and no knowledge of web design needed beyond the ability to create HTML content (e.g. using Rmd or Word).
-It is so flexible that website can be made form any directory containing HTML files, regardless if the HTML files or the directory were made for this purpose.
-Rmarkdown is particularly suited to be used with quiltr; together the two can be used to create online lab notebooks without any knowledge of web design or HTML, for free, on any operating system.
+* In the website output directory, a partial copy of the target directory is made, copying only the HTML files and any local files they reference (e.g. image, css, or Java Script links in HTML tag attributes like `src` and `href`). 
+* A menu hierarchy to organize content on the website is inferred from content file paths and/or configuration files, depending on options used. 
+* Each page of the website (i.e. each location in the menu) is then made. They consists of a hierarchical drop down menu linking to all other pages and a series of iframes used to display HTML files assigned to that page. The iframes are automatically scaled to fit their content.
 
-
-## Summary of how it works
-
-A single function called `quilt` is given a target directory containing HTML files to combine into a website and a location to output a website directory. Below is a simplified summary of how it works: 
-
-* In the website output directory, a copy of the target directory is made, copying only the HTML files and any local files (e.g. images) they reference (via HTML tag attributes like `src` and `href`). 
-* A menu hierarchy to organize content on the website is inferred from HTML file paths and/or configuration files dependeding on options used. 
-* Each page of the website (i.e. each location in the menu) is then made. They consists of a hierarchical dropdown menu linking to all other pages and a series of iframes used to display HTML files assigned to that page. The iframes are automatically scaled to fit their content.
-
-Together, the partial copy of the target directory and the pages used to display HTML files therein, constitute a portable and self-contained website.
+Together, the partial copy of the target directory (HTML files and their dependencies) and the pages used to display HTML files therein, constitute a portable and self-contained website.
 If the contents of the target directory change, the function can be run again to update the website.
 One benefit of this system is that even if a large HTML file appears multiple places on the website, it is only stored once.
 Also, the original file is available for viewing or download (in Firefox: `right click` > `This frame` > ...), which is useful for printing notes or viewing embedded HTML slide shows.
@@ -55,14 +42,14 @@ There are two general ways to go about doing this:
 * using file path/name elements.
 * using configuration files to specify custom locations.
 
-Using file path information is probably most appropriate for documenting a computational analysis or research notebook directory since it takes the least upkeep effort and the organization of the project itself is evident in the website.
-Using configuration files can be more involved, but allows for a completely customized hierarchy regardless of the directory or name of HTML content files making it more appropriate for more conventional websites.
+Using file path information is probably most appropriate for documenting a computational analysis or research notebook directory since it takes the least upkeep and the organization of the project is evident in the website.
+Using configuration files can be more involved, but allows for a completely customized hierarchy regardless of the directory or name of HTML content files, making it more appropriate for conventional websites.
 In any case, the menu can have infinite levels and is mobile-device-friendly.
 
 
 ### Using file path information
 
-The placement of HTML content can be determined by the names of directories in its path relative to the target directory.
+The placement of HTML content can be determined by the names in its path relative to the target directory.
 For example, if you had the following 5 HTML files on your computer...
 
 ```
@@ -81,14 +68,16 @@ For example, if you had the following 5 HTML files on your computer...
 * note 5 would appear on a page accessed by the menu item `new`
 
 Which parts of the file path are used and how they are processed is affected by a variety of options. 
-The example showed above corresponds to the default options values, but many variations are possible.
-Below is an example of its output.
+The example showed below corresponds to the default options values, but many variations are possible.
 
 ```{r make_test_website_1, echo=FALSE, results='hide', eval=FALSE}
 # This is not run automatically due to rmarkdown issue #248, but is used to make the website example
 quiltr::quilt(path = "vignette_examples/test_website_1", output = "website_source", overwrite = TRUE, output_dir_name = "test_website_1", theme = "cerulean")
 ```
 
+```{r, eval=FALSE}
+quilt(path = "/home/your_name/documents/notes")
+```
 
 <iframe width=100% height= 500px src="test_website_1/index.html"></iframe>
 
@@ -139,22 +128,23 @@ Below is the result of building the above directory structure using default opti
 quiltr::quilt(path = "vignette_examples/test_website_2", output = "website_source", overwrite = TRUE, output_dir_name = "test_website_2", note_config_name = "note_config.yml", theme = "cerulean")
 ```
 
+```{r, eval=FALSE}
+quilt(path = "/home/your_name/documents/notes", note_config_name = "note_config.yml")
+```
 
 <iframe width=100% height= 500px src="test_website_2/index.html"></iframe>
 
 
 
-
-
 ## Using a website build configuration file
 
-In addition to the configuration files used to determine content location, there is another type of configuration file used to specify default website building options. 
+In addition to the configuration files used to determine content location, there is another type used to specify default website building options. 
 This configuration file is also in YAML format and contains the values of some or all of the options accepted by the `quilt` function.
-Option values specified replace the defaults when running `quilt`, although options specified in the configuration file can still be overwritten by function options used. 
-Unlike the content placement comfiguration files, only one of this type of this type can be used each time a website is built. 
-They can be used to store the options used to build a specific website in the source directory.
-The configuration file used can be specified by a `quilt` option, so that an existing website can be rebuilt without having to remember the options used.
-Below is an example of website build configuration file content:
+Option values specified here replace the defaults when running `quilt`, although options specified in the configuration file can still be overwritten by function options used. 
+Unlike the content placement configuration files, only one of this type of this type can be used each time a website is built. 
+They are useful for storing the options used to build a specific website in its source directory so that rebuilding the website can be simplified to running `quilt()` in the project directory.
+Below is an example of website build configuration file content. 
+In the context of the previous examples, this configuration file would be saved at `/home/your_name/documents/notes/build_config.yml`.
 
 ```
 clean: false
@@ -162,7 +152,6 @@ theme: cosmo
 note_config_name: note_config.yml
 ```
 
-In the context of the previous examples, this configuration file would be saved at `/home/your_name/documents/notes/build_config.yml`.
-See the following section for potential `quilt` options used when building the website.
-
+In addition to the user generated files in the source directory, these type of files are automatically made in the output each time a website is created to record the parameters used. 
+Since the configuration file used can be specified by a `quilt` option, these can be referenced to rebuild a website with the same parameters as last time. 
 
