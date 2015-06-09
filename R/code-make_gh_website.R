@@ -120,7 +120,7 @@ make_gh_website <- function(reset_branch = TRUE, commit = TRUE, clear = TRUE, pu
   } else {
     message(paste0("Website made in the 'gh-pages' branch of '", repository,
                    "'\nTo make the website available online:\n",
-                   "\t1) Move current working directory to '", repository, "'\n",
+                   "\t1) Set current working directory to '", repository, "'\n",
                    "\t2) Enter the following in a terminal: 'git push ", remote, " gh-pages'\n", 
                    "Once pushed, the website should be available at: '", website_url, "'"))    
   }
