@@ -64,6 +64,10 @@ The package should now be installed and can be loaded using:
 library(quiltr)
 ```
 
+## To get started
+
+> Zach, pelase add a few exmaples of how to open a new notebook, how to edit and reformat a notebook and a few other key features like chaning look, etc.
+
 ## Documentation
 
 See our [website](http://grunwaldlab.github.io/quiltr) for documentation.
