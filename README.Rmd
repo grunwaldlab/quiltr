@@ -14,8 +14,8 @@ For this reason, quiltr is most appropriate for creating websites to document pr
 
 ## What it is not
 
-Making simple static websites for other purposes is also possible, but quiltr is not designed be an all-purpose website generator such as [Jekyll](http://jekyllrb.com/) or [Drupal](https://www.drupal.org/).
-It makes static webpages that have to be rebuilt each time their source change.
+Making simple static websites for other purposes is also possible, but quiltr is not designed to be an all-purpose website generator such as [Jekyll](http://jekyllrb.com/) or [Drupal](https://www.drupal.org/).
+It makes static webpages that have to be rebuilt each time their source changes.
 
 
 ## What it does
