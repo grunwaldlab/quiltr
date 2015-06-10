@@ -9,6 +9,8 @@ Quiltr is an R package used to combine HTML files scattered throughout a file sy
 It is designed to facilitate embedding notes into computational science projects and making research notebooks.
 For this reason, quiltr is most appropriate for creating websites to document projects, where ease of use, transparency, and reliability are the priority.
 
+> Use Quiltr for your lab notebook!
+
 
 ## What it is not
 
