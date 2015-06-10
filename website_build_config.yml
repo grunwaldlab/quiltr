@@ -1,5 +1,5 @@
 path: /home/local/USDA-ARS/fosterz/repositories/quiltr/inst/doc
-output: /tmp/RtmpZbXDil/file664729bd8b19
+output: /tmp/Rtmp6jLXcq/file6b5dc9a0879
 name: Quiltr
 clean: yes
 overwrite: yes
@@ -12,6 +12,9 @@ use_config_files: yes
 name_sep: '-'
 use_file_suffix: yes
 use_dir_suffix: yes
+menu_name_parser: !expr |
+  function (x)
+  gsub("^[0-9]*_", "", x)
 note_config_name: placement.yml
 site_config_name: website_build_config.yml
 site_config_file: /home/local/USDA-ARS/fosterz/repositories/quiltr

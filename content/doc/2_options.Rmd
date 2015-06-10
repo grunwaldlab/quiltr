@@ -105,6 +105,19 @@ note_config_name: note_config.yml
 
 The default is to look for a configuration file named as specified by option `site_config_name` in the target directory (argument `path`).
 
+### Modify menu names (`menu_name_parser`):
+
+This option accepts a function that takes a single character string and returns a single character string.
+The function specified will be applied to every element in the menu hierarchy.
+This is useful for removing dates or other ordering prefixes from file names before they are used in the menu hierarchy. 
+For example, to remove a leading number followed by an underscore from every menu name: 
+
+```{r, eval=FALSE}
+quilt(menu_name_parser = function(x) gsub('^[0-9]*_', '', x))
+```
+
+Note that this can cause some changes to where content is displayed. 
+For example, if "1_note.html" and "2_note.html" are parsed using the example function above, they would both appear under the menu element "note" instead of appearing on different pages. 
 
 ## Website appearance options
 
