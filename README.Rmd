@@ -1,4 +1,4 @@
-# Quiltr
+# Quiltr | Ideal for reproducible science and lab notebooks
 
 [![Build Status](https://travis-ci.org/grunwaldlab/quiltr.png?branch=master)](https://travis-ci.org/grunwaldlab/quiltr?branch=master)
 [![codecov.io](https://codecov.io/github/grunwaldlab/quiltr/coverage.svg?branch=master)](https://codecov.io/github/grunwaldlab/quiltr?branch=master)
@@ -21,7 +21,7 @@ It makes static webpages that have to be rebuilt each time their source changes.
 ## What it does
 
 Quiltr consolidates any set of HTML files in any directory structure into a website.
-All of the raw content of the website, besides the drop down menu and other basic site structure elements, is derived from the HTML files.
+All of the raw content of the website, besides the drop down menu and other basic site structure elements, are derived from the HTML files.
 The organization of the website and where HTML file content is displayed can be determined by the names of the files/directories or customized using configuration files.
 There is also a wrapper function that makes it easy to upload and modify websites on [GitHub Pages](https://pages.github.com/) (where the [documentation](http://grunwaldlab.github.io/quiltr) is hosted).
 
