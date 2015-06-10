@@ -7,3 +7,4 @@ use_file_suffix: true
 cumulative: false
 overwrite: true
 partial_copy: false
+menu_name_parser: !expr function(x) gsub('^[0-9]*_', '', x)

@@ -517,6 +517,9 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' name when split by the \code{name_sep} option.
 #' @param use_dir_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of directory
 #' names when split by the \code{name_sep} option.
+#' @param menu_name_parser (\code{function}) Defines a function to apply to each name in the menu hierarchy
+#' to chenge it somehow. The function must take a single \code{character} input and output a single
+#' \code{character}. 
 #' @param note_config_name (\code{character} of length 1) The name of note placement configuration files.
 #' @param site_config_name (\code{character} of length 1) The name of the website building configuration file.
 #' It does not need to exist, but if it does in a directory specified by \code{site_config_file}, it is used
@@ -542,7 +545,7 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, overwrite = FALSE,
                          theme = "journal", apply_theme = TRUE, cumulative = TRUE, use_file_names = TRUE,
                          use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
-                         use_file_suffix = FALSE, use_dir_suffix = TRUE,
+                         use_file_suffix = FALSE, use_dir_suffix = TRUE, menu_name_parser = NULL,
                          note_config_name = "placement.yml", site_config_name = "website_build_config.yml", 
                          site_config_file = path, output_dir_name = "website", partial_copy = TRUE,
                          open = TRUE) {
@@ -552,7 +555,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, ov
                      missing(theme), missing(apply_theme), missing(cumulative),
                      missing(use_file_names), missing(use_dir_names), missing(use_config_files),
                      missing(name_sep), missing(use_file_suffix), missing(use_dir_suffix),
-                     missing(note_config_name), missing(site_config_name),
+                     missing(menu_name_parser), missing(note_config_name), missing(site_config_name),
                      missing(site_config_file), missing(output_dir_name), missing(partial_copy),
                      missing(open)))
   names(arg_missing) <- argument_names
@@ -601,6 +604,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, ov
                                        use_file_suffix = use_file_suffix, 
                                        use_dir_suffix = use_dir_suffix,
                                        note_config_name = note_config_name)
+  if (!is.null(menu_name_parser)) classification <- rapply(classification, menu_name_parser, how = "list")
   classification_paths <- rep(note_paths, vapply(classification, length, integer(1)))
   ul_classification <- unlist(classification, recursive = FALSE)
   hierarchy_class <- unique(ul_classification)
@@ -617,6 +621,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, ov
                                        use_file_suffix = use_file_suffix, 
                                        use_dir_suffix = use_dir_suffix,
                                        note_config_name = note_config_name)
+  if (!is.null(menu_name_parser)) classification <- rapply(classification, menu_name_parser, how = "list")
   # Make output directory --------------------------------------------------------------------------
   dir.create(output_path)
   dir.create(content)  
