@@ -1,0 +1,128 @@
+---
+title: "Markdown text styles"
+output: html_document
+---
+
+## Headers
+
+Use between 1 and 4 leading `#` to make titles (largest to smallest).
+
+```
+# Page title
+
+## Section
+
+### Subsection
+
+#### Subsubsection
+```
+
+# Page title
+
+## Section
+
+### Subsection
+
+#### Subsubsection
+
+
+
+## Italic
+
+Surround italic text with `*` or `_`.
+
+```
+*This is italic* and _so is this_
+```
+
+*This is italic* and _so is this_
+
+
+## Bold
+
+Surround bold text with `**` or `__`
+
+```
+**This is bold** and __so is this__
+```
+
+**This is bold** and __so is this__
+
+
+## links
+
+Anything that looks like a URL will automatically be turned into a link. 
+
+```
+http://www.google.com
+```
+
+http://www.google.com
+
+You can make named links like so:
+
+```
+[Google](http://www.google.com)
+```
+
+[Google](http://www.google.com)
+
+
+## Block quotes
+
+Preface lines with `> ` to make block quotes. 
+
+```
+> This is a quote,
+> Which happens to appear on
+> multiple lines 
+```
+
+> This is a quote,
+> which happens to appear on
+> multiple lines 
+
+
+## Verbatim blocks
+
+To make text appear exactly as you type it...
+
+<pre><code>&#96;&#96;&#96;
+This will be displayed exactly as formatted in the Rmd file. 
+&#96;&#96;&#96;
+</code></pre>
+
+```
+This will be displayed exactly as formatted in the Rmd file. 
+```
+
+## Superscript 
+
+Surround text with with carets to make it a superscript.
+
+```
+pi * R^2^
+```
+
+pi * R^2^
+
+
+## Superscript 
+
+Surround text with with carets to make it a superscript.
+
+```
+sub~script~
+```
+
+sub~script~
+
+## Strikethrough
+
+Surround text with two tildes to put a line through it.
+
+```
+~~strikethrough~~
+```
+
+~~strikethrough~~
