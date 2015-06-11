@@ -1,0 +1,37 @@
+---
+title: "Readme"
+output: html_document
+---
+
+## Introduction
+
+This directory is a Quiltr template. 
+It is meant to provide a starting point for Quiltr projects and demonstrate functionality for beginners.
+A template like this is not needed to use `quilt`, but it has a few files that make it easier. 
+
+## What each file is for
+
+### The *.Rmd files 
+
+These files (including this one you are reading) are used to make the content of the website.
+They are meant to serve as examples and to be replaced by your own content.
+Currently, `quilt` can only use HTML files as input, so you will have to knit these files to HTML before they will appear on the website. 
+To knit a .Rmd file, open the file and click on the "Knit HTML" button above the text editor window of RStudio.
+
+### website_build_config.yml
+
+This file contains a list in YAML format that overrides default options for the `quilt` function.
+The `quilt` function will look for a file named "website_build_config.yml" in the target directory and use it to set option defaults.
+When a target directory is not specified (e.g. `quilt()`), it is assumed to be the current working directory.
+This file allows the website to be built by simply running `quilt()` each time, without the need to remember the which options to use. 
+
+### build_project.R
+
+A script that is run each time "Build All" is clicked (under the "Build" menu item or **Ctrl + Shift + B**).
+In this case, all it does is call `quilt()`.
+
+### [project_name].Rproj
+
+This file makes RStudio recognize this directory as an R project and defines project-specific options for RStudio.
+In this case, it has an option telling RStudio to run the script "build_project.R" when "Build All" is clicked (under the "Build" menu item or **Ctrl + Shift + B**).
+

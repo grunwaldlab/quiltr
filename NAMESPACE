@@ -2,5 +2,6 @@
 
 export(make_gh_website)
 export(quilt)
+export(quiltr_template_default)
 export(rsync_pull)
 export(rsync_push)

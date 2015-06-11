@@ -8,7 +8,8 @@ quilt(path = getwd(), output = NULL, name = "Home", clean = TRUE,
   overwrite = FALSE, theme = "journal", apply_theme = TRUE,
   cumulative = TRUE, use_file_names = TRUE, use_dir_names = TRUE,
   use_config_files = TRUE, name_sep = "-", use_file_suffix = FALSE,
-  use_dir_suffix = TRUE, note_config_name = "placement.yml",
+  use_dir_suffix = TRUE, menu_name_parser = NULL,
+  note_config_name = "placement.yml",
   site_config_name = "website_build_config.yml", site_config_file = path,
   output_dir_name = "website", partial_copy = TRUE, open = TRUE)
 }
@@ -64,6 +65,10 @@ name when split by the \code{name_sep} option.}
 
 \item{use_dir_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of directory
 names when split by the \code{name_sep} option.}
+
+\item{menu_name_parser}{(\code{function}) Defines a function to apply to each name in the menu hierarchy
+to chenge it somehow. The function must take a single \code{character} input and output a single
+\code{character}.}
 
 \item{note_config_name}{(\code{character} of length 1) The name of note placement configuration files.}
 
