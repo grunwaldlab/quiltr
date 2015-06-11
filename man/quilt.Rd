@@ -6,7 +6,7 @@
 \usage{
 quilt(path = getwd(), output = NULL, name = "Home", clean = TRUE,
   overwrite = FALSE, theme = "journal", apply_theme = TRUE,
-  cumulative = TRUE, use_file_names = TRUE, use_dir_names = TRUE,
+  cumulative = FALSE, use_file_names = TRUE, use_dir_names = TRUE,
   use_config_files = TRUE, name_sep = "-", use_file_suffix = FALSE,
   use_dir_suffix = TRUE, menu_name_parser = NULL,
   note_config_name = "placement.yml",
