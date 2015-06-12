@@ -10,7 +10,6 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-I just added this
 
 ## What it is
 
