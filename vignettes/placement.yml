@@ -1,8 +1,6 @@
-'*/*': NULL
+'*/*': 
 
-index.html:
+index.Rmd:
 - ""
 
-templates.html:
-
-
+templates.Rmd:

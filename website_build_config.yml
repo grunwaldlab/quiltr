@@ -1,4 +1,4 @@
-path: ./inst/doc
+path: ./vignettes
 name: Quiltr
 theme: flatly
 use_dir_names: false

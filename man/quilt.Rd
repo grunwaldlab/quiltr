@@ -2,23 +2,30 @@
 % Please edit documentation in R/website.R
 \name{quilt}
 \alias{quilt}
-\title{Make a website from notes}
+\title{Make a website from a directory}
 \usage{
-quilt(path = getwd(), output = NULL, name = "Home", clean = TRUE,
-  overwrite = FALSE, theme = "journal", apply_theme = TRUE,
-  cumulative = FALSE, use_file_names = TRUE, use_dir_names = TRUE,
-  use_config_files = TRUE, name_sep = "-", use_file_suffix = FALSE,
-  use_dir_suffix = TRUE, menu_name_parser = NULL,
+quilt(path = getwd(), output = NULL, type = c("html", "rmd"),
+  name = "Home", clean = TRUE, overwrite = FALSE, theme = "journal",
+  apply_theme = TRUE, cumulative = FALSE, use_file_names = TRUE,
+  use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
+  use_file_suffix = FALSE, use_dir_suffix = TRUE, menu_name_parser = NULL,
   note_config_name = "placement.yml",
   site_config_name = "website_build_config.yml", site_config_file = path,
   output_dir_name = "website", partial_copy = TRUE, open = TRUE)
 }
 \arguments{
-\item{path}{(\code{character}) One or more directories in which to look for note files.}
+\item{path}{(\code{character}) One or more directories in which to look for  files.}
 
 \item{output}{(\code{character} of length 1) Location to write the output directory. The website
 will be made in a directory called "website" in this location. If \code{NULL} or \code{NA}, make
 the website in a temporary directory.}
+
+\item{type}{(\code{character}) One or more file types to include in the output, specified using
+file extensions without the leading dot (e.g. \code{type = c("rmd", "html")}). The order file
+types are given in indicates which file is used in the case that files have the same name
+but different extensions. For example, if \code{type = c("html", "rmd")} and there is a note.html
+and a note.Rmd in the same directory, the note.html will be used and the note.Rmd will be
+ignored.}
 
 \item{name}{(\code{character} of length 1) The name on the link to the homepage of the website.}
 
@@ -42,7 +49,7 @@ options, see \url{http://rmarkdown.rstudio.com/html_document_format.html#appeara
 }}
 
 \item{apply_theme}{(\code{logical} of length 1) If \code{TRUE}, apply notebook CSS to
-note content.}
+content.}
 
 \item{cumulative}{(\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
 levels will be returned.}
@@ -70,7 +77,7 @@ names when split by the \code{name_sep} option.}
 to chenge it somehow. The function must take a single \code{character} input and output a single
 \code{character}.}
 
-\item{note_config_name}{(\code{character} of length 1) The name of note placement configuration files.}
+\item{note_config_name}{(\code{character} of length 1) The name of content placement configuration files.}
 
 \item{site_config_name}{(\code{character} of length 1) The name of the website building configuration file.
 It does not need to exist, but if it does in a directory specified by \code{site_config_file}, it is used
@@ -93,13 +100,10 @@ internet browser.}
 \value{
 (\code{character} of length 1) The file path to the created websites home page
 (\code{index.html})
-
-TODO: make option to accept Rmd and possible other note types.
-TODO: let notes occur  in multiple places in the hierarchy
 }
 \description{
-Makes a website from a directory containing correctly formatted notes.
-Each note must be a directory with one or more Rmd files.
-All of the notes will be copied and built to make the website.
+Makes a website from the contents of a directory.
+Currently, only html and Rmd files are included.
+All of the content will be copied and converted to html to make the website.
 }
 

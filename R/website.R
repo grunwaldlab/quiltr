@@ -86,19 +86,19 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme 
 
 
 #===================================================================================================
-#' Creates hierarchical menu html from note names
+#' Creates hierarchical menu html from file names
 #' 
-#' Parses the names of note directories to create html for a hierarchical menu. 
+#' Parses file paths to create html for a hierarchical menu. 
 #' 
 #' @param hierarchy (\code{list} of \code{character}) Locations in the menu hierarchy.
 #' @param page_paths (\code{character}) The path to website site pages (.html files) corresponding 
 #' argument \code{hierarchy}.
-#' @param notebook_name (\code{character} of length 1) The name of the notebook. This is displayed 
+#' @param site_name (\code{character} of length 1) The name of the website. This is displayed 
 #' as the link to the home page.
 #' 
 #' @return (\code{character} of length 1) The html code to make hierarchical menu
-make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Home") {
-  # Parse note directory names ---------------------------------------------------------------------
+make_hierarchy_html <- function(hierarchy, page_paths, site_name = "Home") {
+  # Parse directory names ---------------------------------------------------------------------
   expand <- function(char) lapply(seq_along(char), function(i) char[1:i])
   full_hierarchy <- unique(unlist(lapply(hierarchy, expand), recursive = FALSE))
   depth <- vapply(full_hierarchy, length, numeric(1))
@@ -147,7 +147,7 @@ make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Home") {
   
   # Make menu --------------------------------------------------------------------------------------
   home <- page_paths[vapply(hierarchy, length, numeric(1)) == 0]
-  notebook_name_html <- paste(sep = "\n",
+  site_name_html <- paste(sep = "\n",
                               '<div class="navbar-header">',
                               '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">',
                               '<span class="sr-only">Toggle navigation</span>',
@@ -155,7 +155,7 @@ make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Home") {
                               '<span class="icon-bar"></span>',
                               '<span class="icon-bar"></span>',
                               '</button>',
-                              paste0('<a class="navbar-brand" href="', home, '">', notebook_name, '</a>'),
+                              paste0('<a class="navbar-brand" href="', home, '">', site_name, '</a>'),
                               '</div>')
   menu_html <- paste(sep = "\n",
                      '<div class="collapse navbar-collapse">',
@@ -165,7 +165,7 @@ make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Home") {
   nav_bar_html <- paste( sep = "\n",
                          '<div class="navbar navbar-default" role="navigation">',
                          '<div class="container">',
-                         notebook_name_html,
+                         site_name_html,
                          menu_html,
                          '</div>',
                          '</div>')
@@ -174,12 +174,12 @@ make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Home") {
 
 
 #===================================================================================================
-#' Get paths to notes
+#' Get paths to content
 #' 
-#' Return the absolute paths to note files in a given directory.
+#' Return the absolute paths to content files in a given directory.
 #' 
-#' @param path (\code{character}) One or more directories in which to look for note files.
-#' @param type (\code{character}) One or more note file extensions to search for.
+#' @param path (\code{character}) One or more directories in which to look for content files.
+#' @param type (\code{character}) One or more content file extensions to search for.
 #' @param full_names (\code{logical} of length 1) See \code{\link{list.files}} help for option
 #'   \code{full.names}.
 #' @param simplify (\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
@@ -187,19 +187,34 @@ make_hierarchy_html <- function(hierarchy, page_paths, notebook_name = "Home") {
 #' single \code{character} vector is returned. 
 #' 
 #' @return Depends on the \code{simplify} option.
-get_note_files <- function(path, type = c("html"), full_names = TRUE, simplify = TRUE) {
+get_content_files <- function(path, type = c("html"), full_names = TRUE, simplify = TRUE) {
   # If nothing is given, return the same ----------------------------------------------------------
   if (length(path) == 0) return(path)
-  # Make paths absolute ----------------------------------------------------------------------------
-  path <- normalizePath(path)
-  # Make regular expression for file extensions ----------------------------------------------------
-  note_regex <- paste0(paste("\\.", type, collapse = "|", sep = ""), "$")
-  # Search for files with matching extension -------------------------------------------------------
-  note_paths <- lapply(path, list.files, note_regex, all.files = TRUE, recursive = TRUE,
-                           ignore.case = TRUE, full.names = full_names)
-  # Simplify if specified --------------------------------------------------------------------------
-  if (simplify) note_paths <- unlist(note_paths)
-  return(note_paths)
+  process_one <- function(path) {
+    # Make paths absolute ----------------------------------------------------------------------------
+    path <- normalizePath(path)
+    # Make regular expression for file extensions ----------------------------------------------------
+    file_regex <- paste0(paste("\\.", type, collapse = "|", sep = ""), "$")
+    # Search for files with matching extension -------------------------------------------------------
+    content_paths <- list.files(path, pattern = file_regex, all.files = TRUE, recursive = TRUE,
+                            ignore.case = TRUE, full.names = full_names)
+    # Remove files with same name but different extensions -------------------------------------------
+    another_has_precedence <- function(a_path) {
+      get_precedence <- function(another_path) { 
+        which(tolower(tools::file_ext(another_path)) == tolower(type))
+      }
+      this_precedence <- get_precedence(a_path)
+      other_precedence <- vapply(content_paths, get_precedence, numeric(1))
+      any(this_precedence > other_precedence &
+            tools::file_path_sans_ext(a_path) == tools::file_path_sans_ext(content_paths))
+    }
+    content_paths <- content_paths[!vapply(content_paths, another_has_precedence, logical(1))]
+    
+  }
+  content_paths <- lapply(path, process_one)
+   # Simplify if specified --------------------------------------------------------------------------
+  if (simplify) { content_paths <- unlist(content_paths) }
+  return(content_paths)
 }
 
 
@@ -222,7 +237,7 @@ get_html_dependencies <- function(path) {
     # Extract values of tag attributes - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     html <- XML::htmlParse(path)
     output <- unlist(lapply(xpath_tags, XML::xpathSApply, doc = html))
-    # Remove values that are note local file paths - - - - - - - - - - - - - - - - - - - - - - - - -
+    # Remove values that are content local file paths - - - - - - - - - - - - - - - - - - - - - - - - -
     for (pattern in excluded_dependencies) output <- output[!grepl(pattern, output)]
     if (is.null(output)) output <- character(0)
     return(output)
@@ -233,19 +248,21 @@ get_html_dependencies <- function(path) {
 
 
 #===================================================================================================
-#' Get note dependencies
+#' Get content file dependencies
 #' 
-#' Return the absolute paths of note dependencies files. Currently, only \code{.html} files are
+#' Return the absolute paths of content file dependencies files. Currently, only \code{.html} files are
 #' implemented.
 #' 
-#' @param path (\code{character}) One or more note files in which to look for references to
+#' @param path (\code{character}) One or more content file files in which to look for references to
 #'   other files.
+#' @param context (\code{character}) Working directory used when inferring relative dependency
+#' paths. Corresponds to \code{path}.
 #' @param simplify (\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
 #' with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a
 #' single \code{character} vector is returned. 
 #' 
 #' @return Depends on the \code{simplify} option.
-get_file_dependencies <- function(path, simplify = FALSE) {
+get_file_dependencies <- function(path, context = path, simplify = FALSE) {
   # If nothing is given, return the same ----------------------------------------------------------
   if (length(path) == 0) return(path)
   # Define parsers for each file type supported ----------------------------------------------------
@@ -268,7 +285,7 @@ get_file_dependencies <- function(path, simplify = FALSE) {
     path[!from_root] <- file.path(dirname(context), path[!from_root])
     suppressWarnings(normalizePath(path))
   }
-  output <- mapply(standardize_path, output, path, SIMPLIFY = FALSE)
+  output <- mapply(standardize_path, output, context, SIMPLIFY = FALSE)
   # Remove any files that do not exist -------------------------------------------------------------
   absent_files <- lapply(output, function(x) x[!file.exists(x)])
   warning_text <- vapply(which(sapply(absent_files, length) > 0),
@@ -287,51 +304,85 @@ get_file_dependencies <- function(path, simplify = FALSE) {
 
 
 #===================================================================================================
-#' Copy notes and their dependencies
+#' Convert rmd to html
 #' 
-#' Copy note files and any files they reference to a new location while preserving relative
+#' Convert rmd to html
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+rmd_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  original_wd <- getwd()
+  on.exit(setwd(original_wd))
+  setwd(dirname(input))
+  rmarkdown::render(input, output_file = basename(output), output_dir = dirname(output), 
+                    quiet = FALSE)
+}
+
+#===================================================================================================
+#' Convert html to html
+#' 
+#' Convert html to html
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+html_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  file.copy(input, output)
+  return(output)
+}
+
+
+#===================================================================================================
+#' Copy content and their dependencies
+#' 
+#' Copy content file files and any files they reference to a new location while preserving relative
 #' directory locations. 
 #' Enough of the directory structure will be copied to contain all the files copies in their
 #' original configuration. 
 #' 
-#' @param from (\code{character}) The paths to notes to copy.
-#' @param to (\code{character} of length 1) The path to where the notes and their dependencies 
+#' @param from (\code{character}) The paths to content files to copy.
+#' @param to (\code{character} of length 1) The path to where the content files and their dependencies 
 #' will be copied.
 #' @param copy_depend (\code{logical} of length 1) If \code{FALSE}, dependencies will not be 
 #' copied.
 #' @param partial_copy (\code{logical} of length 1) If \code{FALSE}, The entire root directory 
-#' of the notes will be copied instead of just the notes and their dependencies.
+#' of the content files will be copied instead of just the content files and their dependencies.
 #' 
-#' @return (\code{character}) Paths of where the notes were copied to.
-copy_notes <- function(from, to, copy_depend = TRUE, partial_copy = TRUE) {
+#' @return (\code{character}) Paths of where the content files were copied to.
+convert_and_copy <- function(from, to, copy_depend = TRUE, partial_copy = TRUE) {
   # Make input file paths absolute -----------------------------------------------------------------
   from_path <- normalizePath(from)
   to <- normalizePath(to)
+  # Convert files to html --------------------------------------------------------------------------
+  converters <- c(rmd = rmd_to_html, html = html_to_html)
+  convert <- function(input) { converters[[tolower(tools::file_ext(input))]](input) }
+  converted_paths <- vapply(from, convert, character(1))
+  on.exit(file.remove(converted_paths))
   # Get dependencies of input files ----------------------------------------------------------------
   if (copy_depend) {
-    depend_from <- get_file_dependencies(from_path, simplify = TRUE)
+    depend_from <- get_file_dependencies(converted_paths, context = from, simplify = TRUE)
     from_path <- c(from_path, depend_from)
   }
   # Determine location of file copies --------------------------------------------------------------
   from_root <- get_common_dir(from_path)
   to_path <- file.path(to, gsub(paste0("^", dirname(from_root), .Platform$file.sep), "", from_path))
+  to_path <- paste0(tools::file_path_sans_ext(to_path), ".html")
   # Copy files and directory structure -------------------------------------------------------------
   if (partial_copy) {
     for (dir_to_make in unique(dirname(to_path))) 
       if (!file.exists(dir_to_make)) dir.create(dir_to_make, recursive = TRUE)
-    invisible(file.copy(from = from_path, to = to_path, overwrite = TRUE))
   } else {
     file.copy(from_root, to, recursive = TRUE)
   }
+  invisible(file.copy(from = converted_paths, to = to_path, overwrite = TRUE))
   # Return the locations of input file copies ------------------------------------------------------
   to_path[1:length(from)]
 }
 
 
 #===================================================================================================
-#' Get notebook note hierarchy
+#' Get content hierarchy
 #' 
-#' Return a list of all the locations in the notebook note classification hierarchy.
+#' Return a list of all the locations in the classification hierarchy.
 #' 
 #' @param path (\code{character}) The paths to notes to assign hirearchical classifications to.
 #' @param root (\code{character} of length 1) The path to the root directory of the notebook.
@@ -354,7 +405,7 @@ copy_notes <- function(from, to, copy_depend = TRUE, partial_copy = TRUE) {
 #'   
 #' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy 
 #' corresponding to the input argument \code{path}.
-get_note_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = TRUE,
+get_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = TRUE,
                                use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
                                use_file_suffix = FALSE, use_dir_suffix = TRUE,
                                note_config_name = "placement.yml") {
@@ -471,17 +522,23 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 
 
 #===================================================================================================
-#' Make a website from notes
+#' Make a website from a directory
 #' 
-#' Makes a website from a directory containing correctly formatted notes. 
-#' Each note must be a directory with one or more Rmd files. 
-#' All of the notes will be copied and built to make the website. 
+#' Makes a website from the contents of a directory.
+#' Currently, only html and Rmd files are included.
+#' All of the content will be copied and converted to html to make the website. 
 #' 
 #' 
-#' @param path (\code{character}) One or more directories in which to look for note files.
+#' @param path (\code{character}) One or more directories in which to look for  files.
 #' @param output (\code{character} of length 1) Location to write the output directory. The website
 #' will be made in a directory called "website" in this location. If \code{NULL} or \code{NA}, make
-#' the website in a temporary directory. 
+#' the website in a temporary directory.
+#' @param type (\code{character}) One or more file types to include in the output, specified using 
+#' file extensions without the leading dot (e.g. \code{type = c("rmd", "html")}). The order file
+#' types are given in indicates which file is used in the case that files have the same name
+#' but different extensions. For example, if \code{type = c("html", "rmd")} and there is a note.html
+#' and a note.Rmd in the same directory, the note.html will be used and the note.Rmd will be
+#' ignored. 
 #' @param name (\code{character} of length 1) The name on the link to the homepage of the website. 
 #' @param clean (\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
 #' use.
@@ -501,7 +558,7 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #'   \item "cosmo"
 #' }
 #' @param apply_theme (\code{logical} of length 1) If \code{TRUE}, apply notebook CSS to 
-#' note content.
+#'  content.
 #' @param cumulative (\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
 #' levels will be returned. 
 #' @param use_file_names (\code{logical} of length 1) If \code{TRUE}, The names of files will be
@@ -520,7 +577,7 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' @param menu_name_parser (\code{function}) Defines a function to apply to each name in the menu hierarchy
 #' to chenge it somehow. The function must take a single \code{character} input and output a single
 #' \code{character}. 
-#' @param note_config_name (\code{character} of length 1) The name of note placement configuration files.
+#' @param note_config_name (\code{character} of length 1) The name of content placement configuration files.
 #' @param site_config_name (\code{character} of length 1) The name of the website building configuration file.
 #' It does not need to exist, but if it does in a directory specified by \code{site_config_file}, it is used
 #' automatically. To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
@@ -538,28 +595,26 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' @return (\code{character} of length 1) The file path to the created websites home page 
 #' (\code{index.html})
 #' 
-#' TODO: make option to accept Rmd and possible other note types.
-#' TODO: let notes occur  in multiple places in the hierarchy
-#' 
 #' @export
-quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, overwrite = FALSE,
-                         theme = "journal", apply_theme = TRUE, cumulative = FALSE, use_file_names = TRUE,
-                         use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
-                         use_file_suffix = FALSE, use_dir_suffix = TRUE, menu_name_parser = NULL,
-                         note_config_name = "placement.yml", site_config_name = "website_build_config.yml", 
-                         site_config_file = path, output_dir_name = "website", partial_copy = TRUE,
-                         open = TRUE) {
+quilt <- function(path = getwd(), output = NULL, type = c("html", "rmd"), name = "Home",
+                  clean = TRUE, overwrite = FALSE,
+                  theme = "journal", apply_theme = TRUE, cumulative = FALSE, use_file_names = TRUE,
+                  use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
+                  use_file_suffix = FALSE, use_dir_suffix = TRUE, menu_name_parser = NULL,
+                  note_config_name = "placement.yml", site_config_name = "website_build_config.yml", 
+                  site_config_file = path, output_dir_name = "website", partial_copy = TRUE,
+                  open = TRUE) {
+  # Read any configuration files -------------------------------------------------------------------
   argument_names <- names(as.list(args(quilt)))
   argument_names <- argument_names[-length(argument_names)]
-  arg_missing <- eval(c(missing(path), missing(output), missing(name), missing(clean), missing(overwrite),
-                     missing(theme), missing(apply_theme), missing(cumulative),
-                     missing(use_file_names), missing(use_dir_names), missing(use_config_files),
-                     missing(name_sep), missing(use_file_suffix), missing(use_dir_suffix),
-                     missing(menu_name_parser), missing(note_config_name), missing(site_config_name),
-                     missing(site_config_file), missing(output_dir_name), missing(partial_copy),
-                     missing(open)))
+  arg_missing <- eval(c(missing(path), missing(output), missing(type), missing(name), missing(clean),
+                        missing(overwrite), missing(theme), missing(apply_theme), missing(cumulative),
+                        missing(use_file_names), missing(use_dir_names), missing(use_config_files),
+                        missing(name_sep), missing(use_file_suffix), missing(use_dir_suffix),
+                        missing(menu_name_parser), missing(note_config_name), missing(site_config_name),
+                        missing(site_config_file), missing(output_dir_name), missing(partial_copy),
+                        missing(open)))
   names(arg_missing) <- argument_names
- # Read any configuration files -------------------------------------------------------------------
   if (!is.na(site_config_name) && !is.na(site_config_file) &&
       !is.null(site_config_name) && !is.null(site_config_file)) {
     if (!file.exists(site_config_file)) stop(paste0("Cannot find website configuration file at '",
@@ -586,18 +641,18 @@ quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, ov
  output <- normalizePath(output)
  # Detect/delete old website ----------------------------------------------------------------------
   output_path <- file.path(output, output_dir_name)
-  content <- file.path(output_path, "content")
+  content_path <- file.path(output_path, "content")
   if (file.exists(output_path)) {
     if (overwrite)
       unlink(output_path, recursive = TRUE)
     else
         stop("Website exsits at ", output_path, ". Use `overwrite = TRUE` to replace.")
   }
-  # Get note files ---------------------------------------------------------------------------------
-  note_paths <- get_note_files(path)
-  if (length(note_paths) == 0) stop(paste0("No HTML files found in '", path, "'"))
+  # Find content files -----------------------------------------------------------------------------
+  target_paths <- get_content_files(path, type = type)
+  if (length(target_paths) == 0) stop(paste0("No HTML files found in '", path, "'"))
   # Filter for notes in hirearchy ------------------------------------------------------------------
-  classification <- get_note_hierarchy(note_paths, root = path, cumulative = cumulative, 
+  classification <- get_hierarchy(target_paths, root = path, cumulative = cumulative, 
                                        use_file_names = use_file_names, 
                                        use_dir_names = use_dir_names, 
                                        use_config_files = use_config_files, name_sep = name_sep,
@@ -605,7 +660,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, ov
                                        use_dir_suffix = use_dir_suffix,
                                        note_config_name = note_config_name)
   if (!is.null(menu_name_parser)) classification <- rapply(classification, menu_name_parser, how = "list")
-  classification_paths <- rep(note_paths, vapply(classification, length, integer(1)))
+  classification_paths <- rep(target_paths, vapply(classification, length, integer(1)))
   ul_classification <- unlist(classification, recursive = FALSE)
   hierarchy_class <- unique(ul_classification)
   if (!0 %in% sapply(hierarchy_class, length))
@@ -613,8 +668,8 @@ quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, ov
   hierarchy <- lapply(hierarchy_class,
                       function(x) classification_paths[vapply(ul_classification, 
                                                          identical, y = x, logical(1))])
-  note_paths <- unique(unlist(hierarchy))
-  classification <- get_note_hierarchy(note_paths, root = path, cumulative = cumulative, 
+  target_paths <- unique(unlist(hierarchy))
+  classification <- get_hierarchy(target_paths, root = path, cumulative = cumulative, 
                                        use_file_names = use_file_names, 
                                        use_dir_names = use_dir_names, 
                                        use_config_files = use_config_files, name_sep = name_sep,
@@ -624,9 +679,9 @@ quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, ov
   if (!is.null(menu_name_parser)) classification <- rapply(classification, menu_name_parser, how = "list")
   # Make output directory --------------------------------------------------------------------------
   dir.create(output_path)
-  dir.create(content)  
-  # Copy note directory ----------------------------------------------------------------------------
-  note_copy_path <- copy_notes(note_paths, content, partial_copy = partial_copy)
+  dir.create(content_path)  
+  # Copy content directory ----------------------------------------------------------------------------
+  content_copy_path <- convert_and_copy(target_paths, content_path, partial_copy = partial_copy)
   # Make website menu ------------------------------------------------------------------------------
   page_names <- vapply(hierarchy_class, paste, character(1), collapse = "-")
   page_names[page_names == ""] <- "index"
@@ -635,7 +690,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, ov
   page_html_names <- paste0(page_names, ".html")
   page_html_paths <- file.path(output_path, page_html_names)
   pre_body_html_path <- file.path(output_path, "before_body.html")
-  cat(make_hierarchy_html(hierarchy_class, page_html_names, notebook_name = name), file = pre_body_html_path)
+  cat(make_hierarchy_html(hierarchy_class, page_html_names, site_name = name), file = pre_body_html_path)
   # Make other dependencies ------------------------------------------------------------------------
   dependencies <- vapply(c("in_header.html", "after_body.html"),
                          function(x) system.file("file_templates", x, package = "quiltr"), 
@@ -651,7 +706,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home", clean = TRUE, ov
     on.exit(lapply(files_to_remove[file.exists(files_to_remove)], file.remove))
   }  
   # Make website pages -----------------------------------------------------------------------------
-  relative_copy_path <- gsub(pattern = paste0("^", output_path, .Platform$file.sep), "", note_copy_path)
+  relative_copy_path <- gsub(pattern = paste0("^", output_path, .Platform$file.sep), "", content_copy_path)
   relative_copy_class_path <- rep(relative_copy_path, vapply(classification, length, integer(1)))
   hierarchy <- lapply(hierarchy_class,
                       function(x) relative_copy_class_path[vapply(ul_classification, 

@@ -2,9 +2,9 @@
 % Please edit documentation in R/website.R
 \name{make_hierarchy_html}
 \alias{make_hierarchy_html}
-\title{Creates hierarchical menu html from note names}
+\title{Creates hierarchical menu html from file names}
 \usage{
-make_hierarchy_html(hierarchy, page_paths, notebook_name = "Home")
+make_hierarchy_html(hierarchy, page_paths, site_name = "Home")
 }
 \arguments{
 \item{hierarchy}{(\code{list} of \code{character}) Locations in the menu hierarchy.}
@@ -12,13 +12,13 @@ make_hierarchy_html(hierarchy, page_paths, notebook_name = "Home")
 \item{page_paths}{(\code{character}) The path to website site pages (.html files) corresponding
 argument \code{hierarchy}.}
 
-\item{notebook_name}{(\code{character} of length 1) The name of the notebook. This is displayed
+\item{site_name}{(\code{character} of length 1) The name of the website. This is displayed
 as the link to the home page.}
 }
 \value{
 (\code{character} of length 1) The html code to make hierarchical menu
 }
 \description{
-Parses the names of note directories to create html for a hierarchical menu.
+Parses file paths to create html for a hierarchical menu.
 }
 

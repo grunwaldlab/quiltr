@@ -2,13 +2,16 @@
 % Please edit documentation in R/website.R
 \name{get_file_dependencies}
 \alias{get_file_dependencies}
-\title{Get note dependencies}
+\title{Get content file dependencies}
 \usage{
-get_file_dependencies(path, simplify = FALSE)
+get_file_dependencies(path, context = path, simplify = FALSE)
 }
 \arguments{
-\item{path}{(\code{character}) One or more note files in which to look for references to
+\item{path}{(\code{character}) One or more content file files in which to look for references to
 other files.}
+
+\item{context}{(\code{character}) Working directory used when inferring relative dependency
+paths. Corresponds to \code{path}.}
 
 \item{simplify}{(\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
 with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a
@@ -18,7 +21,7 @@ single \code{character} vector is returned.}
 Depends on the \code{simplify} option.
 }
 \description{
-Return the absolute paths of note dependencies files. Currently, only \code{.html} files are
+Return the absolute paths of content file dependencies files. Currently, only \code{.html} files are
 implemented.
 }
 

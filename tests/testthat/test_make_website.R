@@ -2,7 +2,7 @@ library(quiltr)
 context("Website creation")
 
 
-test_that("note files are found", {
+test_that("content files are found", {
   test_path <- normalizePath("test_notebook/")
   html_paths <- c("dir_1/note_b.html",
                   "dir_2/dir_2.1/note_e.html",
@@ -12,9 +12,9 @@ test_that("note files are found", {
                   "note_a.html",
                   "note_f.html",
                   "note_h.html")
-  expect_equal(get_note_files(test_path, full_names = FALSE), html_paths)
-  expect_equal(get_note_files(test_path), file.path(test_path, html_paths))
-  expect_equal(get_note_files(character(0)), character(0))
+  expect_equal(get_content_files(test_path, full_names = FALSE), html_paths)
+  expect_equal(get_content_files(test_path), file.path(test_path, html_paths))
+  expect_equal(get_content_files(character(0)), character(0))
 })
 
 
@@ -38,7 +38,7 @@ test_that("Hierarchy is made correctly", {
   paths <- c("test_notebook/dir_3-submenu_3.1/submenu_3.1.1-submenu_3.1.1.1-note_d.html",
              "test_notebook/note_f.html",
              "test_notebook/dir_2/note_g.html")
-  expect_equal(get_note_hierarchy(paths, root = "test_notebook"),
+  expect_equal(get_hierarchy(paths, root = "test_notebook"),
                list(list(character(0),
                          c("dir_3"),
                          c("dir_3", "submenu_3.1"),
@@ -53,11 +53,11 @@ test_that("Hierarchy is made correctly", {
                          c("dir_2", "relative"),
                          c("dir_2", "relative", "note"),
                          c("dir_2", "relative", "note", "placement"))))
-  expect_equal(get_note_hierarchy(path = paths, root = "test_notebook", cumulative = FALSE),
+  expect_equal(get_hierarchy(path = paths, root = "test_notebook", cumulative = FALSE),
                list(list(c("dir_3", "submenu_3.1", "submenu_3.1.1", "submenu_3.1.1.1")),
                     list(c("custom", "note", "placement")),
                     list(c("dir_2", "relative", "note", "placement"))))
-  expect_equal(get_note_hierarchy(path = paths, root = "test_notebook", use_file_names = FALSE),
+  expect_equal(get_hierarchy(path = paths, root = "test_notebook", use_file_names = FALSE),
                list(list(character(0),
                          c("dir_3"),
                          c("dir_3", "submenu_3.1")),
@@ -70,7 +70,7 @@ test_that("Hierarchy is made correctly", {
                          c("dir_2", "relative"),
                          c("dir_2", "relative", "note"),
                          c("dir_2", "relative", "note", "placement"))))
-  expect_equal(get_note_hierarchy(paths, root = "test_notebook", use_dir_names = FALSE),
+  expect_equal(get_hierarchy(paths, root = "test_notebook", use_dir_names = FALSE),
                list(list(character(0),
                          c("submenu_3.1.1"),
                          c("submenu_3.1.1", "submenu_3.1.1.1")),
@@ -82,7 +82,7 @@ test_that("Hierarchy is made correctly", {
                          c("relative"),
                          c("relative", "note"),
                          c("relative", "note", "placement"))))
-  expect_equal(get_note_hierarchy(paths, root = "test_notebook", use_file_suffix = TRUE),
+  expect_equal(get_hierarchy(paths, root = "test_notebook", use_file_suffix = TRUE),
                list(list(character(0),
                          c("dir_3"),
                          c("dir_3", "submenu_3.1"),
@@ -98,15 +98,15 @@ test_that("Hierarchy is made correctly", {
                          c("dir_2", "relative"),
                          c("dir_2", "relative", "note"),
                          c("dir_2", "relative", "note", "placement"))))
-  expect_equal(get_note_hierarchy(path = paths, root = "test_notebook",
+  expect_equal(get_hierarchy(path = paths, root = "test_notebook",
                                   use_file_names = FALSE,
                                   use_dir_names = FALSE,
                                   use_config_files = FALSE), 
                list(list(character(0)),
                     list(character(0)),
                     list(character(0))))
-  expect_equal(get_note_hierarchy(path = "test_notebook/note_h.html", root = "test_notebook"), 
+  expect_equal(get_hierarchy(path = "test_notebook/note_h.html", root = "test_notebook"), 
                list(list()))
-  expect_equal(get_note_hierarchy(path = "test_notebook/note_h.html", root = "test_notebook", cumulative = FALSE), 
+  expect_equal(get_hierarchy(path = "test_notebook/note_h.html", root = "test_notebook", cumulative = FALSE), 
                list(list()))
 })

@@ -17,7 +17,6 @@ dir.create(doc_path)
 file.copy(from = "test_website_1", to = doc_path, recursive = TRUE, overwrite = TRUE)
 file.copy(from = "test_website_2", to = doc_path, recursive = TRUE, overwrite = TRUE)
 file.copy(from = "custom.css", to = doc_path, overwrite = TRUE)
-file.copy(from = "placement.yml", to = doc_path, overwrite = TRUE)
 ```
 
 ## How it works
