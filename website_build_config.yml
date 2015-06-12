@@ -1,8 +1,11 @@
-path: /home/local/USDA-ARS/fosterz/repositories/quiltr/inst/doc
-output: /tmp/Rtmp6jLXcq/file6b5dc9a0879
+path: /home/local/USDA-ARS/fosterz/repositories/quiltr/vignettes
+output: /tmp/RtmpuWRYF3/file38b55e0f53a5
+type:
+- html
+- rmd
 name: Quiltr
 clean: yes
-overwrite: yes
+overwrite: no
 theme: flatly
 apply_theme: yes
 cumulative: no
