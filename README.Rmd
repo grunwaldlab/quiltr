@@ -66,7 +66,7 @@ library(quiltr)
 
 ## To get started
 
-> Zach, pelase add a few exmaples of how to open a new notebook, how to edit and reformat a notebook and a few other key features like chaning look, etc.
+> TO DO: please add a few exmaples of how to open a new notebook, how to edit and reformat a notebook and a few other key features like changing look, etc.
 
 ## Documentation
 
