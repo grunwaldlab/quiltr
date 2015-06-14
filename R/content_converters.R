@@ -37,3 +37,18 @@ quiltr_convert_html_to_html <- function(input, output = tempfile(fileext = ".htm
   file.copy(input, output)
   return(output)
 }
+
+#===================================================================================================
+#' Convert py to html
+#' 
+#' Convert python to html
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+quiltr_convert_py_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
+  content <- paste0("## ", basename(input), "\n\n", 
+                    "```python\n", readChar(input, nchars = 10000000), "```")
+  system(pandoc_command, input = content)
+  return(output)
+}
