@@ -328,12 +328,20 @@ convert_and_copy <- function(from, to, copy_depend = TRUE, partial_copy = TRUE) 
   to <- normalizePath(to)
   # Convert files to html --------------------------------------------------------------------------
   get_converters <- function() {
-    function_names <- get_function("quiltr", "^convert_.*_to_html$")
-    converters <- mget(function_names)
-    names(converters) <- stringr::str_match(function_names, "^convert_(.*)_to_html$")[, 2]
+    function_names <- get_function("quiltr", "^quiltr_convert_.*_to_html$")
+    converters <- mget(function_names, inherits = TRUE)
+    names(converters) <- tolower(stringr::str_match(function_names,
+                                                    "^quiltr_convert_(.*)_to_html$")[, 2])
     return(converters)
   }
   converters <- get_converters()
+  extensions <- unique(tolower(tools::file_ext(from)))
+  unsupported_extensions <- extensions[!extensions %in% names(converters)]
+  if (length(unsupported_extensions) > 0) {
+    stop(paste0("The following file types are not supported by quiltr: ",
+                paste(unsupported_extensions, collapse = ", "), "\n", 
+                "Change the value of the 'type' option of 'quilt' or remove unsupported files."))
+  }
   convert <- function(input) { converters[[tolower(tools::file_ext(input))]](input) }
   converted_paths <- vapply(from, convert, character(1))
   on.exit(file.remove(converted_paths))
