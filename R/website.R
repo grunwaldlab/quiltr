@@ -303,32 +303,6 @@ get_file_dependencies <- function(path, context = path, simplify = FALSE) {
 }
 
 
-#===================================================================================================
-#' Convert rmd to html
-#' 
-#' Convert rmd to html
-#' 
-#' @param input (\code{character} of length 1)
-#' @param output (\code{character} of length 1)
-rmd_to_html <- function(input, output = tempfile(fileext = ".html")) {
-  original_wd <- getwd()
-  on.exit(setwd(original_wd))
-  setwd(dirname(input))
-  rmarkdown::render(input, output_file = basename(output), output_dir = dirname(output), 
-                    quiet = FALSE)
-}
-
-#===================================================================================================
-#' Convert html to html
-#' 
-#' Convert html to html
-#' 
-#' @param input (\code{character} of length 1)
-#' @param output (\code{character} of length 1)
-html_to_html <- function(input, output = tempfile(fileext = ".html")) {
-  file.copy(input, output)
-  return(output)
-}
 
 
 #===================================================================================================
@@ -353,7 +327,13 @@ convert_and_copy <- function(from, to, copy_depend = TRUE, partial_copy = TRUE) 
   from_path <- normalizePath(from)
   to <- normalizePath(to)
   # Convert files to html --------------------------------------------------------------------------
-  converters <- c(rmd = rmd_to_html, html = html_to_html)
+  get_converters <- function() {
+    function_names <- get_function("quiltr", "^convert_.*_to_html$")
+    converters <- mget(function_names)
+    names(converters) <- stringr::str_match(function_names, "^convert_(.*)_to_html$")[, 2]
+    return(converters)
+  }
+  converters <- get_converters()
   convert <- function(input) { converters[[tolower(tools::file_ext(input))]](input) }
   converted_paths <- vapply(from, convert, character(1))
   on.exit(file.remove(converted_paths))

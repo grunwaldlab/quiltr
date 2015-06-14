@@ -100,3 +100,22 @@ get_file_in_parent <- function(path, query) {
 }
 
 
+#===================================================================================================
+#' Get functions in package
+#' 
+#' Get functions in package that match a regular expression. 
+#' Private functions are returned as well.
+#' 
+#' Inspired by:
+#' http://stackoverflow.com/questions/8696158/find-all-functions-including-private-in-a-package
+#' 
+#' @param  package (\code{character} of length 1) The name of the package to search for functions
+#' in. 
+#' @param  pattern (\code{character} of length 1) A regular expression that functions' name must 
+#' match. 
+#' 
+#' @return \code{list} of \code{function}
+get_function <- function(package, pattern) {
+  all_funcs <- unclass(lsf.str(envir = asNamespace(package), all = T))
+  all_funcs[grep(pattern, all_funcs)]
+}
