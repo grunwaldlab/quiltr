@@ -10,7 +10,7 @@ quiltr_convert_rmd_to_html <- function(input, output = tempfile(fileext = ".html
   on.exit(setwd(original_wd))
   setwd(dirname(input))
   rmarkdown::render(input, output_file = basename(output), output_dir = dirname(output), 
-                    quiet = FALSE)
+                    quiet = TRUE)
 }
 
 
@@ -38,6 +38,22 @@ quiltr_convert_html_to_html <- function(input, output = tempfile(fileext = ".htm
   return(output)
 }
 
+
+#===================================================================================================
+#' Convert txt to html
+#' 
+#' Convert text files to html
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+quiltr_convert_txt_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  content <- paste0("# ", basename(input), "\n\n", 
+                    "```\n", readChar(input, nchars = 10000000), "```")
+  cat(knitr::knit2html(text = content, output = output, quiet = TRUE), file = output)
+  return(output)
+}
+
+
 #===================================================================================================
 #' Convert py to html
 #' 
@@ -46,9 +62,11 @@ quiltr_convert_html_to_html <- function(input, output = tempfile(fileext = ".htm
 #' @param input (\code{character} of length 1)
 #' @param output (\code{character} of length 1)
 quiltr_convert_py_to_html <- function(input, output = tempfile(fileext = ".html")) {
-  pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
-  content <- paste0("## ", basename(input), "\n\n", 
-                    "```python\n", readChar(input, nchars = 10000000), "```")
-  system(pandoc_command, input = content)
+  if (pandoc_is_available()) {
+    pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
+    content <- paste0("# ", basename(input), "\n\n", 
+                      "```python\n", readChar(input, nchars = 10000000), "```")
+    system(pandoc_command, input = content)    
+  } else {quiltr_convert_txt_to_html(input, output)}
   return(output)
 }

@@ -119,3 +119,15 @@ get_function <- function(package, pattern) {
   all_funcs <- unclass(lsf.str(envir = asNamespace(package), all = T))
   all_funcs[grep(pattern, all_funcs)]
 }
+
+
+#===================================================================================================
+#' Check if pandoc exists
+#' 
+#' Try to run \code{pandoc -v} and see if an error is encountered. 
+#' 
+#' @return \code{logical} of length 1
+pandoc_is_available <- function() {
+  result <- system("pandoc -v", ignore.stdout = TRUE, ignore.stderr = TRUE)
+  if (result == 0) {return(TRUE)} else {return(FALSE)}
+}
