@@ -350,20 +350,24 @@ convert_and_copy <- function(from, to, copy_depend = TRUE, partial_copy = TRUE) 
     depend_from <- get_file_dependencies(converted_paths, context = from, simplify = TRUE)
     from_path <- c(from_path, depend_from)
   }
-  # Determine location of file copies --------------------------------------------------------------
+  # Determine location to copy files to ------------------------------------------------------------
   from_root <- get_common_dir(from_path)
   to_path <- file.path(to, gsub(paste0("^", dirname(from_root), .Platform$file.sep), "", from_path))
-  to_path <- paste0(tools::file_path_sans_ext(to_path), ".html")
-  # Copy files and directory structure -------------------------------------------------------------
+  html_to_path <- file.path(to, gsub(paste0("^", dirname(from_root), .Platform$file.sep), "", normalizePath(from)))
+  html_to_path <- paste0(tools::file_path_sans_ext(html_to_path), ".html")
+  # Copy directory structure -----------------------------------------------------------------------
   if (partial_copy) {
     for (dir_to_make in unique(dirname(to_path))) 
       if (!file.exists(dir_to_make)) dir.create(dir_to_make, recursive = TRUE)
   } else {
     file.copy(from_root, to, recursive = TRUE)
   }
-  invisible(file.copy(from = converted_paths, to = to_path, overwrite = TRUE))
+  # Copy html file renderings ----------------------------------------------------------------------
+  invisible(file.copy(from = converted_paths, to = html_to_path, overwrite = TRUE))
+  # Copy original files and dependencies -----------------------------------------------------------
+  invisible(file.copy(from = from_path, to = to_path, overwrite = TRUE))
   # Return the locations of input file copies ------------------------------------------------------
-  to_path[1:length(from)]
+  html_to_path[1:length(from)]
 }
 
 

@@ -70,3 +70,19 @@ quiltr_convert_py_to_html <- function(input, output = tempfile(fileext = ".html"
   } else {quiltr_convert_txt_to_html(input, output)}
   return(output)
 }
+
+
+#===================================================================================================
+#' Convert pdf to html
+#' 
+#' Display pdf files via html embed
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+quiltr_convert_pdf_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  content <- paste0("<h1>", basename(input), "</h1>\n\n", 
+                    '<embed src="', basename(input), 
+                    '" width="100%" height="600px" type="application/pdf">')
+  cat(content, file = output)
+  return(output)
+}
