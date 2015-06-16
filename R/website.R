@@ -194,7 +194,7 @@ get_content_files <- function(path, type = c("html"), full_names = TRUE, simplif
     # Make paths absolute ----------------------------------------------------------------------------
     path <- normalizePath(path)
     # Make regular expression for file extensions ----------------------------------------------------
-    file_regex <- paste0(paste("\\.", type, collapse = "|", sep = ""), "$")
+    file_regex <- paste0(paste("\\.", type, "$", collapse = "|", sep = ""))
     # Search for files with matching extension -------------------------------------------------------
     content_paths <- list.files(path, pattern = file_regex, all.files = TRUE, recursive = TRUE,
                             ignore.case = TRUE, full.names = full_names)
@@ -277,7 +277,7 @@ get_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = TRUE,
         # Apply file name effects  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (index == length(path_hierarchy) && use_file_names) {
           addition <- tools::file_path_sans_ext(basename(current_path))
-          if (!is.na(name_sep) && !is.null(name_sep) && length(addition) > 0) 
+          if (!is.null(name_sep) && !is.na(name_sep) && length(addition) > 0) 
             addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
           if (!use_file_suffix)
             addition <- addition[seq(1, length.out = length(addition) - 1)]
@@ -439,10 +439,10 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' (\code{index.html})
 #' 
 #' @export
-quilt <- function(path = getwd(), output = NULL, type = c("html", "rmd"), name = "Home",
+quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render(), name = "Home",
                   clean = TRUE, overwrite = FALSE,
-                  theme = "journal", apply_theme = TRUE, cumulative = FALSE, use_file_names = TRUE,
-                  use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
+                  theme = "journal", apply_theme = TRUE, cumulative = FALSE, use_file_names = FALSE,
+                  use_dir_names = TRUE, use_config_files = TRUE, name_sep = NULL,
                   use_file_suffix = FALSE, use_dir_suffix = TRUE, menu_name_parser = NULL,
                   note_config_name = "placement.yml", site_config_name = "website_build_config.yml", 
                   site_config_file = path, output_dir_name = "website", partial_copy = TRUE,

@@ -22,13 +22,6 @@ render_files_to_html <- function(from, to, copy_depend = TRUE, partial_copy = TR
   from_path <- normalizePath(from)
   to <- normalizePath(to)
   # Convert files to html --------------------------------------------------------------------------
-  get_converters <- function() {
-    function_names <- get_function("quiltr", "^quiltr_convert_.*_to_html$")
-    converters <- mget(function_names, inherits = TRUE)
-    names(converters) <- tolower(stringr::str_match(function_names,
-                                                    "^quiltr_convert_(.*)_to_html$")[, 2])
-    return(converters)
-  }
   converters <- get_converters()
   extensions <- unique(tolower(tools::file_ext(from)))
   unsupported_extensions <- extensions[!extensions %in% names(converters)]
@@ -152,4 +145,31 @@ get_html_dependencies <- function(path) {
   lapply(path, get_dependency)
 }
 
+#===================================================================================================
+#' Get file rendering functions
+#' 
+#' Returns a list of functions that display the content of files with HTML. 
+#' 
+#' @return \code{list} of \code{logical}
+get_converters <- function() {
+  function_names <- get_function("quiltr", "^quiltr_convert_.*_to_html$")
+  converters <- mget(function_names, inherits = TRUE)
+  names(converters) <- tolower(stringr::str_match(function_names,
+                                                  "^quiltr_convert_(.*)_to_html$")[, 2])
+  return(converters)
+}
+
+
+
+#===================================================================================================
+#' File formats \code{\link{quilt}} can render
+#' 
+#' Returns a the file extensions for file formats that \code{\link{quilt}} can display on a website. 
+#' 
+#' @return \code{character}
+#' 
+#' @export
+formats_quilt_can_render <- function() {
+  names(get_converters())
+}
 

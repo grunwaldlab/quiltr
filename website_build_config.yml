@@ -1,8 +1,9 @@
 path: ./vignettes
 name: Quiltr
 theme: flatly
-use_dir_names: false
-use_file_suffix: true
-cumulative: false
-partial_copy: false
+use_dir_names: no
+use_file_names: yes
+use_file_suffix: yes
+name_sep: "-"
+partial_copy: no
 menu_name_parser: !expr function(x) gsub('^[0-9]*_', '', x)
