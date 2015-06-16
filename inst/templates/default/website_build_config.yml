@@ -1,0 +1,6 @@
+name: Example
+theme: flatly
+use_file_names: yes
+use_file_suffix: yes
+name_sep: "-"
+menu_name_parser: !expr function(x) gsub('^[0-9]*_', '', x)
