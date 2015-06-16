@@ -48,7 +48,7 @@ quiltr_convert_html_to_html <- function(input, output = tempfile(fileext = ".htm
 #' @param output (\code{character} of length 1)
 quiltr_convert_txt_to_html <- function(input, output = tempfile(fileext = ".html")) {
   content <- paste0("# ", basename(input), "\n\n", 
-                    "```\n", readChar(input, nchars = 10000000), "```")
+                    "```\n", readChar(input, nchars = 10000000), "\n```")
   cat(knitr::knit2html(text = content, output = output, quiet = TRUE), file = output)
   return(output)
 }
@@ -65,7 +65,7 @@ quiltr_convert_py_to_html <- function(input, output = tempfile(fileext = ".html"
   if (pandoc_is_available()) {
     pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
     content <- paste0("# ", basename(input), "\n\n", 
-                      "```python\n", readChar(input, nchars = 10000000), "```")
+                      "```python\n", readChar(input, nchars = 10000000), "\n```")
     system(pandoc_command, input = content)    
   } else {quiltr_convert_txt_to_html(input, output)}
   return(output)
@@ -84,5 +84,92 @@ quiltr_convert_pdf_to_html <- function(input, output = tempfile(fileext = ".html
                     '<embed src="', basename(input), 
                     '" width="100%" height="600px" type="application/pdf">')
   cat(content, file = output)
+  return(output)
+}
+
+
+#===================================================================================================
+#' Convert R to html
+#' 
+#' Convert R files to html
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+quiltr_convert_r_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  use_pandoc <- TRUE
+  if (pandoc_is_available() && use_pandoc) {
+    pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
+    content <- paste0("# ", basename(input), "\n\n", 
+                      "```r\n", readChar(input, nchars = 10000000), "\n```")
+    system(pandoc_command, input = content)    
+  } else {
+    content <- paste0("# ", basename(input), "\n\n", 
+                      "```{r, eval = FALSE}\n", readChar(input, nchars = 10000000), "\n```")
+    cat(knitr::knit2html(text = content, output = output, quiet = TRUE), file = output)    
+  }
+  return(output)
+}
+
+
+#===================================================================================================
+#' Convert js to html
+#' 
+#' Convert java script to html
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+quiltr_convert_js_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  if (pandoc_is_available()) {
+    pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
+    content <- paste0("# ", basename(input), "\n\n", 
+                      "```java\n", readChar(input, nchars = 10000000), "\n```")
+    system(pandoc_command, input = content)    
+  } else {quiltr_convert_txt_to_html(input, output)}
+  return(output)
+}
+
+#===================================================================================================
+#' Convert C to html
+#' 
+#' Convert C files to html
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+quiltr_convert_c_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  if (pandoc_is_available()) {
+    pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
+    content <- paste0("# ", basename(input), "\n\n", 
+                      "```c\n", readChar(input, nchars = 10000000), "\n```")
+    system(pandoc_command, input = content)    
+  } else {quiltr_convert_txt_to_html(input, output)}
+  return(output)
+}
+
+
+#===================================================================================================
+#' Convert R C++ to html
+#' 
+#' Convert R C++ files to html
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+quiltr_convert_rcpp_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  if (pandoc_is_available()) {
+    pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
+    content <- paste0("# ", basename(input), "\n\n", 
+                      "```cpp\n", readChar(input, nchars = 10000000), "\n```")
+    system(pandoc_command, input = content)    
+  } else {quiltr_convert_txt_to_html(input, output)}
+  return(output)
+}
+#===================================================================================================
+#' Convert C++ to html
+#' 
+#' Convert C++ files to html
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+quiltr_convert_cpp_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  quiltr_convert_rcpp_to_html(input, output)
   return(output)
 }

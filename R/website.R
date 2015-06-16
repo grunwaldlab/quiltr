@@ -307,8 +307,15 @@ get_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = TRUE,
                   hierarchy <- list()
                   addition <- NULL
                 } else if (config[[pattern]][1] == ".") {
-                  if (length(config[[pattern]]) > 1)
+                  if (length(config[[pattern]]) > 1) {
+                    addition <- c(addition, config[[pattern]][2:length(config[[pattern]])])
+                  }
+                } else if (config[[pattern]][1] == "..") {
+                  if (length(config[[pattern]]) > 1) {
                     addition <- config[[pattern]][2:length(config[[pattern]])]
+                  } else {
+                    addition <- NULL
+                  }
                 } else {
                   hierarchy <-  list(character(0))
                   addition <- config[[pattern]]
