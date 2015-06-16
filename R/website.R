@@ -538,7 +538,7 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
   cat(make_hierarchy_html(hierarchy_class, page_html_names, site_name = name), file = pre_body_html_path)
   # Make other dependencies ------------------------------------------------------------------------
   dependencies <- vapply(c("in_header.html", "after_body.html"),
-                         function(x) system.file("file_templates", x, package = "quiltr"), 
+                         function(x) system.file("website_parts", x, package = "quiltr"), 
                          character(1))
   file.copy(from = dependencies, to = output_path)
   output_yaml_path <- file.path(output_path, "_output.yaml")
