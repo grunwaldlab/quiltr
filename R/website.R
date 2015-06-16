@@ -441,7 +441,7 @@ make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = 
 #' @export
 quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render(), name = "Home",
                   clean = TRUE, overwrite = FALSE,
-                  theme = "journal", apply_theme = TRUE, cumulative = FALSE, use_file_names = FALSE,
+                  theme = "journal", apply_theme = FALSE, cumulative = FALSE, use_file_names = FALSE,
                   use_dir_names = TRUE, use_config_files = TRUE, name_sep = NULL,
                   use_file_suffix = FALSE, use_dir_suffix = TRUE, menu_name_parser = NULL,
                   note_config_name = "placement.yml", site_config_name = "website_build_config.yml", 
