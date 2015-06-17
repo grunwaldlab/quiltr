@@ -1,4 +1,97 @@
 #===================================================================================================
+#' Make pandoc conversion functions
+#' 
+#' Makes generic pandoc file converter functions
+#' 
+#' @param block_header (named \code{character}) The name of the programming language, 
+#' as it would appear in a fenced code block identifier. The names are the file extension for
+#' files of that programming language.
+#' 
+#' @examples 
+#' \dontrun{
+#' # The following would make the function `quiltr_convert_python_to_html` and `quiltr_convert_py_to_html`
+#' make_generic_pandoc_converter(c(py = "python", python = "python"))
+#' }
+make_generic_pandoc_converter <- function(block_header) {
+  make_one <- function(language) {
+    function(input, output = tempfile(fileext = ".html")) {
+      if (pandoc_is_available()) {
+        pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
+        content <- paste0("# ", basename(input), "\n\n", 
+                          "```", language, "\n", readChar(input, nchars = 10000000), "\n```")
+        system(pandoc_command, input = content)    
+      } else {quiltr_convert_txt_to_html(input, output)}
+      return(output)
+    }
+  }
+  for (index in seq_along(block_header)) {
+    function_name <- paste0("quiltr_convert_", names(block_header)[index], "_to_html")
+    assign(function_name, make_one(block_header[index]), envir = parent.frame())
+  }
+}
+
+make_generic_pandoc_converter(c(py = "python",
+                                as = "actionscript",
+                                adb = "ada",
+                                ads = "ada",
+                                asn1 = "asn1",
+                                asp = "asp",
+                                awk = "awk",
+                                bash = "bash", 
+                                sh = "bash",
+                                bibtex = "bibtex",
+                                boo = "boo",
+                                c = "c",
+                                clj = "clojure",
+                                cljs = "clojure",
+                                edn = "clojure",
+                                cmake = "cmake",
+                                coffee = "coffee",
+                                cfm = "coldfusion",
+                                cfc = "coldfusion",
+                                lisp = "commonlisp", 
+                                cl = "commonlisp",
+                                cpp = "cpp",
+                                cs = "cs",
+                                css = "css",
+                                curry = "curry",
+                                d = "d",
+                                diff = "diff",
+                                django.html = "djangotemplate",
+                                dtd = "dtd",
+                                e = "eiffel",
+                                eml = "email",
+                                erl = "erlang",
+                                hrl = "erlang",
+                                f = "fortran",
+                                "for" = "fortran",
+                                f90 = "fortran",
+                                f95 = "fortran",
+                                "f#" = "fsharp",
+                                fs = "fsharp",
+                                go = "go",
+                                hs = "haskell",
+                                lhs = "haskell",
+                                hx = "haxe",
+                                hxml = "haxe",
+                                html = "html",
+                                ini = "ini",
+                                java = "java",
+                                class = "java",
+                                jar = "java",
+                                js = "javascript",
+                                json = "json",
+                                jsp = "jsp",
+                                jl = "julia",
+                                tex = "latex",
+                                lex = "lex",
+                                lua = "lua",
+                                md = "markdown",
+                                m = "matlab"))
+
+
+
+#===================================================================================================
 #' Convert rmd to html
 #' 
 #' Convert rmd to html
@@ -54,23 +147,6 @@ quiltr_convert_txt_to_html <- function(input, output = tempfile(fileext = ".html
 }
 
 
-#===================================================================================================
-#' Convert py to html
-#' 
-#' Convert python to html
-#' 
-#' @param input (\code{character} of length 1)
-#' @param output (\code{character} of length 1)
-quiltr_convert_py_to_html <- function(input, output = tempfile(fileext = ".html")) {
-  if (pandoc_is_available()) {
-    pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
-    content <- paste0("# ", basename(input), "\n\n", 
-                      "```python\n", readChar(input, nchars = 10000000), "\n```")
-    system(pandoc_command, input = content)    
-  } else {quiltr_convert_txt_to_html(input, output)}
-  return(output)
-}
-
 
 #===================================================================================================
 #' Convert pdf to html
@@ -111,65 +187,4 @@ quiltr_convert_r_to_html <- function(input, output = tempfile(fileext = ".html")
 }
 
 
-#===================================================================================================
-#' Convert js to html
-#' 
-#' Convert java script to html
-#' 
-#' @param input (\code{character} of length 1)
-#' @param output (\code{character} of length 1)
-quiltr_convert_js_to_html <- function(input, output = tempfile(fileext = ".html")) {
-  if (pandoc_is_available()) {
-    pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
-    content <- paste0("# ", basename(input), "\n\n", 
-                      "```java\n", readChar(input, nchars = 10000000), "\n```")
-    system(pandoc_command, input = content)    
-  } else {quiltr_convert_txt_to_html(input, output)}
-  return(output)
-}
 
-#===================================================================================================
-#' Convert C to html
-#' 
-#' Convert C files to html
-#' 
-#' @param input (\code{character} of length 1)
-#' @param output (\code{character} of length 1)
-quiltr_convert_c_to_html <- function(input, output = tempfile(fileext = ".html")) {
-  if (pandoc_is_available()) {
-    pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
-    content <- paste0("# ", basename(input), "\n\n", 
-                      "```c\n", readChar(input, nchars = 10000000), "\n```")
-    system(pandoc_command, input = content)    
-  } else {quiltr_convert_txt_to_html(input, output)}
-  return(output)
-}
-
-
-#===================================================================================================
-#' Convert R C++ to html
-#' 
-#' Convert R C++ files to html
-#' 
-#' @param input (\code{character} of length 1)
-#' @param output (\code{character} of length 1)
-quiltr_convert_rcpp_to_html <- function(input, output = tempfile(fileext = ".html")) {
-  if (pandoc_is_available()) {
-    pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
-    content <- paste0("# ", basename(input), "\n\n", 
-                      "```cpp\n", readChar(input, nchars = 10000000), "\n```")
-    system(pandoc_command, input = content)    
-  } else {quiltr_convert_txt_to_html(input, output)}
-  return(output)
-}
-#===================================================================================================
-#' Convert C++ to html
-#' 
-#' Convert C++ files to html
-#' 
-#' @param input (\code{character} of length 1)
-#' @param output (\code{character} of length 1)
-quiltr_convert_cpp_to_html <- function(input, output = tempfile(fileext = ".html")) {
-  quiltr_convert_rcpp_to_html(input, output)
-  return(output)
-}
