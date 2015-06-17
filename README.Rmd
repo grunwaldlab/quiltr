@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/grunwaldlab/quiltr.png?branch=master)](https://travis-ci.org/grunwaldlab/quiltr?branch=master)
 [![codecov.io](https://codecov.io/github/grunwaldlab/quiltr/coverage.svg?branch=master)](https://codecov.io/github/grunwaldlab/quiltr?branch=master)
 
+> PLEASE NOTE THIS PACKAGE IS STILL IN DEVELOPMENT AND WE DO NOT ENCOURAGE ADOPTION AT THIS POINT.
+
 ## What it is
 
 Quiltr is an R package ideal for conducting *reproducible science*. It can combine HTML files scattered throughout a file system into a single website organized by a hierarchical drop-down menu.
