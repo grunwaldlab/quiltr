@@ -4,7 +4,7 @@
 \alias{make_generic_pandoc_converter}
 \title{Make pandoc conversion functions}
 \usage{
-make_generic_pandoc_converter(block_header)
+make_generic_pandoc_converter(block_header = pandoc_extension_identifiers())
 }
 \arguments{
 \item{block_header}{(named \code{character}) The name of the programming language,
