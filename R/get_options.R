@@ -43,10 +43,14 @@ get_config_paths <- function(path, name, root, must_exist = TRUE) {
 #' @param path (\code{character} of length 1)
 #' @param option (\code{character} of length 1)
 #' 
-#' @return depends on content of config file
+#' @return depends on content of config file. Returns \code{NA} if the option cannot be found.
 get_config_value <- function(path, option) {
   content <- yaml::yaml.load_file(input = path)
-  unlist(content[[option]], recursive = FALSE)
+  if (option %in% names(content)) {
+    return(unlist(content[[option]], recursive = FALSE))
+  } else {
+    return(NA)
+  }
 }
 
 
@@ -94,18 +98,31 @@ sys_glob <- function(path, max_search_depth = 50) {
 #' @param option (\code{character} of length 1)
 #' @param default The default value for the option
 #' @param root (\code{character} of length 1)
+#' @param config_name (\code{character} of length 1)
 #' @param inherit (\code{logical} of length 1) If \code{FALSE}
 #' 
-get_option <- function(path, option, default, root = NULL, inherit = TRUE) {
-  config_paths <- get_config_paths(path = path, name = option, root = root, must_exist = TRUE)
+get_option <- function(path, option, default, root, config_name, inherit = TRUE) {
+  # Validate inputs --------------------------------------------------------------------------------
+  path = normalizePath(path)
+  root = normalizePath(root)
+  # Get relevant configuration file paths ----------------------------------------------------------
+  config_paths <- get_config_paths(path = path, name = config_name, root = root, must_exist = TRUE)
   output_value <- default
+  # Look for options that apply to the path given in each configuration file -----------------------
   for (config_path in config_paths) {
     value <- get_config_value(path = config_path, option = option)
-    patterns = names(value)
-    if (is.null(patterns)) {
-      patterns = ifelse(inherit, "**", "*")
-      value <- list(value)
+    if (length(value) > 1 || !is.na(value)) { # If the option is found in the config file...
+      patterns = names(value)
+      if (is.null(patterns)) { # If patterns are not specified...
+        patterns = ifelse(inherit, "**", "*")
+        value <- list(value)
+      }
+      for (index in seq_along(value)) {
+        if (path %in% sys_glob(file.path(dirname(config_path), patterns[index]))) {
+          output_value <- value[index]
+        }
+      }      
     }
-    
   }
+  return(output_value)
 }

@@ -4,7 +4,7 @@
 \alias{get_option}
 \title{Get option value for a given context}
 \usage{
-get_option(path, option, default, root = NULL, inherit = TRUE)
+get_option(path, option, default, root, config_name, inherit = TRUE)
 }
 \arguments{
 \item{path}{(\code{character} of length 1)}
@@ -14,6 +14,8 @@ get_option(path, option, default, root = NULL, inherit = TRUE)
 \item{default}{The default value for the option}
 
 \item{root}{(\code{character} of length 1)}
+
+\item{config_name}{(\code{character} of length 1)}
 
 \item{inherit}{(\code{logical} of length 1) If \code{FALSE}}
 }
