@@ -50,3 +50,14 @@ test_that("Option values are read correctly", {
                list("home.Rmd" = ""))
   expect_null(quiltr:::get_config_value(path = config_path, option = "does_not_exist"))
 })
+
+
+test_that("Wildcards are expanded correctly", {
+  test_dir <- system.file("templates", "default", package = "quiltr")
+  config_name <- "quiltr_config.yml"
+  file.copy(from = test_dir, ".", recursive = TRUE, overwrite = TRUE)
+  on.exit(unlink("./default", recursive = TRUE))
+
+  expect_true(file.path("default", "input_types", "code", config_name) %in% quiltr:::sys_glob("**.yml"))
+  expect_error(quiltr:::sys_glob("**/**.yml"), "Currently, Quiltr only supports one double wildcard")
+})

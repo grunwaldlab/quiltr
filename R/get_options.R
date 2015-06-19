@@ -16,7 +16,7 @@ get_config_paths <- function(path, name, root, must_exist = TRUE) {
   if (!grepl(pattern = paste0("^", root), path)) {
     stop("'root' is not a parent directory of 'path'.")
   }
-  # Get directories in search path -----------------------------------------------------------------
+    # Get directories in search path -----------------------------------------------------------------
   if (root == dirname(path)) {
     split_rel_path <- ""
   } else {
@@ -42,9 +42,46 @@ get_config_paths <- function(path, name, root, must_exist = TRUE) {
 #' 
 #' @param path (\code{character} of length 1)
 #' @param option (\code{character} of length 1)
+#' 
+#' @return depends on content of config file
 get_config_value <- function(path, option) {
   content <- yaml::yaml.load_file(input = path)
   unlist(content[[option]], recursive = FALSE)
+}
+
+
+
+#===================================================================================================
+#' Wildcard expansion
+#' 
+#' Like \code{\link{Sys.glob}}, but also understands double wildcards for recursive matching using
+#' double wildcards (\code{**})
+#' 
+#' @param path (\code{character} of length 1) The path to expand.
+#' @param max_search_depth(\code{integer} of length 1) How deep to search
+#' 
+#' @return \code{character}
+sys_glob <- function(path, max_search_depth = 50) {
+  # Find location of double wildcard ---------------------------------------------------------------
+  split_path <- strsplit(path, .Platform$file.sep)[[1]]
+  pair_index <- which(grepl(pattern = "\\*\\*", split_path))
+  if (length(pair_index) > 1) {
+    stop(paste0("Currently, Quiltr only supports one double wildcard (**) per path. ",
+                "The following path has more than one:\n\t", path))
+  }
+  if (length(pair_index) == 0) { return(Sys.glob(path)) }
+  # List possible paths using single wildcards -----------------------------------------------------
+  possibilities <- lapply(0:max_search_depth, rep, x = "*")
+  
+  split_path[pair_index] <- gsub(pattern = "\\*\\*", replacement = "*",
+                                      split_path[pair_index])
+  possible_paths <- lapply(possibilities,
+                           function(x) c(split_path[seq(from = 1, length.out = pair_index - 1)],
+                                         x,
+                                         split_path[seq(from = pair_index, to = length(split_path))]))
+  possible_paths <- lapply(possible_paths, function(x) do.call(file.path, as.list(x)))
+  # Search all possible paths ----------------------------------------------------------------------
+  unique(unlist(lapply(possible_paths, Sys.glob)))
 }
 
 
@@ -55,11 +92,20 @@ get_config_value <- function(path, option) {
 #' 
 #' @param path (\code{character} of length 1)
 #' @param option (\code{character} of length 1)
+#' @param default The default value for the option
 #' @param root (\code{character} of length 1)
+#' @param inherit (\code{logical} of length 1) If \code{FALSE}
 #' 
-get_option <- function(path, option, root = NULL) {
+get_option <- function(path, option, default, root = NULL, inherit = TRUE) {
   config_paths <- get_config_paths(path = path, name = option, root = root, must_exist = TRUE)
+  output_value <- default
   for (config_path in config_paths) {
+    value <- get_config_value(path = config_path, option = option)
+    patterns = names(value)
+    if (is.null(patterns)) {
+      patterns = ifelse(inherit, "**", "*")
+      value <- list(value)
+    }
     
   }
 }

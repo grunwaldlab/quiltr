@@ -11,6 +11,9 @@ get_config_value(path, option)
 
 \item{option}{(\code{character} of length 1)}
 }
+\value{
+depends on content of config file
+}
 \description{
 Get the value of a specific option in a specific configuration file.
 }

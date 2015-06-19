@@ -4,14 +4,18 @@
 \alias{get_option}
 \title{Get option value for a given context}
 \usage{
-get_option(path, option, root = NULL)
+get_option(path, option, default, root = NULL, inherit = TRUE)
 }
 \arguments{
 \item{path}{(\code{character} of length 1)}
 
 \item{option}{(\code{character} of length 1)}
 
+\item{default}{The default value for the option}
+
 \item{root}{(\code{character} of length 1)}
+
+\item{inherit}{(\code{logical} of length 1) If \code{FALSE}}
 }
 \description{
 Get option value for a given context
