@@ -99,30 +99,36 @@ sys_glob <- function(path, max_search_depth = 50) {
 #' @param default The default value for the option
 #' @param root (\code{character} of length 1)
 #' @param config_name (\code{character} of length 1)
+#' @param is_missing (\code{logical} of length 1) If \code{TRUE}, \code{default} is ignored.
 #' @param inherit (\code{logical} of length 1) If \code{FALSE}
 #' 
-get_option <- function(path, option, default, root, config_name, inherit = TRUE) {
+get_option <- function(path, option, default, root, config_name, is_missing, inherit = TRUE) {
+  
+  search_paths <- function(value, path, context) {
+    patterns = names(value)
+    if (is.null(patterns)) { # If patterns are not specified...
+      patterns = ifelse(inherit, "**", "*")
+      value <- list(value)
+    }
+    for (index in seq_along(value)) {
+      if (path %in% sys_glob(file.path(context, patterns[index]))) {
+        output_value <<- value[[index]]
+      }
+    }
+  }
   # Validate inputs --------------------------------------------------------------------------------
   path = normalizePath(path)
   root = normalizePath(root)
   # Get relevant configuration file paths ----------------------------------------------------------
   config_paths <- get_config_paths(path = path, name = config_name, root = root, must_exist = TRUE)
-  output_value <- default
+  output_value <- as.list(args(quilt))[[option]]
   # Look for options that apply to the path given in each configuration file -----------------------
   for (config_path in config_paths) {
     value <- get_config_value(path = config_path, option = option)
     if (length(value) > 1 || !is.na(value)) { # If the option is found in the config file...
-      patterns = names(value)
-      if (is.null(patterns)) { # If patterns are not specified...
-        patterns = ifelse(inherit, "**", "*")
-        value <- list(value)
-      }
-      for (index in seq_along(value)) {
-        if (path %in% sys_glob(file.path(dirname(config_path), patterns[index]))) {
-          output_value <- value[index]
-        }
-      }      
+      search_paths(value, path, dirname(config_path))     
     }
   }
+  if (!is_missing) { search_paths(default, path, root) }
   return(output_value)
 }

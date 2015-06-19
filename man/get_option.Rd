@@ -4,7 +4,8 @@
 \alias{get_option}
 \title{Get option value for a given context}
 \usage{
-get_option(path, option, default, root, config_name, inherit = TRUE)
+get_option(path, option, default, root, config_name, is_missing,
+  inherit = TRUE)
 }
 \arguments{
 \item{path}{(\code{character} of length 1)}
@@ -16,6 +17,8 @@ get_option(path, option, default, root, config_name, inherit = TRUE)
 \item{root}{(\code{character} of length 1)}
 
 \item{config_name}{(\code{character} of length 1)}
+
+\item{is_missing}{(\code{logical} of length 1) If \code{TRUE}, \code{default} is ignored.}
 
 \item{inherit}{(\code{logical} of length 1) If \code{FALSE}}
 }
