@@ -575,25 +575,3 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
 }
 
 
-#===================================================================================================
-#' Get option value for a given context
-#' 
-#' Get option value for a given context
-#' 
-#' @param  context
-#' @param  option
-#' 
-get_option <- function(context, option, root_context = NULL) {
-  
-  
-  get_paths <- function(path, root = NULL) {
-    path <- normalizePath(path)
-    split_path <- strsplit(path, split = .Platform$file.sep)[[1]]
-    if (!is.null(root)) {
-      root <- normalizePath(root)
-      split_root <- strsplit(root, split = .Platform$file.sep)[[1]]
-      lapply(1:min(c(length(split_path), length(split_root))),
-             function(i) split_path[i] == split_root[i])
-    }
-  }
-}
