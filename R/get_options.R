@@ -35,6 +35,17 @@ get_config_paths <- function(path, name, root, must_exist = TRUE) {
 }
 
 
+#===================================================================================================
+#' Get value of option in config file
+#' 
+#' Get the value of a specific option in a specific configuration file.
+#' 
+#' @param path (\code{character} of length 1)
+#' @param option (\code{character} of length 1)
+get_config_value <- function(path, option) {
+  content <- yaml::yaml.load_file(input = path)
+  unlist(content[[option]], recursive = FALSE)
+}
 
 
 #===================================================================================================
@@ -42,20 +53,13 @@ get_config_paths <- function(path, name, root, must_exist = TRUE) {
 #' 
 #' Get option value for a given context
 #' 
-#' @param  context
-#' @param  option
+#' @param path (\code{character} of length 1)
+#' @param option (\code{character} of length 1)
+#' @param root (\code{character} of length 1)
 #' 
-get_option <- function(context, option, root_context = NULL) {
-  
-  
-  get_paths <- function(path, root = NULL) {
-    path <- normalizePath(path)
-    split_path <- strsplit(path, split = .Platform$file.sep)[[1]]
-    if (!is.null(root)) {
-      root <- normalizePath(root)
-      split_root <- strsplit(root, split = .Platform$file.sep)[[1]]
-      lapply(1:min(c(length(split_path), length(split_root))),
-             function(i) split_path[i] == split_root[i])
-    }
+get_option <- function(path, option, root = NULL) {
+  config_paths <- get_config_paths(path = path, name = option, root = root, must_exist = TRUE)
+  for (config_path in config_paths) {
+    
   }
 }

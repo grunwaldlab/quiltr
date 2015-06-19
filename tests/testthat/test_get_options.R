@@ -33,3 +33,20 @@ test_that("Correct paths are searched", {
                                               name = config_name,
                                               root = .Platform$file.sep)))
 })
+
+
+
+
+test_that("Option values are read correctly", {
+  test_dir <- system.file("templates", "default", package = "quiltr")
+  config_name <- "quiltr_config.yml"
+  file.copy(from = test_dir, ".", recursive = TRUE, overwrite = TRUE)
+  on.exit(unlink("./default", recursive = TRUE))
+  config_path <- file.path(test_dir, config_name)
+  
+  expect_equal(quiltr:::get_config_value(path = config_path, option = "name"),
+               "Example")
+  expect_equal(quiltr:::get_config_value(path = config_path, option = "placement"),
+               list("home.Rmd" = ""))
+  expect_null(quiltr:::get_config_value(path = config_path, option = "does_not_exist"))
+})
