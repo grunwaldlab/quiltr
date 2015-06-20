@@ -4,8 +4,7 @@
 \alias{make_parent_html}
 \title{Make Rmd code to display HTML pages}
 \usage{
-make_parent_html(files, titles = NA, rmd_header = NULL,
-  apply_theme = FALSE)
+make_parent_html(files, titles = NA, rmd_header = NULL, q_opt)
 }
 \arguments{
 \item{files}{(\code{character}) One or more files to display}
@@ -14,8 +13,6 @@ make_parent_html(files, titles = NA, rmd_header = NULL,
 content}
 
 \item{rmd_header}{(\code{list}) YAML header data from Rmarkdown.}
-
-\item{apply_theme}{(\code{logical} of length 1) If \code{TRUE}, apply parent window CSS to iframes}
 }
 \value{
 (\code{character} of length 1) The Rmd code to display the content provided.

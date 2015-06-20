@@ -39,15 +39,14 @@ make_output_yaml <- function(theme = "journal") {
 #' @param titles (\code{character} same length as \code{files}) Titles to display above embedded
 #'   content
 #' @param rmd_header (\code{list}) YAML header data from Rmarkdown.
-#' @param apply_theme (\code{logical} of length 1) If \code{TRUE}, apply parent window CSS to iframes
 #' 
 #' @return (\code{character} of length 1) The Rmd code to display the content provided. 
-make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme = FALSE) {
+make_parent_html <- function(files, titles = NA, rmd_header = NULL, q_opt) {
   # Validate arguments -----------------------------------------------------------------------------
   if (!is.na(titles) && length(files) != length(titles)) {
     stop("Arguments `files` and `title` must the same length")
   }
-  if (any(! tools::file_ext(files) %in% c("Rmd", "rmd", "md", "html"))) {
+  if (any(!tools::file_ext(files) %in% c("Rmd", "rmd", "md", "html"))) {
     stop("Only files with `Rmd` or `html` extensions can be used.")
   }
   # Define functions to make components ------------------------------------------------------------
@@ -59,7 +58,9 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme 
   }
   make_iframe_code <- function(file, count) {
     on_load <- paste0('autoResize(\'iframe', count, '\'); export_links(\'iframe', count, '\');')
-    if (apply_theme)  on_load <- paste0('apply_theme(\'iframe', count, '\'); ', on_load)
+    if (q_opt(file, "apply_theme")) {
+      on_load <- paste0('apply_theme(\'iframe', count, '\'); ', on_load)
+    }
     iframe_att <- paste0('width="100%" height="0px" id="iframe', count,
                          '" marginheight="0" frameborder="0" onLoad="', on_load, '"')
     paste0('<iframe src="', file, '" ', iframe_att, '></iframe>\n\n')
@@ -324,18 +325,16 @@ get_hierarchy <- function(path, root, cumulative = TRUE, q_opt) {
 #' @param files (\code{list} of \code{character}) The file in each page, corresponding to argument
 #' \code{name}
 #' @param location (\code{character} of length 1) Where to make the webpages
-#' @param clean (\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
-#' use.
-#' @param apply_theme (\code{logical} of length 1) If \code{TRUE}, apply parent window CSS to iframes
+#' @param q_opt (\code{function}) The function used to get context-specific option values
 #' 
 #' @return (Named \code{character}) The file paths to created .html files named by their source Rmd
 #' files.
-make_master_rmd <- function(name, files, location, clean = FALSE, apply_theme = TRUE) {
+make_master_rmd <- function(name, files, location, q_opt) {
+  browser()
   master_rmd_path <- file.path(location, name)
   if (clean) files_to_remove <- master_rmd_path
   if (file.exists(master_rmd_path)) file.remove(master_rmd_path)
-  parent_html <- make_parent_html(files = files, titles = NA,
-                                  rmd_header = list(), apply_theme = apply_theme)
+  parent_html <- make_parent_html(files = files, titles = NA, rmd_header = list(), q_opt)
   cat(parent_html, file = master_rmd_path, append = FALSE)
   rmarkdown::render(master_rmd_path, quiet = TRUE)
 }
@@ -420,7 +419,7 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
                   clean = TRUE, overwrite = FALSE,
                   theme = "journal", apply_theme = FALSE, cumulative = FALSE, use_file_names = FALSE,
                   use_dir_names = TRUE, use_config_files = TRUE, name_sep = NULL,
-                  use_file_suffix = FALSE, use_dir_suffix = TRUE, menu_name_parser = NULL,
+                  use_file_suffix = FALSE, use_dir_suffix = TRUE, menu_name_parser = function(x) {x},
                   config_name = "quilt_config.yml", placement = character(0),
                   site_config_file = path, output_dir_name = "website", partial_copy = TRUE,
                   open = TRUE) {
@@ -458,11 +457,13 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
   # Find content files -----------------------------------------------------------------------------
   target_paths <- get_content_files(path, q_opt)
   if (length(target_paths) == 0) stop(paste0("No content files found in '", path, "'"))
-  browser()
   # Filter for notes in hirearchy ------------------------------------------------------------------
   classification <- get_hierarchy(target_paths, root = path, cumulative = cumulative, q_opt)
-  if (!is.null(menu_name_parser)) {
-    classification <- rapply(classification, menu_name_parser, how = "list")
+  name_parsers <- lapply(target_paths, q_opt, option = "menu_name_parser")
+  for (index in seq_along(target_paths)) {
+    classification[index] <- rapply(classification[index],
+                                    q_opt(target_paths[index], "menu_name_parser"),
+                                    how = "list")
   }
   classification_paths <- rep(target_paths, vapply(classification, length, integer(1)))
   ul_classification <- unlist(classification, recursive = FALSE)
@@ -474,13 +475,15 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
                                                               identical, y = x, logical(1))])
   target_paths <- unique(unlist(hierarchy))
   classification <- get_hierarchy(target_paths, root = path, cumulative = cumulative, q_opt)
-  if (!is.null(menu_name_parser)) {
-    classification <- rapply(classification, menu_name_parser, how = "list")
+  for (index in seq_along(target_paths)) {
+    classification[index] <- rapply(classification[index],
+                                    q_opt(target_paths[index], "menu_name_parser"),
+                                    how = "list")
   }
   # Make output directory --------------------------------------------------------------------------
   dir.create(output_path)
   dir.create(content_path)  
-  # Copy content directory ----------------------------------------------------------------------------
+  # Copy content directory -------------------------------------------------------------------------
   content_copy_path <- render_files_to_html(target_paths, content_path, partial_copy = partial_copy)
   # Make website menu ------------------------------------------------------------------------------
   page_names <- vapply(hierarchy_class, paste, character(1), collapse = "-")
@@ -490,7 +493,8 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
   page_html_names <- paste0(page_names, ".html")
   page_html_paths <- file.path(output_path, page_html_names)
   pre_body_html_path <- file.path(output_path, "before_body.html")
-  cat(make_hierarchy_html(hierarchy_class, page_html_names, site_name = name), file = pre_body_html_path)
+  cat(make_hierarchy_html(hierarchy_class, page_html_names, site_name = name),
+      file = pre_body_html_path)
   # Make other dependencies ------------------------------------------------------------------------
   dependencies <- vapply(c("in_header.html", "after_body.html"),
                          function(x) system.file("website_parts", x, package = "quiltr"), 
@@ -511,14 +515,14 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
   hierarchy <- lapply(hierarchy_class,
                       function(x) relative_copy_class_path[vapply(ul_classification, 
                                                                   identical, y = x, logical(1))])
-  home_path <- mapply(make_master_rmd, page_rmd_names, hierarchy, location = output_path, 
-                      apply_theme = apply_theme, clean = clean)[["index.Rmd"]]
+  home_path <- mapply(make_master_rmd, page_rmd_names, hierarchy,
+                      location = output_path, q_opt = q_opt)[["index.Rmd"]]
   # Make configuration file ------------------------------------------------------------------------
-  new_config_path <- file.path(output_path, site_config_name)
+  new_config_path <- file.path(output_path, config_name)
   arguments <- mget(argument_names)
   cat(yaml::as.yaml(arguments), file = new_config_path)
   # Open new website -------------------------------------------------------------------------------
-  if (rstudioapi::isAvailable() && open) rstudioapi::viewer(home_path)
+  if (rstudioapi::isAvailable() && open) {rstudioapi::viewer(home_path)}
   return(home_path)
 }
 
