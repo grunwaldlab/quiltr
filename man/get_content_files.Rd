@@ -4,13 +4,10 @@
 \alias{get_content_files}
 \title{Get paths to content}
 \usage{
-get_content_files(path, type = c("html"), full_names = TRUE,
-  simplify = TRUE)
+get_content_files(path, q_opt, full_names = TRUE, simplify = TRUE)
 }
 \arguments{
 \item{path}{(\code{character}) One or more directories in which to look for content files.}
-
-\item{type}{(\code{character}) One or more content file extensions to search for.}
 
 \item{full_names}{(\code{logical} of length 1) See \code{\link{list.files}} help for option
 \code{full.names}.}
@@ -18,6 +15,8 @@ get_content_files(path, type = c("html"), full_names = TRUE,
 \item{simplify}{(\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
 with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a
 single \code{character} vector is returned.}
+
+\item{type}{(\code{character}) One or more content file extensions to search for.}
 }
 \value{
 Depends on the \code{simplify} option.

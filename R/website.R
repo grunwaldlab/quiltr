@@ -61,7 +61,7 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, apply_theme 
     on_load <- paste0('autoResize(\'iframe', count, '\'); export_links(\'iframe', count, '\');')
     if (apply_theme)  on_load <- paste0('apply_theme(\'iframe', count, '\'); ', on_load)
     iframe_att <- paste0('width="100%" height="0px" id="iframe', count,
-    '" marginheight="0" frameborder="0" onLoad="', on_load, '"')
+                         '" marginheight="0" frameborder="0" onLoad="', on_load, '"')
     paste0('<iframe src="', file, '" ', iframe_att, '></iframe>\n\n')
   }
   make_child_rmd_code <- function(file) {
@@ -148,15 +148,15 @@ make_hierarchy_html <- function(hierarchy, page_paths, site_name = "Home") {
   # Make menu --------------------------------------------------------------------------------------
   home <- page_paths[vapply(hierarchy, length, numeric(1)) == 0]
   site_name_html <- paste(sep = "\n",
-                              '<div class="navbar-header">',
-                              '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">',
-                              '<span class="sr-only">Toggle navigation</span>',
-                              '<span class="icon-bar"></span>',
-                              '<span class="icon-bar"></span>',
-                              '<span class="icon-bar"></span>',
-                              '</button>',
-                              paste0('<a class="navbar-brand" href="', home, '">', site_name, '</a>'),
-                              '</div>')
+                          '<div class="navbar-header">',
+                          '<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">',
+                          '<span class="sr-only">Toggle navigation</span>',
+                          '<span class="icon-bar"></span>',
+                          '<span class="icon-bar"></span>',
+                          '<span class="icon-bar"></span>',
+                          '</button>',
+                          paste0('<a class="navbar-brand" href="', home, '">', site_name, '</a>'),
+                          '</div>')
   menu_html <- paste(sep = "\n",
                      '<div class="collapse navbar-collapse">',
                      '<ul class="nav navbar-nav">',
@@ -187,21 +187,25 @@ make_hierarchy_html <- function(hierarchy, page_paths, site_name = "Home") {
 #' single \code{character} vector is returned. 
 #' 
 #' @return Depends on the \code{simplify} option.
-get_content_files <- function(path, type = c("html"), full_names = TRUE, simplify = TRUE) {
+get_content_files <- function(path, q_opt, full_names = TRUE, simplify = TRUE) {
   # If nothing is given, return the same ----------------------------------------------------------
   if (length(path) == 0) return(path)
   process_one <- function(path) {
     # Make paths absolute ----------------------------------------------------------------------------
     path <- normalizePath(path)
-    # Make regular expression for file extensions ----------------------------------------------------
-    file_regex <- paste0(paste("\\.", type, "$", collapse = "|", sep = ""))
     # Search for files with matching extension -------------------------------------------------------
-    content_paths <- list.files(path, pattern = file_regex, all.files = TRUE, recursive = TRUE,
-                            ignore.case = TRUE, full.names = full_names)
+    content_paths <- list.files(path, all.files = TRUE, recursive = TRUE, full.names = full_names)
+    is_included <- function(a_path) {
+      file_regex <- paste0(paste("\\.", q_opt(a_path, "type"), "$", collapse = "|", sep = ""))
+      grepl(pattern = file_regex, a_path, ignore.case = TRUE)
+    }
+    content_paths <- content_paths[vapply(content_paths, is_included, logical(1))]
     # Remove files with same name but different extensions -------------------------------------------
     another_has_precedence <- function(a_path) {
-      get_precedence <- function(another_path) { 
-        which(tolower(tools::file_ext(another_path)) == tolower(type))
+      get_precedence <- function(another_path) {
+        precedence <- which(tolower(tools::file_ext(another_path)) == tolower(q_opt(a_path, "type")))
+        if (length(precedence) == 0) { precedence <- 1000000 }
+        return(precedence)
       }
       this_precedence <- get_precedence(a_path)
       other_precedence <- vapply(content_paths, get_precedence, numeric(1))
@@ -212,7 +216,7 @@ get_content_files <- function(path, type = c("html"), full_names = TRUE, simplif
     
   }
   content_paths <- lapply(path, process_one)
-   # Simplify if specified --------------------------------------------------------------------------
+  # Simplify if specified --------------------------------------------------------------------------
   if (simplify) { content_paths <- unlist(content_paths) }
   return(content_paths)
 }
@@ -231,27 +235,11 @@ get_content_files <- function(path, type = c("html"), full_names = TRUE, simplif
 #' @param root (\code{character} of length 1) The path to the root directory of the notebook.
 #' @param cumulative (\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
 #' levels will be returned. 
-#' @param use_file_names (\code{logical} of length 1) If \code{TRUE}, The names of files will be
-#' be used to determine the hierarchy.
-#' @param use_dir_names (\code{logical} of length 1) If \code{TRUE}, The names of directories will
-#' be used to determine the hierarchy.
-#' @param use_config_files (\code{logical} of length 1) If \code{TRUE}, configuration
-#' files along the notes' file path will be used to determine the hierarchy. The name of 
-#' configuration files is specified by the \code{note_config_name} option.
-#' @param name_sep (\code{character} of length 1) A character to split file/directory names by when
-#' using them for parts of the hierarchy.
-#' @param use_file_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of a file
-#' name when split by the \code{name_sep} option.
-#' @param use_dir_suffix (\code{logical} of length 1) If \code{TRUE}, use the last part of directory
-#' names when split by the \code{name_sep} option.
-#' @param note_config_name (\code{character} of length 1) The name of configuration files.
+#' @param q_opt (\code{function}) The function used to get context-specific option values
 #'   
 #' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy 
 #' corresponding to the input argument \code{path}.
-get_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = TRUE,
-                               use_dir_names = TRUE, use_config_files = TRUE, name_sep = "-",
-                               use_file_suffix = FALSE, use_dir_suffix = TRUE,
-                               note_config_name = "placement.yml") {
+get_hierarchy <- function(path, root, cumulative = TRUE, q_opt) {
   # Make input file paths absolute -----------------------------------------------------------------
   path <- normalizePath(path)
   root <- normalizePath(root)
@@ -266,64 +254,46 @@ get_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = TRUE,
       # Get path to current directory level  - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       current_path <- do.call(file.path, as.list(c(root, path_hierarchy[0:index])))
       if (length(hierarchy) != 0) { #If it has not been removed from the hierarchy via config file
+        name_sep <- q_opt(current_path, "name_sep")
         # Apply directory name effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (index != length(path_hierarchy) && use_dir_names) {
+        if (index != length(path_hierarchy) && q_opt(current_path, "use_dir_names")) {
           addition <- basename(current_path)
           if (!is.na(name_sep) && !is.null(name_sep) && length(addition) > 0) 
             addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
-          if (!use_dir_suffix)
+          if (!q_opt(current_path, "use_dir_suffix"))
             addition <- addition[seq(1, length.out = length(addition) - 1)]
         }
         # Apply file name effects  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (index == length(path_hierarchy) && use_file_names) {
+        if (index == length(path_hierarchy) && q_opt(current_path, "use_file_names")) {
           addition <- tools::file_path_sans_ext(basename(current_path))
           if (!is.null(name_sep) && !is.na(name_sep) && length(addition) > 0) 
             addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
-          if (!use_file_suffix)
+          if (!q_opt(current_path, "use_file_suffix"))
             addition <- addition[seq(1, length.out = length(addition) - 1)]
         }
       }
       # Apply configuration file effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (use_config_files) {
-        rel_path <- strsplit(gsub(paste0("^", root), "", dirname(current_path)), .Platform$file.sep)[[1]]
-        if (root == dirname(current_path)) rel_path <- ""
-        config_locations <- lapply(1:length(rel_path), function(i) rel_path[1:i])
-        config_locations <- sapply(config_locations, function(x) do.call(file.path, as.list(x)))
-        config_locations <- gsub(paste0("^", .Platform$file.sep), "", config_locations)
-        for (config_location in config_locations) {
-          if (config_location != "") 
-            config_path <- file.path(root, config_location, note_config_name)
-          else 
-            config_path <- file.path(root, note_config_name)
-          if (file.exists(config_path)) {
-            config <- yaml::yaml.load_file(config_path)
-            for (pattern in names(config)) {
-              if (config_location != "") 
-                matches <- Sys.glob(file.path(root, config_location, pattern))
-              else 
-                matches <- Sys.glob(file.path(root, pattern))
-              if (current_path %in% matches || path %in% matches) {
-                if (is.null(config[[pattern]][1])) {
-                  hierarchy <- list()
-                  addition <- NULL
-                } else if (config[[pattern]][1] == ".") {
-                  if (length(config[[pattern]]) > 1) {
-                    addition <- c(addition, config[[pattern]][2:length(config[[pattern]])])
-                  }
-                } else if (config[[pattern]][1] == "..") {
-                  if (length(config[[pattern]]) > 1) {
-                    addition <- config[[pattern]][2:length(config[[pattern]])]
-                  } else {
-                    addition <- NULL
-                  }
-                } else {
-                  hierarchy <-  list(character(0))
-                  addition <- config[[pattern]]
-                  addition <- addition[addition != ""]
-                }
-              }
+      if (q_opt(current_path, "use_config_files")) {
+        config <- q_opt(current_path, "placement")
+        if (length(config) > 0) {
+          if (is.null(config[1])) {
+            hierarchy <- list()
+            addition <- NULL
+          } else if (config[1] == ".") {
+            if (length(config) > 1) {
+              addition <- c(addition, config[2:length(config)])
             }
-          }
+          } else if (config[1] == "..") {
+            if (length(config) > 1) {
+              addition <- config[2:length(config)]
+            } else {
+              addition <- NULL
+            }
+          } else {
+            hierarchy <-  list(character(0))
+            addition <- config
+            addition <- addition[addition != ""]
+          }          
         }
       }
       # Save resulting addition  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -339,7 +309,7 @@ get_hierarchy <- function(path, root, cumulative = TRUE, use_file_names = TRUE,
           hierarch <- list(addition)
       }  
     }
-  return(hierarchy)
+    return(hierarchy)
   }
   lapply(path, process_one)
 }
@@ -451,65 +421,49 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
                   theme = "journal", apply_theme = FALSE, cumulative = FALSE, use_file_names = FALSE,
                   use_dir_names = TRUE, use_config_files = TRUE, name_sep = NULL,
                   use_file_suffix = FALSE, use_dir_suffix = TRUE, menu_name_parser = NULL,
-                  note_config_name = "placement.yml", site_config_name = "website_build_config.yml", 
+                  config_name = "quilt_config.yml", placement = character(0),
                   site_config_file = path, output_dir_name = "website", partial_copy = TRUE,
                   open = TRUE) {
-  # Read any configuration files -------------------------------------------------------------------
+  # Set up function to get option values from config files -----------------------------------------
   argument_names <- names(as.list(args(quilt)))
   argument_names <- argument_names[-length(argument_names)]
   arg_missing <- eval(c(missing(path), missing(output), missing(type), missing(name), missing(clean),
                         missing(overwrite), missing(theme), missing(apply_theme), missing(cumulative),
                         missing(use_file_names), missing(use_dir_names), missing(use_config_files),
                         missing(name_sep), missing(use_file_suffix), missing(use_dir_suffix),
-                        missing(menu_name_parser), missing(note_config_name), missing(site_config_name),
+                        missing(menu_name_parser), missing(config_name), missing(placement),
                         missing(site_config_file), missing(output_dir_name), missing(partial_copy),
                         missing(open)))
   names(arg_missing) <- argument_names
-  if (!is.na(site_config_name) && !is.na(site_config_file) &&
-      !is.null(site_config_name) && !is.null(site_config_file)) {
-    if (!file.exists(site_config_file)) stop(paste0("Cannot find website configuration file at '",
-                                                    site_config_file, "'. Path does not exist."))
-    if (file.info(site_config_file)$isdir) 
-      config_path <- file.path(site_config_file, site_config_name)
-    else
-      config_path <- site_config_file
-    if (file.exists(config_path)) {
-      message(paste0("Using configuration file found at ", config_path,
-                     ". Set option 'site_config_name' or 'site_config_file' to NA or NULL to ",
-                     "ignore this configuration file."))
-      config_data <- yaml::yaml.load_file(config_path)
-      for(i in seq(from = 1, length.out = length(config_data)))
-        if (arg_missing[names(config_data)[i]]) assign(x = names(config_data)[i], value = config_data[[i]])
-    }
+  q_opt <- function(context, option) {
+    eval(get_option(context, option, default = get(option), root = path,
+                    config_name = config_name, is_missing = arg_missing[[option]]))
   }
- # Parse arguments --------------------------------------------------------------------------------
- path <- normalizePath(path)
- if (is.null(output) || is.na(output)) {
-   output <- tempfile()
-   dir.create(output)
- }
- output <- normalizePath(output)
- # Detect/delete old website ----------------------------------------------------------------------
+  # Parse arguments --------------------------------------------------------------------------------
+  path <- normalizePath(path)
+  if (is.null(output) || is.na(output)) {
+    output <- tempfile()
+    dir.create(output)
+  }
+  output <- normalizePath(output)
+  # Detect/delete old website ----------------------------------------------------------------------
   output_path <- file.path(output, output_dir_name)
   content_path <- file.path(output_path, "content")
   if (file.exists(output_path)) {
     if (overwrite)
       unlink(output_path, recursive = TRUE)
     else
-        stop("Website exsits at ", output_path, ". Use `overwrite = TRUE` to replace.")
+      stop("Website exsits at ", output_path, ". Use `overwrite = TRUE` to replace.")
   }
   # Find content files -----------------------------------------------------------------------------
-  target_paths <- get_content_files(path, type = type)
-  if (length(target_paths) == 0) stop(paste0("No HTML files found in '", path, "'"))
+  target_paths <- get_content_files(path, q_opt)
+  if (length(target_paths) == 0) stop(paste0("No content files found in '", path, "'"))
+  browser()
   # Filter for notes in hirearchy ------------------------------------------------------------------
-  classification <- get_hierarchy(target_paths, root = path, cumulative = cumulative, 
-                                       use_file_names = use_file_names, 
-                                       use_dir_names = use_dir_names, 
-                                       use_config_files = use_config_files, name_sep = name_sep,
-                                       use_file_suffix = use_file_suffix, 
-                                       use_dir_suffix = use_dir_suffix,
-                                       note_config_name = note_config_name)
-  if (!is.null(menu_name_parser)) classification <- rapply(classification, menu_name_parser, how = "list")
+  classification <- get_hierarchy(target_paths, root = path, cumulative = cumulative, q_opt)
+  if (!is.null(menu_name_parser)) {
+    classification <- rapply(classification, menu_name_parser, how = "list")
+  }
   classification_paths <- rep(target_paths, vapply(classification, length, integer(1)))
   ul_classification <- unlist(classification, recursive = FALSE)
   hierarchy_class <- unique(ul_classification)
@@ -517,15 +471,9 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
     hierarchy_class <- c(list(character(0)), hierarchy_class)
   hierarchy <- lapply(hierarchy_class,
                       function(x) classification_paths[vapply(ul_classification, 
-                                                         identical, y = x, logical(1))])
+                                                              identical, y = x, logical(1))])
   target_paths <- unique(unlist(hierarchy))
-  classification <- get_hierarchy(target_paths, root = path, cumulative = cumulative, 
-                                       use_file_names = use_file_names, 
-                                       use_dir_names = use_dir_names, 
-                                       use_config_files = use_config_files, name_sep = name_sep,
-                                       use_file_suffix = use_file_suffix, 
-                                       use_dir_suffix = use_dir_suffix,
-                                       note_config_name = note_config_name)
+  classification <- get_hierarchy(target_paths, root = path, cumulative = cumulative, q_opt)
   if (!is.null(menu_name_parser)) {
     classification <- rapply(classification, menu_name_parser, how = "list")
   }
@@ -553,8 +501,8 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
   # Step up clean up -------------------------------------------------------------------------------
   if (clean) {
     files_to_remove <- file.path(output_path, c("in_header.html", "after_body.html",
-                                           "before_body.html","_output.yaml",
-                                           page_rmd_names))
+                                                "before_body.html","_output.yaml",
+                                                page_rmd_names))
     on.exit(lapply(files_to_remove[file.exists(files_to_remove)], file.remove))
   }  
   # Make website pages -----------------------------------------------------------------------------

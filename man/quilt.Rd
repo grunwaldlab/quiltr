@@ -9,9 +9,9 @@ quilt(path = getwd(), output = NULL, type = formats_quilt_can_render(),
   apply_theme = FALSE, cumulative = FALSE, use_file_names = FALSE,
   use_dir_names = TRUE, use_config_files = TRUE, name_sep = NULL,
   use_file_suffix = FALSE, use_dir_suffix = TRUE, menu_name_parser = NULL,
-  note_config_name = "placement.yml",
-  site_config_name = "website_build_config.yml", site_config_file = path,
-  output_dir_name = "website", partial_copy = TRUE, open = TRUE)
+  config_name = "quilt_config.yml", placement = character(0),
+  site_config_file = path, output_dir_name = "website",
+  partial_copy = TRUE, open = TRUE)
 }
 \arguments{
 \item{path}{(\code{character}) One or more directories in which to look for  files.}
@@ -77,12 +77,6 @@ names when split by the \code{name_sep} option.}
 to chenge it somehow. The function must take a single \code{character} input and output a single
 \code{character}.}
 
-\item{note_config_name}{(\code{character} of length 1) The name of content placement configuration files.}
-
-\item{site_config_name}{(\code{character} of length 1) The name of the website building configuration file.
-It does not need to exist, but if it does in a directory specified by \code{site_config_file}, it is used
-automatically. To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.}
-
 \item{site_config_file}{(\code{character} of length 1) The path to a configuration file specifing
 this function's option values or to the directory is is located in. The file should be in YAML format.
 To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.}
@@ -96,6 +90,12 @@ it. Enough of the file structure will be copied to included all dependencies.}
 
 \item{open}{(\code{logical} of length 1) If \code{TRUE}, open the newly created website in an
 internet browser.}
+
+\item{note_config_name}{(\code{character} of length 1) The name of content placement configuration files.}
+
+\item{site_config_name}{(\code{character} of length 1) The name of the website building configuration file.
+It does not need to exist, but if it does in a directory specified by \code{site_config_file}, it is used
+automatically. To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.}
 }
 \value{
 (\code{character} of length 1) The file path to the created websites home page

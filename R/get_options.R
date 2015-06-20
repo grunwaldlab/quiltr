@@ -103,7 +103,6 @@ sys_glob <- function(path, max_search_depth = 50) {
 #' @param inherit (\code{logical} of length 1) If \code{FALSE}
 #' 
 get_option <- function(path, option, default, root, config_name, is_missing, inherit = TRUE) {
-  
   search_paths <- function(value, path, context) {
     patterns = names(value)
     if (is.null(patterns)) { # If patterns are not specified...
