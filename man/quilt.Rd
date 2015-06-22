@@ -102,7 +102,7 @@ to chenge it somehow. The function must take a single \code{character} input and
 \code{character}.
 The value of this option can be file-path-specific; see \code{config_name} documentation.}
 
-\item{placement}{(named \code{list} of \code{character}) Custom note placement rules. Custom
+\item{placement}{(named \code{list} of \code{character}) Custom content placement rules. Custom
 website menu heirarchy names can be specified.
 These (usually; see \code{.} documentation below) override hierarchy inferred from file/directory
 names.
@@ -134,7 +134,7 @@ This is the only option that cannot be specified by a configuration file.
 To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.}
 }
 \value{
-(\code{character} of length 1) The file path to the created websites home page
+(\code{character} of length 1) The file path to the created website's home page
 (\code{index.html})
 }
 \description{

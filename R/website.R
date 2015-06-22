@@ -41,7 +41,7 @@ make_output_yaml <- function(theme = "journal") {
 #' @param rmd_header (\code{list}) YAML header data from Rmarkdown.
 #' 
 #' @return (\code{character} of length 1) The Rmd code to display the content provided. 
-make_parent_html <- function(files, titles = NA, rmd_header = NULL, original_files, q_opt) {
+make_parent_html <- function(files, titles = NA, rmd_header = NULL, q_opt) {
   # Validate arguments -----------------------------------------------------------------------------
   if (!is.na(titles) && length(files) != length(titles)) {
     stop("Arguments `files` and `title` must the same length")
@@ -56,9 +56,9 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, original_fil
     else
       ""
   }
-  make_iframe_code <- function(file, original_file, count) {
+  make_iframe_code <- function(file, original, count) {
     on_load <- paste0('autoResize(\'iframe', count, '\'); export_links(\'iframe', count, '\');')
-    if (q_opt(original_file, "apply_theme")) {
+    if (q_opt(original, "apply_theme")) {
       on_load <- paste0('apply_theme(\'iframe', count, '\'); ', on_load)
     }
     iframe_att <- paste0('width="100%" height="0px" id="iframe', count,
@@ -68,17 +68,17 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, original_fil
   make_child_rmd_code <- function(file) {
     paste0("```{r child = '", file, "'}\n```\n\n")
   }
-  make_code <- function(file, original_file, title, count) {
+  make_code <- function(file, original, title, count) {
     if (!is.na(title)) title_code <- paste0("## ", title, "\n\n") else title_code <- ""
     if (tools::file_ext(file) %in% c("Rmd", "rmd", "md")) {
       return(paste0(title_code, make_child_rmd_code(file)))
     } else if (tools::file_ext(file) %in% c("html")) {
-      return(paste0(title_code, make_iframe_code(file, original_file, count)))
+      return(paste0(title_code, make_iframe_code(file, original, count)))
     } 
   }
   # Generate Rmd document ---------------------------------------------------------------------------
   if (length(files) > 0)
-    iframe_code <- paste0(mapply(make_code, file = files, original_file = original_files, title = titles, count = 1:length(files)),
+    iframe_code <- paste0(mapply(make_code, file = files, original = names(files), title = titles, count = 1:length(files)),
                           collapse = "")
   else 
     iframe_code <-""
@@ -233,14 +233,10 @@ get_content_files <- function(path, q_opt, full_names = TRUE, simplify = TRUE) {
 #' Return a list of all the locations in the classification hierarchy.
 #' 
 #' @param path (\code{character}) The paths to notes to assign hirearchical classifications to.
-#' @param root (\code{character} of length 1) The path to the root directory of the notebook.
-#' @param cumulative (\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
-#' levels will be returned. 
-#' @param q_opt (\code{function}) The function used to get context-specific option values
-#'   
+#' @param root (\code{character} of length 1) The path to the root directory of the notebook.   
 #' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy 
 #' corresponding to the input argument \code{path}.
-get_hierarchy <- function(path, root, cumulative = TRUE, q_opt) {
+get_hierarchy <- function(path, root, q_opt) {
   # Make input file paths absolute -----------------------------------------------------------------
   path <- normalizePath(path)
   root <- normalizePath(root)
@@ -274,31 +270,29 @@ get_hierarchy <- function(path, root, cumulative = TRUE, q_opt) {
         }
       }
       # Apply configuration file effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (q_opt(current_path, "use_config_files")) {
-        config <- q_opt(current_path, "placement")
-        if (length(config) > 0) {
-          if (is.null(config[1])) {
-            hierarchy <- list()
-            addition <- NULL
-          } else if (config[1] == ".") {
-            if (length(config) > 1) {
-              addition <- c(addition, config[2:length(config)])
-            }
-          } else if (config[1] == "..") {
-            if (length(config) > 1) {
-              addition <- config[2:length(config)]
-            } else {
-              addition <- NULL
-            }
+      config <- q_opt(current_path, "placement")
+      if (length(config) > 0) {
+        if (is.null(config[1])) {
+          hierarchy <- list()
+          addition <- NULL
+        } else if (config[1] == ".") {
+          if (length(config) > 1) {
+            addition <- c(addition, config[2:length(config)])
+          }
+        } else if (config[1] == "..") {
+          if (length(config) > 1) {
+            addition <- config[2:length(config)]
           } else {
-            hierarchy <-  list(character(0))
-            addition <- config
-            addition <- addition[addition != ""]
-          }          
-        }
+            addition <- NULL
+          }
+        } else {
+          hierarchy <-  list(character(0))
+          addition <- config
+          addition <- addition[addition != ""]
+        }          
       }
       # Save resulting addition  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (cumulative)
+      if (q_opt(NULL, "cumulative"))
       {
         hierarchy <-  c(hierarchy,
                         lapply(seq_along(addition),
@@ -331,11 +325,11 @@ get_hierarchy <- function(path, root, cumulative = TRUE, q_opt) {
 #' 
 #' @return (Named \code{character}) The file paths to created .html files named by their source Rmd
 #' files.
-make_master_rmd <- function(name, files, original_files, location, clean, q_opt) {
+make_master_rmd <- function(name, files, location, q_opt) {
   master_rmd_path <- file.path(location, name)
-  if (clean) files_to_remove <- master_rmd_path
+  if (q_opt(NULL, "clean")) files_to_remove <- master_rmd_path
   if (file.exists(master_rmd_path)) file.remove(master_rmd_path)
-  parent_html <- make_parent_html(files = files, titles = NA, rmd_header = list(), original_files,  q_opt)
+  parent_html <- make_parent_html(files = files, titles = NA, rmd_header = list(), q_opt)
   cat(parent_html, file = master_rmd_path, append = FALSE)
   rmarkdown::render(master_rmd_path, quiet = TRUE)
 }
@@ -424,7 +418,7 @@ make_master_rmd <- function(name, files, original_files, location, clean, q_opt)
 #' to chenge it somehow. The function must take a single \code{character} input and output a single
 #' \code{character}. 
 #' The value of this option can be file-path-specific; see \code{config_name} documentation.
-#' @param placement (named \code{list} of \code{character}) Custom note placement rules. Custom
+#' @param placement (named \code{list} of \code{character}) Custom content placement rules. Custom
 #' website menu heirarchy names can be specified.
 #' These (usually; see \code{.} documentation below) override hierarchy inferred from file/directory
 #' names.
@@ -453,7 +447,7 @@ make_master_rmd <- function(name, files, original_files, location, clean, q_opt)
 #' This is the only option that cannot be specified by a configuration file.
 #' To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
 
-#' @return (\code{character} of length 1) The file path to the created websites home page 
+#' @return (\code{character} of length 1) The file path to the created website's home page 
 #' (\code{index.html})
 #' 
 #' @examples
@@ -483,7 +477,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
                         missing(config_name)))
   names(arg_missing) <- argument_names
   q_opt <- function(context, option) {
-    eval(get_option(context, option, func_arg_value = get(option), root = path,
+    eval(get_option(path = context, option = option, func_arg_value = get(option), root = path,
                     config_name = config_name, is_missing = arg_missing[[option]]))
   }
   # Parse arguments --------------------------------------------------------------------------------
@@ -506,7 +500,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
   target_paths <- get_content_files(path, q_opt)
   if (length(target_paths) == 0) stop(paste0("No content files found in '", path, "'"))
   # Filter for notes in hirearchy ------------------------------------------------------------------
-  classification <- get_hierarchy(target_paths, root = path, cumulative = cumulative, q_opt)
+  classification <- get_hierarchy(target_paths, root = path, q_opt)
   name_parsers <- lapply(target_paths, q_opt, option = "menu_name_parser")
   for (index in seq_along(target_paths)) {
     classification[index] <- rapply(classification[index],
@@ -522,7 +516,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
                       function(x) classification_paths[vapply(ul_classification, 
                                                               identical, y = x, logical(1))])
   target_paths <- unique(unlist(hierarchy))
-  classification <- get_hierarchy(target_paths, root = path, cumulative = cumulative, q_opt)
+  classification <- get_hierarchy(target_paths, root = path, q_opt)
   for (index in seq_along(target_paths)) {
     classification[index] <- rapply(classification[index],
                                     q_opt(target_paths[index], "menu_name_parser"),
@@ -541,7 +535,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
   page_html_names <- paste0(page_names, ".html")
   page_html_paths <- file.path(output_path, page_html_names)
   pre_body_html_path <- file.path(output_path, "before_body.html")
-  cat(make_hierarchy_html(hierarchy_class, page_html_names, site_name = name),
+  cat(make_hierarchy_html(hierarchy_class, page_html_names, site_name = q_opt(NULL, "name")),
       file = pre_body_html_path)
   # Make other dependencies ------------------------------------------------------------------------
   dependencies <- vapply(c("in_header.html", "after_body.html"),
@@ -549,7 +543,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
                          character(1))
   file.copy(from = dependencies, to = output_path)
   output_yaml_path <- file.path(output_path, "_output.yaml")
-  cat(make_output_yaml(theme = q_opt(path, "theme")), file = output_yaml_path)
+  cat(make_output_yaml(theme = q_opt(NULL, "theme")), file = output_yaml_path)
   # Step up clean up -------------------------------------------------------------------------------
   if (clean) {
     files_to_remove <- file.path(output_path, c("in_header.html", "after_body.html",
@@ -558,15 +552,19 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
     on.exit(lapply(files_to_remove[file.exists(files_to_remove)], file.remove))
   }  
   # Make website pages -----------------------------------------------------------------------------
-  relative_copy_path <- gsub(pattern = paste0("^", output_path, .Platform$file.sep), "", content_copy_path)
+  relative_copy_path <- gsub(pattern = paste0("^", output_path, .Platform$file.sep), "",
+                             content_copy_path)
   relative_copy_class_path <- rep(relative_copy_path, vapply(classification, length, integer(1)))
   copy_hierarchy <- lapply(hierarchy_class,
                       function(x) relative_copy_class_path[vapply(ul_classification, 
                                                                   identical, y = x, logical(1))])
-  home_path <- mapply(make_master_rmd, page_rmd_names, copy_hierarchy, hierarchy,
-                      MoreArgs = list(location = output_path, clean = clean, q_opt = q_opt))[["index.Rmd"]]
+  for (index in seq_along(copy_hierarchy)) {
+    names(copy_hierarchy[[index]]) <- hierarchy[[index]]
+  }
+  home_path <- mapply(make_master_rmd, page_rmd_names, copy_hierarchy,
+                      MoreArgs = list(location = output_path, q_opt = q_opt))[["index.Rmd"]]
   # Open new website -------------------------------------------------------------------------------
-  if (rstudioapi::isAvailable() && open) {rstudioapi::viewer(home_path)}
+  if (rstudioapi::isAvailable() && q_opt(NULL, "open")) { rstudioapi::viewer(home_path) }
   return(home_path)
 }
 

@@ -1,2 +1,3 @@
 type: !expr formats_quilt_can_render()
 use_file_names: no
+apply_theme: no

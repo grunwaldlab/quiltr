@@ -4,17 +4,12 @@
 \alias{get_hierarchy}
 \title{Get content hierarchy}
 \usage{
-get_hierarchy(path, root, cumulative = TRUE, q_opt)
+get_hierarchy(path, root, q_opt)
 }
 \arguments{
 \item{path}{(\code{character}) The paths to notes to assign hirearchical classifications to.}
 
 \item{root}{(\code{character} of length 1) The path to the root directory of the notebook.}
-
-\item{cumulative}{(\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
-levels will be returned.}
-
-\item{q_opt}{(\code{function}) The function used to get context-specific option values}
 }
 \value{
 (\code{list} of \code{character}) A list of locations in the notebook hierarchy

@@ -4,8 +4,7 @@
 \alias{make_parent_html}
 \title{Make Rmd code to display HTML pages}
 \usage{
-make_parent_html(files, titles = NA, rmd_header = NULL, original_files,
-  q_opt)
+make_parent_html(files, titles = NA, rmd_header = NULL, q_opt)
 }
 \arguments{
 \item{files}{(\code{character}) One or more files to display}

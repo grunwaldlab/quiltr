@@ -47,7 +47,7 @@ function autoResize(id){
     }
     var newheight;
     newheight=getDocHeight(id);
-    document.getElementById(id).height = (Math.round( newheight) + 50) + "px";
+    document.getElementById(id).height = (Math.round( newheight * 1.01)  + 50) + "px";
 }
 //-->
 </script>

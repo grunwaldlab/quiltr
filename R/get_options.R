@@ -139,7 +139,7 @@ get_option <- function(path, option, func_arg_value, root, config_name, is_missi
       # Look for options that apply to the path given in each configuration file -------------------
       for (config_path in config_paths) {
         value <- get_config_value(path = config_path, option = option)
-        if (length(value) > 1 || !is.na(value)) { # If the option is found in the config file...
+        if (is.function(value) || length(value) > 1 || !is.na(value)) { # If the option is found in the config file...
           search_paths(value, path, dirname(config_path))     
         }
       }

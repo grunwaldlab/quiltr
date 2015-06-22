@@ -14,6 +14,7 @@
 #' }
 make_generic_pandoc_converter <- function(block_header = pandoc_extension_identifiers()) {
   make_one <- function(language) {
+    force(language)
     function(input, output = tempfile(fileext = ".html")) {
       if (pandoc_is_available()) {
         pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)

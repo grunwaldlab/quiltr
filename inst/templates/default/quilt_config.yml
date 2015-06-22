@@ -1,5 +1,6 @@
 name: Example
 theme: flatly
+apply_theme: yes
 use_file_names: yes
 use_file_suffix: yes
 name_sep: "-"

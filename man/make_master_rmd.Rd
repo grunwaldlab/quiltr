@@ -4,7 +4,7 @@
 \alias{make_master_rmd}
 \title{Make composite webpage}
 \usage{
-make_master_rmd(name, files, original_files, location, clean, q_opt)
+make_master_rmd(name, files, location, q_opt)
 }
 \arguments{
 \item{name}{(\code{character}) Name of Rmd files to use}
@@ -14,10 +14,10 @@ make_master_rmd(name, files, original_files, location, clean, q_opt)
 
 \item{location}{(\code{character} of length 1) Where to make the webpages}
 
+\item{q_opt}{(\code{function}) The function used to get context-specific option values}
+
 \item{clean}{(\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
 use.}
-
-\item{q_opt}{(\code{function}) The function used to get context-specific option values}
 }
 \value{
 (Named \code{character}) The file paths to created .html files named by their source Rmd
