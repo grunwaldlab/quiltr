@@ -4,19 +4,23 @@
 \alias{get_option}
 \title{Get option value for a given context}
 \usage{
-get_option(path, option, default, root, config_name, is_missing,
+get_option(path, option, func_arg_value, root, config_name, is_missing,
   inherit = TRUE)
 }
 \arguments{
-\item{path}{(\code{character} of length 1)}
+\item{path}{(\code{character} of length 1) The path to a file that might have option values in
+configuration files apply to it. Configuration files will be looked for in its path and any
+options that apply to the file will be used. If \code{NULL}, look for values in a configuration
+file in root.}
 
-\item{option}{(\code{character} of length 1)}
+\item{option}{(\code{character} of length 1) The name of the option to get a value for}
 
-\item{default}{The default value for the option}
+\item{func_arg_value}{The value for the option passed into thj}
 
-\item{root}{(\code{character} of length 1)}
+\item{root}{(\code{character} of length 1) A parent directory of \code{path} in which to start
+looking ofr configuration files}
 
-\item{config_name}{(\code{character} of length 1)}
+\item{config_name}{(\code{character} of length 1) The name of configuration files.}
 
 \item{is_missing}{(\code{logical} of length 1) If \code{TRUE}, \code{default} is ignored.}
 

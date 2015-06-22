@@ -94,15 +94,19 @@ sys_glob <- function(path, max_search_depth = 50) {
 #' 
 #' Get option value for a given context
 #' 
-#' @param path (\code{character} of length 1)
-#' @param option (\code{character} of length 1)
-#' @param default The default value for the option
-#' @param root (\code{character} of length 1)
-#' @param config_name (\code{character} of length 1)
+#' @param path (\code{character} of length 1) The path to a file that might have option values in
+#' configuration files apply to it. Configuration files will be looked for in its path and any 
+#' options that apply to the file will be used. If \code{NULL}, look for values in a configuration
+#' file in root.
+#' @param option (\code{character} of length 1) The name of the option to get a value for
+#' @param func_arg_value The value for the option passed into thj
+#' @param root (\code{character} of length 1) A parent directory of \code{path} in which to start 
+#' looking ofr configuration files
+#' @param config_name (\code{character} of length 1) The name of configuration files.
 #' @param is_missing (\code{logical} of length 1) If \code{TRUE}, \code{default} is ignored.
 #' @param inherit (\code{logical} of length 1) If \code{FALSE}
 #' 
-get_option <- function(path, option, default, root, config_name, is_missing, inherit = TRUE) {
+get_option <- function(path, option, func_arg_value, root, config_name, is_missing, inherit = TRUE) {
   search_paths <- function(value, path, context) {
     patterns = names(value)
     if (is.null(patterns)) { # If patterns are not specified...
@@ -116,18 +120,25 @@ get_option <- function(path, option, default, root, config_name, is_missing, inh
     }
   }
   # Validate inputs --------------------------------------------------------------------------------
-  path = normalizePath(path)
+  if (!is.null(path)) { path = normalizePath(path) }
   root = normalizePath(root)
   # Get relevant configuration file paths ----------------------------------------------------------
   config_paths <- get_config_paths(path = path, name = config_name, root = root, must_exist = TRUE)
   output_value <- as.list(args(quilt))[[option]]
-  # Look for options that apply to the path given in each configuration file -----------------------
-  for (config_path in config_paths) {
-    value <- get_config_value(path = config_path, option = option)
-    if (length(value) > 1 || !is.na(value)) { # If the option is found in the config file...
-      search_paths(value, path, dirname(config_path))     
+  # Return value from config file in root directory if path is NULL --------------------------------
+  if (is.null(path)) {
+    value <- get_config_value(path = file.path(root, config_name), option = option)
+    if (length(value) > 1 || !is.na(value)) { output_value <- value }
+    if (!is_missing) { output_value <- func_arg_value }
+  } else {
+    # Look for options that apply to the path given in each configuration file -----------------------
+    for (config_path in config_paths) {
+      value <- get_config_value(path = config_path, option = option)
+      if (length(value) > 1 || !is.na(value)) { # If the option is found in the config file...
+        search_paths(value, path, dirname(config_path))     
+      }
     }
+    if (!is_missing) { search_paths(func_arg_value, path, root) }    
   }
-  if (!is_missing) { search_paths(default, path, root) }
   return(output_value)
 }

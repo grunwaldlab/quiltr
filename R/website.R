@@ -435,7 +435,7 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
                         missing(open)))
   names(arg_missing) <- argument_names
   q_opt <- function(context, option) {
-    eval(get_option(context, option, default = get(option), root = path,
+    eval(get_option(context, option, func_arg_value = get(option), root = path,
                     config_name = config_name, is_missing = arg_missing[[option]]))
   }
   # Parse arguments --------------------------------------------------------------------------------
