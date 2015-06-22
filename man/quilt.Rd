@@ -4,37 +4,51 @@
 \alias{quilt}
 \title{Make a website from a directory}
 \usage{
-quilt(path = getwd(), output = NULL, type = formats_quilt_can_render(),
-  name = "Home", clean = TRUE, overwrite = FALSE, theme = "journal",
-  apply_theme = FALSE, cumulative = FALSE, use_file_names = FALSE,
-  use_dir_names = TRUE, use_config_files = TRUE, name_sep = NULL,
-  use_file_suffix = FALSE, use_dir_suffix = TRUE,
-  menu_name_parser = function(x) {     x },
-  config_name = "quilt_config.yml", placement = character(0),
-  site_config_file = path, output_dir_name = "website",
-  partial_copy = TRUE, open = TRUE)
+quilt(path = getwd(), output = NULL, name = "Home", overwrite = FALSE,
+  clean = TRUE, output_dir_name = "website", partial_copy = TRUE,
+  open = TRUE, theme = "journal", type = formats_quilt_can_render(),
+  apply_theme = FALSE, use_file_names = FALSE, use_dir_names = TRUE,
+  name_sep = NULL, use_file_suffix = FALSE, use_dir_suffix = TRUE,
+  menu_name_parser = function(x) {     x }, placement = character(0),
+  cumulative = FALSE, config_name = "quilt_config.yml")
 }
 \arguments{
-\item{path}{(\code{character}) One or more directories in which to look for  files.}
+\item{path}{(\code{character}) One or more directories in which to look for files to display
+on the website to be created.}
 
 \item{output}{(\code{character} of length 1) Location to write the output directory. The website
-will be made in a directory called "website" in this location. If \code{NULL} or \code{NA}, make
-the website in a temporary directory.}
+will be made in a directory called "website" in this location. If \code{NULL} or \code{NA}, the
+the website will be made in a temporary directory.}
 
-\item{type}{(\code{character}) One or more file types to include in the output, specified using
-file extensions without the leading dot (e.g. \code{type = c("rmd", "html")}). The order file
-types are given in indicates which file is used in the case that files have the same name
-but different extensions. For example, if \code{type = c("html", "rmd")} and there is a note.html
-and a note.Rmd in the same directory, the note.html will be used and the note.Rmd will be
-ignored.}
-
-\item{name}{(\code{character} of length 1) The name on the link to the homepage of the website.}
-
-\item{clean}{(\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
-use.}
+\item{name}{(\code{character} of length 1) The name on the link to the homepage of the website.
+The value of this option can be set by a configuration file at the location specified by
+\code{path}, with name specified by \code{config_name}.}
 
 \item{overwrite}{(\code{logical} of length 1) If \code{TRUE}, an existing directory with the
-same name as the output directory will be overwritten.}
+same name as the output directory will be overwritten.
+The value of this option can be set by a configuration file at the location specified by
+\code{path}, with name specified by \code{config_name}.}
+
+\item{clean}{(\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
+use.
+The value of this option can be set by a configuration file at the location specified by
+\code{path}, with name specified by \code{config_name}.}
+
+\item{output_dir_name}{(\code{character} of length 1) The name of the output directory.
+The value of this option can be set by a configuration file at the location specified by
+\code{path}, with name specified by \code{config_name}.}
+
+\item{partial_copy}{(\code{logical} of length 1) If \code{FALSE}, The entire target directory
+of the notes will be copied instead of just the notes and their dependencies. It is possible that more than
+just the target directory will be copied if there are files in the target directory with dependencies outside
+it. Enough of the file structure will be copied to included all dependencies.
+The value of this option can be set by a configuration file at the location specified by
+\code{path}, with name specified by \code{config_name}.}
+
+\item{open}{(\code{logical} of length 1) If \code{TRUE}, open the newly created website in an
+internet browser or the RStudio viewer window.
+The value of this option can be set by a configuration file at the location specified by
+\code{path}, with name specified by \code{config_name}.}
 
 \item{theme}{(\code{character} of length 1) The bootstrap theme used in the website. For current
 options, see \url{http://rmarkdown.rstudio.com/html_document_format.html#appearance-and-style}
@@ -47,56 +61,77 @@ options, see \url{http://rmarkdown.rstudio.com/html_document_format.html#appeara
   \item "spacelab"
   \item "united"
   \item "cosmo"
-}}
+}
+The value of this option can be set by a configuration file at the location specified by
+\code{path}, with name specified by \code{config_name}.}
+
+\item{type}{(\code{character}) One or more file types to include in the output, specified using
+file extensions without the leading dot (e.g. \code{type = c("rmd", "html")}). The order file
+types are given in indicates which file is used in the case that files have the same name
+but different extensions. For example, if \code{type = c("html", "rmd")} and there is a note.html
+and a note.Rmd in the same directory, the note.html will be used and the note.Rmd will be
+ignored. NOTE: The file type precedence might be specified by a different option in the future.
+The value of this option can be file-path-specific; see \code{config_name} documentation.}
 
 \item{apply_theme}{(\code{logical} of length 1) If \code{TRUE}, apply notebook CSS to
-content.}
-
-\item{cumulative}{(\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
-levels will be returned.}
+input file content. This might not always work well depending on content and browser.
+The value of this option can be file-path-specific; see \code{config_name} documentation.}
 
 \item{use_file_names}{(\code{logical} of length 1) If \code{TRUE}, The names of files will be
-be used to determine the hierarchy.}
+be used to determine the hierarchy.
+The value of this option can be file-path-specific; see \code{config_name} documentation.}
 
 \item{use_dir_names}{(\code{logical} of length 1) If \code{TRUE}, The names of directories will
-be used to determine the hierarchy.}
-
-\item{use_config_files}{(\code{logical} of length 1) If \code{TRUE}, configuration
-files along the notes' file path will be used to determine the hierarchy. The name of
-configuration files is specified by the \code{note_config_name} option.}
+be used to determine the hierarchy.
+The value of this option can be file-path-specific; see \code{config_name} documentation.}
 
 \item{name_sep}{(\code{character} of length 1) A character to split file/directory names by when
-using them for parts of the hierarchy.}
+using them for parts of the hierarchy.
+The value of this option can be file-path-specific; see \code{config_name} documentation.}
 
 \item{use_file_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of a file
-name when split by the \code{name_sep} option.}
+name when split by the \code{name_sep} option.
+The value of this option can be file-path-specific; see \code{config_name} documentation.}
 
 \item{use_dir_suffix}{(\code{logical} of length 1) If \code{TRUE}, use the last part of directory
-names when split by the \code{name_sep} option.}
+names when split by the \code{name_sep} option.
+The value of this option can be file-path-specific; see \code{config_name} documentation.}
 
 \item{menu_name_parser}{(\code{function}) Defines a function to apply to each name in the menu hierarchy
 to chenge it somehow. The function must take a single \code{character} input and output a single
-\code{character}.}
+\code{character}.
+The value of this option can be file-path-specific; see \code{config_name} documentation.}
 
-\item{site_config_file}{(\code{character} of length 1) The path to a configuration file specifing
-this function's option values or to the directory is is located in. The file should be in YAML format.
+\item{placement}{(named \code{list} of \code{character}) Custom note placement rules. Custom
+website menu heirarchy names can be specified.
+These (usually; see \code{.} documentation below) override hierarchy inferred from file/directory
+names.
+The first element in the hierarchy can use the folling special values:
+\describe{
+  \item{.}{Add to the hierarchy inferred from file/directory names instead of overriding it.}
+  \item{..}{Add to the hierarchy inferred from file/directory names instead of overriding it,
+    but replace the last file/directory name value.}
+  \item{""}{Do not include in website.}
+}
+The value of this option can be file-path-specific; see \code{config_name} documentation.}
+
+\item{cumulative}{(\code{logical} of length 1) If \code{TRUE}, all of the intermendiate hierarchy
+levels will be returned.
+The value of this option can be file-path-specific; see \code{config_name} documentation.}
+
+\item{config_name}{(\code{character} of length 1) The name of configuration files to use.
+They can be anywhere in directories under \code{path}.
+Configuration files are in YAML format and specify the values of options for this function.
+Options that are file-path-specific (e.g. \code{type}) can take the form of named lists,
+where names are file paths relative to the location of the configuration file
+(possibly with \code{*} or \code{**} wildcards) and values are the option values relevant
+to the paths specified in the names.
+File-path-specific options can be specified by configuraion files anywhere in the target
+directory, not just the root specified by \code{path}.
+Only some of this function's options are file-path-specific; those that are not
+(e.g. \code{output}) can be specified by values in a configuration file in \code{path}.
+This is the only option that cannot be specified by a configuration file.
 To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.}
-
-\item{output_dir_name}{(\code{character} of length 1) The name of the output directory.}
-
-\item{partial_copy}{(\code{logical} of length 1) If \code{FALSE}, The entire target directory
-of the notes will be copied instead of just the notes and their dependencies. It is possible that more than
-just the target directory will be copied if there are files in the target directory with dependencies outside
-it. Enough of the file structure will be copied to included all dependencies.}
-
-\item{open}{(\code{logical} of length 1) If \code{TRUE}, open the newly created website in an
-internet browser.}
-
-\item{note_config_name}{(\code{character} of length 1) The name of content placement configuration files.}
-
-\item{site_config_name}{(\code{character} of length 1) The name of the website building configuration file.
-It does not need to exist, but if it does in a directory specified by \code{site_config_file}, it is used
-automatically. To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.}
 }
 \value{
 (\code{character} of length 1) The file path to the created websites home page
@@ -104,7 +139,16 @@ automatically. To ignore website configuartion files, set this option to \code{N
 }
 \description{
 Makes a website from the contents of a directory.
-Currently, only html and Rmd files are included.
-All of the content will be copied and converted to html to make the website.
+To see the list of file types that can be displayed on the website,
+execute \code{formats_quilt_can_render()}.
+All files types specified by \code{type} in \code{path} will be included.
+This function's options are best specified with configurations files rather than passing values
+to the function itself. See \code{config_name} option documentation.
+}
+\examples{
+# Make website out of the current working directory
+\dontrun{
+quilt()
+}
 }
 
