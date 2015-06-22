@@ -4,7 +4,7 @@ context("Getting path-specific option values")
 
 test_that("Correct paths are searched", {
   test_dir <- system.file("templates", "default", package = "quiltr")
-  config_name <- "quiltr_config.yml"
+  config_name <- "quilt_config.yml"
   file.copy(from = test_dir, ".", recursive = TRUE, overwrite = TRUE)
   on.exit(unlink("./default", recursive = TRUE))
   expect_error(quiltr:::get_config_paths(path = file.path(test_dir, "home.Rmd"),
@@ -39,7 +39,7 @@ test_that("Correct paths are searched", {
 
 test_that("Option values are read correctly", {
   test_dir <- system.file("templates", "default", package = "quiltr")
-  config_name <- "quiltr_config.yml"
+  config_name <- "quilt_config.yml"
   file.copy(from = test_dir, ".", recursive = TRUE, overwrite = TRUE)
   on.exit(unlink("./default", recursive = TRUE))
   config_path <- file.path(test_dir, config_name)
@@ -54,7 +54,7 @@ test_that("Option values are read correctly", {
 
 test_that("Wildcards are expanded correctly", {
   test_dir <- system.file("templates", "default", package = "quiltr")
-  config_name <- "quiltr_config.yml"
+  config_name <- "quilt_config.yml"
   file.copy(from = test_dir, ".", recursive = TRUE, overwrite = TRUE)
   on.exit(unlink("./default", recursive = TRUE))
 

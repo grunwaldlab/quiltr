@@ -9,7 +9,7 @@ sys_glob(path, max_search_depth = 50)
 \arguments{
 \item{path}{(\code{character} of length 1) The path to expand.}
 
-\item{max_search_depth(\code{integer}}{of length 1) How deep to search}
+\item{max_search_depth(\code{integer}}{of length 1) How deep to search.}
 }
 \value{
 \code{character}

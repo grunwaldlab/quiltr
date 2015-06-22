@@ -62,7 +62,7 @@ get_config_value <- function(path, option) {
 #' double wildcards (\code{**})
 #' 
 #' @param path (\code{character} of length 1) The path to expand.
-#' @param max_search_depth(\code{integer} of length 1) How deep to search
+#' @param max_search_depth(\code{integer} of length 1) How deep to search.
 #' 
 #' @return \code{character}
 sys_glob <- function(path, max_search_depth = 50) {

@@ -9,14 +9,14 @@ get_content_files(path, q_opt, full_names = TRUE, simplify = TRUE)
 \arguments{
 \item{path}{(\code{character}) One or more directories in which to look for content files.}
 
+\item{q_opt}{(\code{function}) The function used to get context-specific option values}
+
 \item{full_names}{(\code{logical} of length 1) See \code{\link{list.files}} help for option
 \code{full.names}.}
 
 \item{simplify}{(\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
 with elements corresponding to input directories in the \code{path} argument. If \code{TRUE}, a
 single \code{character} vector is returned.}
-
-\item{type}{(\code{character}) One or more content file extensions to search for.}
 }
 \value{
 Depends on the \code{simplify} option.

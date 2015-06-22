@@ -13,6 +13,8 @@ make_parent_html(files, titles = NA, rmd_header = NULL, q_opt)
 content}
 
 \item{rmd_header}{(\code{list}) YAML header data from Rmarkdown.}
+
+\item{q_opt}{(\code{function}) The function used to get context-specific option values}
 }
 \value{
 (\code{character} of length 1) The Rmd code to display the content provided.

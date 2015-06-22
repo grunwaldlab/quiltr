@@ -39,6 +39,7 @@ make_output_yaml <- function(theme = "journal") {
 #' @param titles (\code{character} same length as \code{files}) Titles to display above embedded
 #'   content
 #' @param rmd_header (\code{list}) YAML header data from Rmarkdown.
+#' @param q_opt (\code{function}) The function used to get context-specific option values
 #' 
 #' @return (\code{character} of length 1) The Rmd code to display the content provided. 
 make_parent_html <- function(files, titles = NA, rmd_header = NULL, q_opt) {
@@ -180,7 +181,7 @@ make_hierarchy_html <- function(hierarchy, page_paths, site_name = "Home") {
 #' Return the absolute paths to content files in a given directory.
 #' 
 #' @param path (\code{character}) One or more directories in which to look for content files.
-#' @param type (\code{character}) One or more content file extensions to search for.
+#' @param q_opt (\code{function}) The function used to get context-specific option values
 #' @param full_names (\code{logical} of length 1) See \code{\link{list.files}} help for option
 #'   \code{full.names}.
 #' @param simplify (\code{logical} of length 1) If \code{FALSE}, a \code{list} of paths are returned
@@ -234,6 +235,7 @@ get_content_files <- function(path, q_opt, full_names = TRUE, simplify = TRUE) {
 #' 
 #' @param path (\code{character}) The paths to notes to assign hirearchical classifications to.
 #' @param root (\code{character} of length 1) The path to the root directory of the notebook.   
+#' @param q_opt (\code{function}) The function used to get context-specific option values
 #' @return (\code{list} of \code{character}) A list of locations in the notebook hierarchy 
 #' corresponding to the input argument \code{path}.
 get_hierarchy <- function(path, root, q_opt) {
@@ -319,8 +321,6 @@ get_hierarchy <- function(path, root, q_opt) {
 #' @param files (\code{list} of \code{character}) The file in each page, corresponding to argument
 #' \code{name}
 #' @param location (\code{character} of length 1) Where to make the webpages
-#' @param clean (\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
-#' use.
 #' @param q_opt (\code{function}) The function used to get context-specific option values
 #' 
 #' @return (Named \code{character}) The file paths to created .html files named by their source Rmd

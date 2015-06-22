@@ -1,0 +1,5 @@
+placement:
+- 'test_website_*': 
+- index.Rmd:
+  - ""
+- templates.Rmd:

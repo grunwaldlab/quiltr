@@ -6,4 +6,4 @@ use_file_names: yes
 use_file_suffix: yes
 name_sep: "-"
 partial_copy: no
-menu_name_parser: !expr function(x) gsub('^[0-9]*_', '', x)
+menu_name_parser: !expr function(x) gsub('^order[0-9]*_', '', x)
