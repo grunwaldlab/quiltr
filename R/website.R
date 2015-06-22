@@ -41,7 +41,7 @@ make_output_yaml <- function(theme = "journal") {
 #' @param rmd_header (\code{list}) YAML header data from Rmarkdown.
 #' 
 #' @return (\code{character} of length 1) The Rmd code to display the content provided. 
-make_parent_html <- function(files, titles = NA, rmd_header = NULL, q_opt) {
+make_parent_html <- function(files, titles = NA, rmd_header = NULL, original_files, q_opt) {
   # Validate arguments -----------------------------------------------------------------------------
   if (!is.na(titles) && length(files) != length(titles)) {
     stop("Arguments `files` and `title` must the same length")
@@ -56,9 +56,9 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, q_opt) {
     else
       ""
   }
-  make_iframe_code <- function(file, count) {
+  make_iframe_code <- function(file, original_file, count) {
     on_load <- paste0('autoResize(\'iframe', count, '\'); export_links(\'iframe', count, '\');')
-    if (q_opt(file, "apply_theme")) {
+    if (q_opt(original_file, "apply_theme")) {
       on_load <- paste0('apply_theme(\'iframe', count, '\'); ', on_load)
     }
     iframe_att <- paste0('width="100%" height="0px" id="iframe', count,
@@ -68,17 +68,17 @@ make_parent_html <- function(files, titles = NA, rmd_header = NULL, q_opt) {
   make_child_rmd_code <- function(file) {
     paste0("```{r child = '", file, "'}\n```\n\n")
   }
-  make_code <- function(file, title, count) {
+  make_code <- function(file, original_file, title, count) {
     if (!is.na(title)) title_code <- paste0("## ", title, "\n\n") else title_code <- ""
     if (tools::file_ext(file) %in% c("Rmd", "rmd", "md")) {
       return(paste0(title_code, make_child_rmd_code(file)))
     } else if (tools::file_ext(file) %in% c("html")) {
-      return(paste0(title_code, make_iframe_code(file, count)))
+      return(paste0(title_code, make_iframe_code(file, original_file, count)))
     } 
   }
   # Generate Rmd document ---------------------------------------------------------------------------
   if (length(files) > 0)
-    iframe_code <- paste0(mapply(make_code, file = files, title = titles, count = 1:length(files)),
+    iframe_code <- paste0(mapply(make_code, file = files, original_file = original_files, title = titles, count = 1:length(files)),
                           collapse = "")
   else 
     iframe_code <-""
@@ -325,16 +325,17 @@ get_hierarchy <- function(path, root, cumulative = TRUE, q_opt) {
 #' @param files (\code{list} of \code{character}) The file in each page, corresponding to argument
 #' \code{name}
 #' @param location (\code{character} of length 1) Where to make the webpages
+#' @param clean (\code{logical} of length 1) If \code{TRUE}, intermediate files are deleted after
+#' use.
 #' @param q_opt (\code{function}) The function used to get context-specific option values
 #' 
 #' @return (Named \code{character}) The file paths to created .html files named by their source Rmd
 #' files.
-make_master_rmd <- function(name, files, location, q_opt) {
-  browser()
+make_master_rmd <- function(name, files, original_files, location, clean, q_opt) {
   master_rmd_path <- file.path(location, name)
   if (clean) files_to_remove <- master_rmd_path
   if (file.exists(master_rmd_path)) file.remove(master_rmd_path)
-  parent_html <- make_parent_html(files = files, titles = NA, rmd_header = list(), q_opt)
+  parent_html <- make_parent_html(files = files, titles = NA, rmd_header = list(), original_files,  q_opt)
   cat(parent_html, file = master_rmd_path, append = FALSE)
   rmarkdown::render(master_rmd_path, quiet = TRUE)
 }
@@ -501,7 +502,7 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
                          character(1))
   file.copy(from = dependencies, to = output_path)
   output_yaml_path <- file.path(output_path, "_output.yaml")
-  cat(make_output_yaml(theme = theme), file = output_yaml_path)
+  cat(make_output_yaml(theme = q_opt(path, "theme")), file = output_yaml_path)
   # Step up clean up -------------------------------------------------------------------------------
   if (clean) {
     files_to_remove <- file.path(output_path, c("in_header.html", "after_body.html",
@@ -512,11 +513,11 @@ quilt <- function(path = getwd(), output = NULL, type = formats_quilt_can_render
   # Make website pages -----------------------------------------------------------------------------
   relative_copy_path <- gsub(pattern = paste0("^", output_path, .Platform$file.sep), "", content_copy_path)
   relative_copy_class_path <- rep(relative_copy_path, vapply(classification, length, integer(1)))
-  hierarchy <- lapply(hierarchy_class,
+  copy_hierarchy <- lapply(hierarchy_class,
                       function(x) relative_copy_class_path[vapply(ul_classification, 
                                                                   identical, y = x, logical(1))])
-  home_path <- mapply(make_master_rmd, page_rmd_names, hierarchy,
-                      location = output_path, q_opt = q_opt)[["index.Rmd"]]
+  home_path <- mapply(make_master_rmd, page_rmd_names, copy_hierarchy, hierarchy,
+                      MoreArgs = list(location = output_path, clean = clean, q_opt = q_opt))[["index.Rmd"]]
   # Make configuration file ------------------------------------------------------------------------
   new_config_path <- file.path(output_path, config_name)
   arguments <- mget(argument_names)
