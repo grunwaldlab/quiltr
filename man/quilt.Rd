@@ -142,7 +142,7 @@ Makes a website from the contents of a directory.
 To see the list of file types that can be displayed on the website,
 execute \code{formats_quilt_can_render()}.
 All files types specified by \code{type} in \code{path} will be included.
-This function's options are best specified with configurations files rather than passing values
+This function's options are best specified with configuration files rather than passing values
 to the function itself. See \code{config_name} option documentation.
 }
 \examples{
