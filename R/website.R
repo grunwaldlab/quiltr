@@ -528,7 +528,8 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
   dir.create(output_path)
   dir.create(content_path)  
   # Copy content directory -------------------------------------------------------------------------
-  content_copy_path <- render_files_to_html(target_paths, content_path, partial_copy = partial_copy)
+  content_copy_path <- render_files_to_html(target_paths, content_path,
+                                            partial_copy = q_opt(NULL, "partial_copy"))
   # Make website menu ------------------------------------------------------------------------------
   page_names <- vapply(hierarchy_class, paste, character(1), collapse = "-")
   page_names[page_names == ""] <- "index"
