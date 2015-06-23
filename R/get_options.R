@@ -129,8 +129,11 @@ get_option <- function(path, option, func_arg_value, root, config_name, is_missi
   # Return value from config file in root directory if path is NULL --------------------------------
   if (is.null(path)) {
     if (!is.null(config_name) && !is.na(config_name)) {
-      value <- mem_get_config_value(path = file.path(root, config_name), option = option)
-      if (length(value) > 1 || !is.na(value)) { output_value <- value }      
+      root_config_path <-  file.path(root, config_name)
+      if (file.exists(root_config_path)) {
+        value <- mem_get_config_value(path = root_config_path, option = option)
+        if (length(value) > 1 || !is.na(value)) { output_value <- value }
+      }
     }
     if (!is_missing) { output_value <- func_arg_value }
   } else {
