@@ -481,7 +481,8 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
                     config_name = config_name, is_missing = arg_missing[[option]]))
   }
   # Parse arguments --------------------------------------------------------------------------------
-  path <- normalizePath(path)
+  path <- normalizePath(q_opt(NULL, "path"))
+  output <- q_opt(NULL, "output")
   if (is.null(output) || is.na(output)) {
     output <- tempfile()
     dir.create(output)
