@@ -47,7 +47,7 @@ test_that("Option values are read correctly", {
   expect_equal(quiltr:::get_config_value(path = config_path, option = "name"),
                "Example")
   expect_equal(quiltr:::get_config_value(path = config_path, option = "placement"),
-               list("home.Rmd" = ""))
+               list("home.Rmd" = "", '*_is_ignored.Rmd' = NULL))
   expect_equal(quiltr:::get_config_value(path = config_path, option = "does_not_exist"), NA)
 })
 
