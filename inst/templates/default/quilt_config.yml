@@ -7,3 +7,4 @@ name_sep: "-"
 menu_name_parser: !expr function(x) gsub('^[0-9]*_', '', x)
 placement:
 - 'home.Rmd': ""
+- '*_is_ignored.Rmd':

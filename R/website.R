@@ -273,11 +273,11 @@ get_hierarchy <- function(path, root, q_opt) {
       }
       # Apply configuration file effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       config <- q_opt(current_path, "placement")
-      if (length(config) > 0) {
-        if (is.null(config[1])) {
-          hierarchy <- list()
-          addition <- NULL
-        } else if (config[1] == ".") {
+      if (is.null(config)) {
+        hierarchy <- list()
+        addition <- NULL
+      } else if (length(config) > 0) {
+        if (config[1] == ".") {
           if (length(config) > 1) {
             addition <- c(addition, config[2:length(config)])
           }
@@ -292,7 +292,7 @@ get_hierarchy <- function(path, root, q_opt) {
           addition <- config
           addition <- addition[addition != ""]
         }          
-      }
+      } 
       # Save resulting addition  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       if (q_opt(NULL, "cumulative"))
       {
