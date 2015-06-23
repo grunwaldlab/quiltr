@@ -62,7 +62,7 @@ get_config_value <- function(path, option) {
 #' double wildcards (\code{**})
 #' 
 #' @param path (\code{character} of length 1) The path to expand.
-#' @param max_search_depth(\code{integer} of length 1) How deep to search.
+#' @param max_search_depth (\code{integer} of length 1) How deep to search.
 #' 
 #' @return \code{character}
 sys_glob <- function(path, max_search_depth = 50) {
@@ -114,11 +114,13 @@ get_option <- function(path, option, func_arg_value, root, config_name, is_missi
       value <- list(value)
     }
     for (index in seq_along(value)) {
-      if (path %in% sys_glob(file.path(context, patterns[index]))) {
+      if (path %in% mem_sys_glob(file.path(context, patterns[index]))) {
         output_value <<- value[[index]]
       }
     }
   }
+  mem_get_config_value <- memoise:: memoise(get_config_value)
+  mem_sys_glob <- memoise:: memoise(sys_glob)
   # Validate inputs --------------------------------------------------------------------------------
   if (!is.null(path)) { path = normalizePath(path) }
   root = normalizePath(root)
@@ -127,7 +129,7 @@ get_option <- function(path, option, func_arg_value, root, config_name, is_missi
   # Return value from config file in root directory if path is NULL --------------------------------
   if (is.null(path)) {
     if (!is.null(config_name) && !is.na(config_name)) {
-      value <- get_config_value(path = file.path(root, config_name), option = option)
+      value <- mem_get_config_value(path = file.path(root, config_name), option = option)
       if (length(value) > 1 || !is.na(value)) { output_value <- value }      
     }
     if (!is_missing) { output_value <- func_arg_value }
@@ -138,7 +140,7 @@ get_option <- function(path, option, func_arg_value, root, config_name, is_missi
                                        must_exist = TRUE)
       # Look for options that apply to the path given in each configuration file -------------------
       for (config_path in config_paths) {
-        value <- get_config_value(path = config_path, option = option)
+        value <- mem_get_config_value(path = config_path, option = option)
         if (is.function(value) || length(value) > 1 || !is.na(value)) { # If the option is found in the config file...
           search_paths(value, path, dirname(config_path))     
         }

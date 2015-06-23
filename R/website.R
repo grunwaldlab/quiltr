@@ -476,10 +476,11 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
                         missing(menu_name_parser), missing(placement), missing(cumulative),
                         missing(config_name)))
   names(arg_missing) <- argument_names
-  q_opt <- function(context, option) {
+  q_opt_raw <- function(context, option) {
     eval(get_option(path = context, option = option, func_arg_value = get(option), root = path,
                     config_name = config_name, is_missing = arg_missing[[option]]))
   }
+  q_opt <- memoise::memoise(q_opt_raw)
   # Parse arguments --------------------------------------------------------------------------------
   path <- normalizePath(q_opt(NULL, "path"))
   output <- q_opt(NULL, "output")
