@@ -56,12 +56,18 @@ seehttp://codepen.io/ajaypatelaj/pen/prHjD
 
 <script language="JavaScript">
 <!--
-function autoResize(id){  
-    var newheight;
-    if(document.getElementById){
-        newheight=document.getElementById(id).contentWindow.document.body.scrollHeight;
+function autoResize(id){
+    function getDocHeight() {
+      var D = document.getElementById(id).contentWindow.document;
+      return Math.max(
+          Math.max(D.body.scrollHeight, D.documentElement.scrollHeight),
+          Math.max(D.body.offsetHeight, D.documentElement.offsetHeight),
+          Math.max(D.body.clientHeight, D.documentElement.clientHeight)
+      );
     }
-    document.getElementById(id).height= (Math.round( newheight * 1.2)) + "px";
+    var newheight;
+    newheight=getDocHeight(id);
+    document.getElementById(id).height = (Math.round( newheight * 1.01)  + 50) + "px";
 }
 //-->
 </script>
@@ -154,7 +160,7 @@ img {
 
 
 
-<iframe src="content/vignettes/2_options.html" width="100%" height="10000px" id="iframe1" marginheight="0" frameborder="0" onLoad="apply_theme('iframe1'); autoResize('iframe1'); export_links('iframe1');">
+<iframe src="content/vignettes/order2_options.html" width="100%" height="0px" id="iframe1" marginheight="0" frameborder="0" onLoad="autoResize('iframe1'); export_links('iframe1');">
 </iframe>
 
 

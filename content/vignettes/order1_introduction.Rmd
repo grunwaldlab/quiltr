@@ -19,6 +19,11 @@ file.copy(from = "test_website_2", to = doc_path, recursive = TRUE, overwrite = 
 file.copy(from = "custom.css", to = doc_path, overwrite = TRUE)
 ```
 
+
+# NOTE: This documentation is out of date
+
+I will be updating it soon. 
+
 ## How it works
 
 A single function called `quilt` is given a target directory containing HTML files and a location to output a website directory. Below is a summary of how it works: 
