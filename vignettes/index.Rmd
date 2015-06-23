@@ -11,10 +11,17 @@ vignette: >
 ---
 
 
+## UNDER DEVELOPMENT
+
+Quiltr is still under active development and might not always work correctly until this notice is removed.
+It is being developed on the Ubuntu operating system, so it might not work on Windows yet.
+It should probably work on IOS. 
+
+
 ## What it is
 
-Quiltr is an R package used to combine HTML files scattered throughout a file system into a single website organized by a hierarchical drop-down menu.
-It is designed to facilitate embedding notes into computational science projects and making research notebooks.
+Quiltr is an R package used display the content of files scattered throughout a file system into a single website organized by a hierarchical drop-down menu.
+It is designed complile embedded in computational science projects and making research notebooks.
 For this reason, quiltr is most appropriate for creating websites to document projects, where ease of use, transparency, and reliability are the priority.
 
 
@@ -26,16 +33,16 @@ It makes static webpages that have to be rebuilt each time their source change.
 
 ## What it does
 
-Quiltr consolidates any set of HTML files in any directory structure into a website.
-All of the raw content of the website, besides the drop down menu and other basic site structure elements, is derived from the HTML files.
-The organization of the website and where HTML file content is displayed can be determined by the names of the files/directories or customized using configuration files.
+Quiltr consolidates most types of files using in data science in any directory structure into a website.
+All of the raw content of the website, besides the drop down menu and other basic site structure elements, is derived from file content.
+The organization of the website and where HTML file content is displayed can be determined by the names of the files/directories or customized using configuration files scattered throughout the target directory.
 There is also a wrapper function that makes it easy to upload and modify websites on [GitHub Pages](https://pages.github.com/) (where this site is hosted).
 
 
 ## Why use it
 
-The benefit of this system is that there are very few restrictions on the layout of the file structure and no knowledge of web design needed beyond the ability to create HTML content (e.g. using Rmd or Word).
-[Rmarkdown](http://rmarkdown.rstudio.com/) is particularly suited to be used with quiltr since it can create HTML from the easily learned Markdown language.
+The benefit of this system is that there are no restrictions on the layout of the file structure and no knowledge of web design needed.
+[RMarkdown](http://rmarkdown.rstudio.com/) is particularly suited to be used with quiltr since it is automatically knitted to HTML when the website is made.
 Together, Quiltr and Markdown can be used to create websites without any knowledge of web design or HTML for free on any operating system.
 It is so flexible that a website can be made from any directory containing HTML files, regardless if the HTML files or the directory were made for this purpose.
 
