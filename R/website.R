@@ -273,11 +273,11 @@ get_hierarchy <- function(path, root, q_opt) {
       }
       # Apply configuration file effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       config <- q_opt(current_path, "placement")
-      if (length(config) > 0) {
-        if (is.null(config[1])) {
-          hierarchy <- list()
-          addition <- NULL
-        } else if (config[1] == ".") {
+      if (is.null(config)) {
+        hierarchy <- list()
+        addition <- NULL
+      } else if (length(config) > 0) {
+        if (config[1] == ".") {
           if (length(config) > 1) {
             addition <- c(addition, config[2:length(config)])
           }
@@ -292,7 +292,7 @@ get_hierarchy <- function(path, root, q_opt) {
           addition <- config
           addition <- addition[addition != ""]
         }          
-      }
+      } 
       # Save resulting addition  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       if (q_opt(NULL, "cumulative"))
       {
@@ -481,7 +481,8 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
                     config_name = config_name, is_missing = arg_missing[[option]]))
   }
   # Parse arguments --------------------------------------------------------------------------------
-  path <- normalizePath(path)
+  path <- normalizePath(q_opt(NULL, "path"))
+  output <- q_opt(NULL, "output")
   if (is.null(output) || is.na(output)) {
     output <- tempfile()
     dir.create(output)
