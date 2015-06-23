@@ -1,0 +1,12 @@
+---
+title: Using notebook templates
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    css: custom.css
+vignette: >
+  %\VignetteIndexEntry{Using notebook templates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
