@@ -21,14 +21,14 @@ It should probably work on IOS.
 ## What it is
 
 Quiltr is an R package used display the content of files scattered throughout a file system into a single website organized by a hierarchical drop-down menu.
-It is designed compile embedded in computational science projects and making research notebooks.
+It is designed for compiling computational science project directories into a shareable form and making research notebooks.
 For this reason, quiltr is most appropriate for creating websites to document projects, where ease of use, transparency, and reliability are the priority.
 When used with RMarkdown, Quiltr extends the concept of [literate programming](https://en.wikipedia.org/?title=Literate_programming) to whole directories.
 
 
 ## What it is not
 
-Making simple static websites for other purposes is also possible, but quiltr is not designed be an all-purpose website generator such as [Jekyll](http://jekyllrb.com/) or [Drupal](https://www.drupal.org/).
+Making simple static websites for other purposes is also possible, but quiltr is not meant to be an all-purpose website generator such as [Jekyll](http://jekyllrb.com/) or [Drupal](https://www.drupal.org/).
 Quiltr is designed to be very flexible in regard to input; it is has less flexibility for customizing output. 
 
 
@@ -81,3 +81,25 @@ The package should now be installed and can be loaded using:
 library(quiltr)
 ```
 
+## Quick start example
+
+To get an idea of how Quiltr works you can start by making a website from one of Quiltr's included template directories. 
+First you need to make a template directory.
+Choose a location on your computer where you want a new directory to be made and use `make_quiltr_template` to create a template directory there.
+`make_quiltr_template` will return the path to the new template directory. 
+
+```{r, eval=FALSE}
+template_path <- make_quiltr_template("/where/to/make/template") # Change this path
+print(template_path)
+```
+
+Then use `quilt` on the new template directory:
+
+```{r, eval=FALSE}
+quilt(template_path)
+```
+
+`quilt` will return the path to the homepage of the new website
+By default, the website is created in a temporary directory; use the `output` option to change this.
+If you are using RStudio, the website should appear in your viewer pane when made.  
+Compare the resulting website to the structure of the template directory to get an idea of how Quiltr works.
