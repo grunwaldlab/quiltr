@@ -1,15 +1,7 @@
----
-title: The `quiltr` Package
-output: 
-  rmarkdown::html_vignette:
-    toc: false
-    css: custom.css
-vignette: >
-  %\VignetteIndexEntry{Package introduction}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\usepackage[utf8]{inputenc}
----
+# Quiltr
 
+[![Build Status](https://travis-ci.org/grunwaldlab/quiltr.png?branch=master)](https://travis-ci.org/grunwaldlab/quiltr?branch=master)
+[![codecov.io](https://codecov.io/github/grunwaldlab/quiltr/coverage.svg?branch=master)](https://codecov.io/github/grunwaldlab/quiltr?branch=master)
 
 ## UNDER DEVELOPMENT
 
