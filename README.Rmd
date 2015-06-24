@@ -52,8 +52,6 @@ A single function call rebuilds the website and uploads it to GitHub pages each 
 
 ## Installation
 
-[![Build Status](https://travis-ci.org/grunwaldlab/quiltr.png?branch=master)](https://travis-ci.org/grunwaldlab/quiltr?branch=master)
-
 quiltr is an R package available on GitHub, so it can be installed from the RStudio console or an R command line session using the `devtools` command `install_github`.
 First, make sure `devtools` is installed:
 
