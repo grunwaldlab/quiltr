@@ -1,10 +1,10 @@
-name: Example
-theme: flatly
-apply_theme: yes
-use_file_names: yes
-use_file_suffix: yes
-name_sep: "-"
-menu_name_parser: !expr function(x) gsub('^[0-9]*_', '', x)
-placement:
-- 'home.Rmd': ""
-- '*_is_ignored.Rmd':
+# This is a quilt configuration file in YAML format. 
+# YAML is a way to store data strucutres in text files.
+# See http://www.yaml.org/ for more information regarding YAML format.
+
+name: Example                # Name of home page link in website menu
+theme: flatly                # Bootstrap theme to use
+use_file_names: yes          # file names are used in the website menu
+placement:                   # Custom menu placement rules
+- 'readme_first.Rmd': ""     # Display read_me_first.Rmd on the home page
+- '**quilt_config.yml': NULL # Dont display configuration files, wherever they are

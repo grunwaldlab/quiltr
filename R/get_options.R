@@ -108,13 +108,15 @@ sys_glob <- function(path, max_search_depth = 50) {
 #' 
 get_option <- function(path, option, func_arg_value, root, config_name, is_missing, inherit = TRUE) {
   search_paths <- function(value, path, context) {
-    patterns = names(value)
-    if (is.null(patterns)) { # If patterns are not specified...
-      patterns = ifelse(inherit, "**", "*")
-      value <- list(value)
+    if (!is.list(value)) { value <- list(value) }
+    if (is.null(names(value))) { names(value) <- rep("", length(value)) }
+    for (index in seq_along(value)) {
+      if (names(value)[index] == "") { # If patterns are not specified...
+        names(value)[index] <- ifelse(inherit, "**", "*")
+      }
     }
     for (index in seq_along(value)) {
-      if (path %in% mem_sys_glob(file.path(context, patterns[index]))) {
+      if (path %in% mem_sys_glob(file.path(context, names(value)[index]))) {
         output_value <<- value[[index]]
       }
     }

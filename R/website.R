@@ -257,7 +257,7 @@ get_hierarchy <- function(path, root, q_opt) {
         # Apply directory name effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (index != length(path_hierarchy) && q_opt(current_path, "use_dir_names")) {
           addition <- basename(current_path)
-          if (!is.na(name_sep) && !is.null(name_sep) && length(addition) > 0) 
+          if (!is.null(name_sep) && !is.na(name_sep) && length(addition) > 0) 
             addition <- unlist(strsplit(addition, name_sep, fixed = TRUE))
           if (!q_opt(current_path, "use_dir_suffix"))
             addition <- addition[seq(1, length.out = length(addition) - 1)]
@@ -345,8 +345,9 @@ make_master_rmd <- function(name, files, location, q_opt) {
 #' This function's options are best specified with configuration files rather than passing values
 #' to the function itself. See \code{config_name} option documentation. 
 #' 
-#' @param path (\code{character}) One or more directories in which to look for files to display
-#' on the website to be created.
+#' @param path (\code{character} of length 1) The directory in which to look for files to
+#' display on the website. This might change in the future; see issue
+#' \href{https://github.com/grunwaldlab/quiltr/issues/55}{#55}
 #' @param output (\code{character} of length 1) Location to write the output directory. The website
 #' will be made in a directory called "website" in this location. If \code{NULL} or \code{NA}, the
 #' the website will be made in a temporary directory.
@@ -396,6 +397,8 @@ make_master_rmd <- function(name, files, location, q_opt) {
 #' and a note.Rmd in the same directory, the note.html will be used and the note.Rmd will be
 #' ignored. NOTE: The file type precedence might be specified by a different option in the future.
 #' The value of this option can be file-path-specific; see \code{config_name} documentation.
+#' This might change in the future; see issue
+#' \href{https://github.com/grunwaldlab/quiltr/issues/58}{#58}
 #' @param apply_theme (\code{logical} of length 1) If \code{TRUE}, apply notebook CSS to 
 #' input file content. This might not always work well depending on content and browser.
 #' The value of this option can be file-path-specific; see \code{config_name} documentation.
@@ -451,9 +454,15 @@ make_master_rmd <- function(name, files, location, q_opt) {
 #' (\code{index.html})
 #' 
 #' @examples
-#' # Make website out of the current working directory
 #' \dontrun{
+#' 
+#' # Make website out of the current working directory
 #' quilt()
+#' 
+#' # Create a template directory in the current
+#' # working directory and make a website from it
+#' make_quiltr_template(getwd(), "default")
+#' quilt("default")
 #' }
 #' 
 #' @export
@@ -462,7 +471,7 @@ quilt <- function(path = getwd(), output = NULL, name = "Home",
                   partial_copy = TRUE, open = TRUE, theme = "journal",
                   type = formats_quilt_can_render(), apply_theme = FALSE,
                   use_file_names = FALSE, use_dir_names = TRUE,
-                  name_sep = NULL, use_file_suffix = FALSE, use_dir_suffix = TRUE,
+                  name_sep = NULL, use_file_suffix = TRUE, use_dir_suffix = TRUE,
                   menu_name_parser = function(x) {x}, placement = character(0), cumulative = FALSE,
                   config_name = "quilt_config.yml") {
   # Set up function to get option values from config files -----------------------------------------

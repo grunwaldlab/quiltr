@@ -8,13 +8,14 @@ quilt(path = getwd(), output = NULL, name = "Home", overwrite = FALSE,
   clean = TRUE, output_dir_name = "website", partial_copy = TRUE,
   open = TRUE, theme = "journal", type = formats_quilt_can_render(),
   apply_theme = FALSE, use_file_names = FALSE, use_dir_names = TRUE,
-  name_sep = NULL, use_file_suffix = FALSE, use_dir_suffix = TRUE,
+  name_sep = NULL, use_file_suffix = TRUE, use_dir_suffix = TRUE,
   menu_name_parser = function(x) {     x }, placement = character(0),
   cumulative = FALSE, config_name = "quilt_config.yml")
 }
 \arguments{
-\item{path}{(\code{character}) One or more directories in which to look for files to display
-on the website to be created.}
+\item{path}{(\code{character} of length 1) The directory in which to look for files to
+display on the website. This might change in the future; see issue
+\href{https://github.com/grunwaldlab/quiltr/issues/55}{#55}}
 
 \item{output}{(\code{character} of length 1) Location to write the output directory. The website
 will be made in a directory called "website" in this location. If \code{NULL} or \code{NA}, the
@@ -71,7 +72,9 @@ types are given in indicates which file is used in the case that files have the 
 but different extensions. For example, if \code{type = c("html", "rmd")} and there is a note.html
 and a note.Rmd in the same directory, the note.html will be used and the note.Rmd will be
 ignored. NOTE: The file type precedence might be specified by a different option in the future.
-The value of this option can be file-path-specific; see \code{config_name} documentation.}
+The value of this option can be file-path-specific; see \code{config_name} documentation.
+This might change in the future; see issue
+\href{https://github.com/grunwaldlab/quiltr/issues/58}{#58}}
 
 \item{apply_theme}{(\code{logical} of length 1) If \code{TRUE}, apply notebook CSS to
 input file content. This might not always work well depending on content and browser.
@@ -146,9 +149,15 @@ This function's options are best specified with configuration files rather than 
 to the function itself. See \code{config_name} option documentation.
 }
 \examples{
-# Make website out of the current working directory
 \dontrun{
+
+# Make website out of the current working directory
 quilt()
+
+# Create a template directory in the current
+# working directory and make a website from it
+make_quiltr_template(getwd(), "default")
+quilt("default")
 }
 }
 
