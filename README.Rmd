@@ -91,7 +91,7 @@ quilt(template_path)
 
 `quilt` will return the path to the homepage of the new website
 By default, the website is created in a temporary directory; use the `output` option to change this.
-If you are using RStudio, the website should appear in your viewer pane when made.  
+If you are using RStudio, the website should appear in your viewer pane when made.
 Compare the resulting website to the structure of the template directory to get an idea of how Quiltr works.
 
 ## Documentation
