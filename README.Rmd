@@ -83,14 +83,21 @@ Choose a location on your computer where you want a new directory to be made and
 `make_quiltr_template` will return the path to the new template directory. 
 
 ```{r, eval=FALSE}
-template_path <- make_quiltr_template("/where/to/make/template") # Change this path
-print(template_path)
+make_quiltr_template("/where/to/make/template", template = "default") # Change this path
+```
+
+```
+[1] "/where/to/make/template/default"
 ```
 
 Then use `quilt` on the new template directory:
 
 ```{r, eval=FALSE}
-quilt(template_path)
+quilt("/where/to/make/template/default")
+```
+
+```
+[1] "/tmp/RtmpO6tA6y/file6ca11557aca6/website/index.html"
 ```
 
 `quilt` will return the path to the homepage of the new website.
