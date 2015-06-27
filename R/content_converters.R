@@ -241,18 +241,7 @@ quiltr_convert_pdf_to_html <- function(input, output = tempfile(fileext = ".html
 #' @param input (\code{character} of length 1)
 #' @param output (\code{character} of length 1)
 quiltr_convert_r_to_html <- function(input, output = tempfile(fileext = ".html")) {
-  use_pandoc <- TRUE
-  if (pandoc_is_available() && use_pandoc) {
-    pandoc_command <- paste("pandoc", "-s", "--highlight-style pygments", "-o", output)
-    content <- paste0("# ", basename(input), "\n\n", 
-                      "```r\n", readChar(input, nchars = 10000000), "\n```")
-    system(pandoc_command, input = content)    
-  } else {
-    content <- paste0("# ", basename(input), "\n\n", 
-                      "```{r, eval = FALSE}\n", readChar(input, nchars = 10000000), "\n```")
-    cat(knitr::knit2html(text = content, output = output, quiet = TRUE), file = output)    
-  }
-  return(output)
+  quiltr_convert_rmd_to_html(input, output)
 }
 
 
