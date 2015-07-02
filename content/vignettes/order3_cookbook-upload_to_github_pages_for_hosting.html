@@ -40,7 +40,7 @@
 <li>Clone (i.e. download) the new repository to your computer</li>
 <li>Make an R project out of the repository using <a href="http://www.rstudio.com/">RStudio</a></li>
 <li>Add a configuration file to govern website build</li>
-<li>Add/change <a href="http://rmarkdown.rstudio.com/">Rmarkdown</a> files and <a href="http://yihui.name/knitr/">knit</a> them to HTML files.</li>
+<li>Add/change <a href="http://rmarkdown.rstudio.com/">Rmarkdown</a> files.</li>
 <li>Preview website using <code>quilt()</code> in the repository directory</li>
 <li>Repeat steps 5 and 6 until the site is ready to go online</li>
 <li>Run <code>make_gh_website()</code> to make it available on GitHub Pages.</li>
@@ -73,20 +73,19 @@
 </div>
 <div id="adding-a-website-configuration-file" class="section level3">
 <h3>4) Adding a website configuration file</h3>
-<p>Although not necessary, website build configuration files are useful for storing <code>quilt</code> parameters in the source of the website. This allows <code>quilt</code> to be run with no options when in the project directory (where RStudio always starts when opening R projects). The values of <code>quilt</code> options are important when deciding file names and directory structure of HTML content, but for demonstration, lets only specify a few options and not worry about it too much. Make a new text file (upper left drop down menu in RStudio) named “website_build_config.yml” and save the following content in it:</p>
-<pre><code>theme: spacelab
-cumulative: false</code></pre>
+<p>Although not necessary, website build configuration files are useful for storing <code>quilt</code> parameters in the source of the website. This allows <code>quilt</code> to be run with no options when in the project directory (where RStudio always starts when opening R projects). The values of <code>quilt</code> options are important when deciding file names and directory structure of file content, but for demonstration, lets only specify one option and not worry about it too much. Make a new text file (upper left drop down menu in RStudio) named “quilt_config.yml” and save the following content in it:</p>
+<pre><code>theme: spacelab</code></pre>
 <p>To see what effect this has and other available options, see the documentation on <code>quilt</code> options.</p>
 </div>
-<div id="adding-html-content" class="section level3">
-<h3>5) Adding HTML content</h3>
-<p>Now we can finally start adding the content of the soon-to-be website. See the introduction section for how file and directory names affect where the content is displayed on the website. In this example, we will add HTML files indirectly by adding Rmd files. However, HTML files from any source should work as well.</p>
-<p>Make a new Rmd file using the drop down menu at the top left. The default settings are fine for our purposes, but any configuration that outputs HTML should work. To make this the home page, save the Rmd under any name without dashes (“-”) in it. After saving the file, press the “Knit” button above the text editor window. This will create an HTML file with the same name, but an “.html” extension instead of “.Rmd”.</p>
-<p>By default, the <code>quilt</code> function splits file names on dashes when inferring website menu location for content. It also ignores the trailing element when the file name is split by default; in this case of a file name without dashes, the whole name is ignored and the content is displayed on the home page. Add other Rmd files with dashes in the names to place more content in other parts of the website. For example, a file named “notes-part_1-a_random_note.Rmd” would output “notes-part_1-a_random_note.html” which would be displayed under the <strong>notes</strong> &gt; <strong>part 1</strong> menu location on the website.</p>
+<div id="adding-content" class="section level3">
+<h3>5) Adding content</h3>
+<p>Now we can finally start adding the content of the soon-to-be website. See the introduction section for how file and directory names affect where the content is displayed on the website. In this example, we will RMarkdown (“.Rmd”) files for content. However, many other file types can be used as well.</p>
+<p>Make a new Rmd file using the drop down menu at the top left. The default settings are fine for our purposes, but any configuration that outputs HTML should work. To make this appear on the home page, save the Rmd under root of the target directory.</p>
+<p>By default, the <code>quilt</code> function ignores the file name, but uses directory names; in this case, the file is not in a sub-directory, so the content is displayed on the home page. Add other Rmd files in sub-directories to place more content in other parts of the website. For example, the file “notes/part_1/a_random_note.Rmd” would be displayed under the <strong>notes</strong> &gt; <strong>part 1</strong> menu location on the website.</p>
 </div>
 <div id="previewing-the-webpage" class="section level3">
 <h3>6) Previewing the webpage</h3>
-<p>To build a webpage from the HTML files in the repository directory, simply enter <code>quilt()</code> in the R console window. By default, the website will be saved to a temporary directory and displayed in the RStudio “Viewer” window. Make any desired changes to the HTML content (via Rmd changes followed by “Knit”) and repeat until satisfied.</p>
+<p>To build a webpage from the Rmd files in the repository directory, simply enter <code>quilt()</code> in the R console window. By default, the website will be saved to a temporary directory and displayed in the RStudio “Viewer” window. Make any desired changes to the Rmd content and repeat until satisfied.</p>
 </div>
 <div id="publishing-the-site-on-github-pages" class="section level3">
 <h3>7) Publishing the site on GitHub Pages</h3>
