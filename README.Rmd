@@ -1,7 +1,13 @@
 ---
 output:
-  md_document
+  html_document:
+    keep_md: true
 ---
+
+# Quiltr
+
+[![Build Status](https://travis-ci.org/grunwaldlab/quiltr.png?branch=master)](https://travis-ci.org/grunwaldlab/quiltr?branch=master)
+[![codecov.io](https://codecov.io/github/grunwaldlab/quiltr/coverage.svg?branch=master)](https://codecov.io/github/grunwaldlab/quiltr?branch=master)
 
 ```{r, child="vignettes/index.Rmd"}
 ```

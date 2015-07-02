@@ -10,7 +10,6 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-
 ## UNDER DEVELOPMENT
 
 Quiltr is still under active development and might not always work correctly until this notice is removed.
