@@ -84,7 +84,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @description 
 #' Parse configuration files for one or more folders and return a list of their content. 
 #' 
-#' @param folder_path (\code{character})
+#' @param folder_paths (\code{character})
 #' The path to one or more folders from which to extract configuration file data.
 #' 
 #' @param config_name (\code{character} of length 1)
@@ -92,7 +92,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #' 
 #' @return \code{list}
 #' Return \code{NA} for folders with no configuration files.
-parse_configuration <- function(folder_path, config_name) {
+parse_configuration <- function(folder_paths, config_name) {
   #|
   #| Within this function we should define a function to parse each file type.
   #| Each function should take a single file path and should assume the file type is correct.
@@ -101,12 +101,14 @@ parse_configuration <- function(folder_path, config_name) {
   #| If a file is empty, the parser functions should return `NULL`.
   #|
   #| Lets define the YAML parser first. 
-  #| We can just reference `yaml::yaml.load_file` currently, but it might need to be more complicated eventually.
-  #| `yaml::yaml.load_fil` returns `NULL` when the file is empty.
+  #| We can just reference `yaml::yaml.load_file` for now, but it might need to be more complicated eventually.
+  #| `yaml::yaml.load_file` returns `NULL` when the file is empty.
   #|
+  # Define YAML parser -----------------------------------------------------------------------------
   parse_yaml <- function(path) {
     yaml::yaml.load_file(path)
   }
+  #|
   #| Next we should define the R file parser
   #| There are more ways to do this than YAML, so there is some room for preference. 
   #| It should be possible for their to be an arbitrary amount of R code before the configuration content so that code can be used to customize the configuration values.
@@ -118,19 +120,60 @@ parse_configuration <- function(folder_path, config_name) {
   #| I will use the second option since it is more explicit and easier to parse. 
   #| It also reduces the potential for users to accendentally assign option values when they meant to assign temporary variables.
   #| 
+  ## Define R parser -------------------------------------------------------------------------------
   parse_r <- function(path) {
-    #| `parse` loads the expressions from an R file without parsing them, resulting in a list of expressions.
+    # `parse` loads the expressions from an R file without parsing them, resulting in a list of expressions.
     content <- parse(path)
-    #| In the file is empty, return `NULL`.
+    # In the file is empty, return `NULL`.
     if (length(content) == 0) { return(NULL) }
-    #| Filter out expressions that are assigned to a variable
+    # Filter out expressions that are assigned to a variable
     content <- content[ vapply(content, class, character(1)) != "=" ]
-    #| Filter out expressions that are not lists
-    content <- content[ vapply(content, function(x) class(eval(x)), character(1)) == "list"]
-    #| Return the last list not assigned to a variable
+    # Filter out expressions that are not lists
+    content <- content[ vapply(content, function(x) class(eval(x)), character(1)) == "list" ]
+    # Return the last list not assigned to a variable
     return( eval(content[length(content)]) )
   }
-  parsers <- list("r")
+  #|
+  #| Now that the parsers are defined, lets put them in a list with names corresponding to file extensions.
+  #| The extensions will be in lower case. 
+  #| We will add one entry for each type of extention accepted.
+  #| 
+  ## Consolidate parsers into a list ---------------------------------------------------------------
+  parsers <- list("yaml" = parse_yaml, 
+                  "yml"  = parse_yaml,
+                  "r"    = parse_r)
+  #|
+  #| Let find the configuration files in each folder
+  #| There could be multiple valid configuration files in a given folder.
+  #| We could append the content of multiple files together, but I cant think of a reason that this would be useful, so lets throw an error when this happens for simplicity.
+  #|
+  ## Get configuration file paths ------------------------------------------------------------------
+  ext_regex <- paste(names(parsers), collapse = "|")
+  file_paths <- lapply(folder_paths, 
+                       function (x) {
+                         path <- list.files(x, pattern = paste0(config_name, ".", 
+                                                                "(", ext_regex, ")"))
+                         if (length(path) == 0) { return(NA) }
+                         if (length(path) > 1) {
+                           stop(paste0('Multiple configuration files found in "', x, '".' ))
+                         }
+                         return(path)
+                       })
+  #|
+  #| Next we need to determine the file type of input folder
+  #| They will also need to be converted to lowercase to be compatible with the format of `parsers`
+  #|
+  ## Determine file extensions ---------------------------------------------------------------------
+  extensions <- tolower(tools::file_ext(folder_paths))
+  #|
+  #| Finally, we can execute the appropriate parser for each folder
+  #|
+  ## Parse configuration files ---------------------------------------------------------------------
+  mapply(file_paths, extensions, SIMPLIFY = FALSE,
+         FUN = function(path, ext) {
+           if (is.na(path)) { return(NA) }
+           parsers[[ext]](path)
+         })
 }
 #|
 #|
