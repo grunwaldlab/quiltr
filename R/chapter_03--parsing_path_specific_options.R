@@ -6,6 +6,13 @@
 #| Such "global" options only allow users to choose their restrictions rather than allowing true freedom of folder structure.
 #| Users should ask "how can I configure quiltr to represent this folder?" rather than "how can I make this folder usable with quiltr?".
 #|
+#| ### Primary criteria
+#|
+#| * __path-specificity__: Most `quilt` options should have _consitent_ syntax for specifying file-path-specific values.
+#| This allows for a relativly small set of `quilt` options to adapt to heterogenous folder structures. For example, 
+#| A directory might have a few python scripts written by a user that should be quilted, but other python dependencies in
+#| a library folder that should not.
+#|
 #| ### Path-specific options
 #| 
 #| To maximize the flexibility of `quiltr`, most option values should be file-path-specific.

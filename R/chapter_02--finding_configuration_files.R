@@ -1,27 +1,27 @@
+#+ echo = FALSE
+knitr::opts_chunk$set(eval = FALSE)
+#|
 #| ## Configuration files
 #| 
 #| The use of configuration files are central to how `quilt` is designed.
-#| The __embeddedability__ citeria described below states that all options should be settable via configuration files. 
-#| Therefore, finding configuration files will be the first task described and executed. 
+#| Therefore, finding configuration files will be the first task described. 
 #| The implementation of configuration file finding and parseing should fufill the following citeria: 
 #|
-#| * __path-specificity__: Most `quilt` options should have _consitent_ syntax for specifying file-path-specific values.
-#| This allows for a relativly small set of `quilt` options to adapt to heterogenous folder structures. For example, 
-#| A directory might have a few python scripts written by a user that should be quilted, but other python dependencies in
-#| a library folder that should not.
-#| * __embeddedability__: It should be possible to set _every option_ using configuration files,
+#| * __embeddability__: It should be possible to set _every option_ using configuration files,
 #| so that all settings used can be stored in the target directory. This saves time and effort for the user since they can run quilt
 #| with no parameters (except perhaps `path`) and not have to remember `quilt`'s many options for every project. 
 #| * __adaptability__: It should require minimal changes in configuration files to lump target folders together or split them apart.
-#| In other words, no "root" folder should be assumed and configuration files should be distributed thourought a directory structure.
-#| * __modularity__: Moving or renaming a target folder should not effect the output of `quilt`.
-#| * __explainability__: It should be easy to explain how configuration files are found by default to avoid confusing novice users. 
-#|
+#| In other words, no "root" folder should be relied on too heavly and configuration files should be distributed thourought a directory structure.
+#| Combining two projects or splitting one into two should require minimal changes to configuration files. 
+#| * __portability__: Moving or renaming a target folder should not effect the output of `quilt` _using default options_.
+#| * __explainability__: It should be easy to explain how configuration files are found _using default options_ to avoid confusing novice users. 
+#| The default options should make using configuration files as intuitive as possible.
+#| 
 #| This is a more subtle problem to implement might be expected. 
 #| It might not be possible to accomplish all these criteria with any one set of parameter values.
 #| For example, there are some options (e.g. `path`, `config_name`) that can modify which configuration files are found yet
 #| these same options must be specifiable in configuration files according to the
-#| __embeddedability__ criteria, creating the potential for a circular dependency. 
+#| __embeddability__ criteria, creating the potential for a circular dependency. 
 #| One solution to this is to split the options of `quilt` into two categories: 
 #|
 #| * __"global"__ options that can only be set by configuration files in `path` (before `path` itself has the potential to be modified by confguration files.) and do not have path-specific values.
@@ -63,4 +63,76 @@
 #| In summary, R code is best for advanced usage by programmers and YAML is best for simple usage.
 #| 
 #| Since both are easy to parse, the best solution might be to support for both formats. 
+#| For this reason, the `config_name` option should accept a file name without an extension.
+#| Files of that name with either a R or YAML extension would be used, allowing users to mix the two according to their tastes. 
+#|
+#| #### Configuration file parser 
+#|
+#| Lets start by writing the code for the configuration file parser.
+#| This function should not attempt to validate or standardize the content, besides any changes that are specific to the input file format.
+#| The output should be an R data structure representing the raw content of the configuration files. 
+#| Since configuration files can be thought of an attribute of a folder, a folder path should be the input of the function.
+#| By using folders as input instead of configuration file paths explicitly, it restricts the specification of which file types are accepted to this function.
+#| This will make it easier to accept other formats of configuration files in the future should it become needed, since only this function would need to change. 
+#| Another input needed is the value of `config_name`. 
+#| 
+#| Although this function is not exported, it would still be good to add some basic documentaion:
+#|
+#===================================================================================================
+#' @title Parse configuration files
+#' 
+#' @description 
+#' Parse configuration files for one or more folders and return a list of their content. 
+#' 
+#' @param folder_path (\code{character})
+#' The path to one or more folders from which to extract configuration file data.
+#' 
+#' @param config_name (\code{character} of length 1)
+#' The file name of configuration files minus the file extension
+#' 
+#' @return \code{list}
+#' Return \code{NA} for folders with no configuration files.
+parse_configuration <- function(folder_path, config_name) {
+  #|
+  #| Within this function we should define a function to parse each file type.
+  #| Each function should take a single file path and should assume the file type is correct.
+  #| We can use a named list of functions to associate the file type with its parser.
+  #| Since it is possible for some file types to have multiple accepted extensions (e.g. "yml" and "yaml"), the parsers should be defined independently of the list.
+  #| If a file is empty, the parser functions should return `NULL`.
+  #|
+  #| Lets define the YAML parser first. 
+  #| We can just reference `yaml::yaml.load_file` currently, but it might need to be more complicated eventually.
+  #| `yaml::yaml.load_fil` returns `NULL` when the file is empty.
+  #|
+  parse_yaml <- function(path) {
+    yaml::yaml.load_file(path)
+  }
+  #| Next we should define the R file parser
+  #| There are more ways to do this than YAML, so there is some room for preference. 
+  #| It should be possible for their to be an arbitrary amount of R code before the configuration content so that code can be used to customize the configuration values.
+  #| I can think of two general ways to go about this:
+  #| 
+  #| * Variables with names corresponding to option names can be defined as varaibles.
+  #| * A single named list not assigned to a variable can be defined at the end of the file.
+  #|
+  #| I will use the second option since it is more explicit and easier to parse. 
+  #| It also reduces the potential for users to accendentally assign option values when they meant to assign temporary variables.
+  #| 
+  parse_r <- function(path) {
+    #| `parse` loads the expressions from an R file without parsing them, resulting in a list of expressions.
+    content <- parse(path)
+    #| In the file is empty, return `NULL`.
+    if (length(content) == 0) { return(NULL) }
+    #| Filter out expressions that are assigned to a variable
+    content <- content[ vapply(content, class, character(1)) != "=" ]
+    #| Filter out expressions that are not lists
+    content <- content[ vapply(content, function(x) class(eval(x)), character(1)) == "list"]
+    #| Return the last list not assigned to a variable
+    return( eval(content[length(content)]) )
+  }
+  parsers <- list("r")
+}
+#|
+#|
+
 
