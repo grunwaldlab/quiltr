@@ -33,7 +33,7 @@
 #| 
 #| This document and the quiltr source code are the same set of files. 
 #| If you look at the "source" of this document ("quiltr/R/chapter_00--the_quiltr_package.R") and other quiltr source files, 
-#| you will see a plain text file with three distinct types of content:
+#| you will see that they are plain text files with three distinct types of content:
 #| 
 #| * __Commented RMarkdown:__ These lines that start with `#|` and are rendered into HTML using `knitr::spin` and `knitr::knit`.
 #| All formatted text, headers, and images are encoded in Rmarkdown.
@@ -51,6 +51,9 @@
 #| It is the "program" part of a literate program.
 #|
 #| This section is mostly RMarkdown since it is the introduction, but examples of Roxygen2 documentation and R code appear below.
+#| The quiltr source is organized into "chapters" that roughly correspond to the order code is executed in the `quilt` function,
+#| but more importantly, they are presented in the order they are meant to be read. 
+#| Therefore earlier chapters will lay the conceptual groundwork and vocabulary used in later chapters. 
 #| 
 #| ### A description of the package
 #| 
