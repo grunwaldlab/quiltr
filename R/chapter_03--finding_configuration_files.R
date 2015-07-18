@@ -41,7 +41,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #| 
 #| Since the first step in this process requires reading configuration files, we need to define the structure of a configuration file.
 #|
-#| ### The structure of configuration files
+#| ### The format of configuration files
 #| 
 #| The structure of the configuration files should have the following properties:
 #| 
@@ -91,7 +91,8 @@ knitr::opts_chunk$set(eval = FALSE)
 #' The file name of configuration files minus the file extension
 #' 
 #' @return \code{list}
-#' Return \code{NA} for folders with no configuration files.
+#' Returns \code{NA} for folders with no configuration files.
+#' Returns \code{NULL} for empty configuration files.
 parse_configuration <- function(folder_paths, config_name) {
   #|
   #| Within this function we should define a function to parse each file type.
@@ -104,7 +105,7 @@ parse_configuration <- function(folder_paths, config_name) {
   #| We can just reference `yaml::yaml.load_file` for now, but it might need to be more complicated eventually.
   #| `yaml::yaml.load_file` returns `NULL` when the file is empty.
   #|
-  # Define YAML parser -----------------------------------------------------------------------------
+  ## Define YAML parser ----------------------------------------------------------------------------
   parse_yaml <- function(path) {
     yaml::yaml.load_file(path)
   }
@@ -169,11 +170,19 @@ parse_configuration <- function(folder_paths, config_name) {
   #| Finally, we can execute the appropriate parser for each folder
   #|
   ## Parse configuration files ---------------------------------------------------------------------
-  mapply(file_paths, extensions, SIMPLIFY = FALSE,
-         FUN = function(path, ext) {
-           if (is.na(path)) { return(NA) }
-           parsers[[ext]](path)
-         })
+  contents <- mapply(file_paths, extensions, SIMPLIFY = FALSE,
+                     FUN = function(path, ext) {
+                       if (is.na(path)) { return(NA) }
+                       parsers[[ext]](path)
+                     })
+  #| 
+  #| The last step will be to verify/standardize the data structures returned by the parsers
+  #| To do this, we first need to define what the acceptable syntax of configuration files are.
+  #| Since the syntax of configuration files deals heavily with the concept of path-specific options,
+  #| this will be described in the next chapter
+  #| The next section will do this and define the following function.
+  #|
+  standardize_config_data(contents)
 }
 #|
 #|
