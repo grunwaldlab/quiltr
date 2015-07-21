@@ -181,6 +181,112 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
   return(settings)
 }
 #|
+#| ## Configuration file parser 
+#|
+#| This function should not attempt to validate or standardize the content, besides any changes that are specific to the input file format.
+#| The output should be an R data structure representing the raw content of the configuration files. 
+#| Since configuration files can be thought of an attribute of a folder, a folder path should be the input of the function.
+#| By using folders as input instead of configuration file paths explicitly, it restricts the specification of which file types are accepted to this function.
+#| This will make it easier to accept other formats of configuration files in the future should it become needed, since only this function would need to change. 
+#| Another input needed is the value of `config_name`. 
+#| 
+#| Although this function is not exported, it would still be good to add some basic documentaion:
+#|
+#' @title Parse configuration files
+#' 
+#' @description 
+#' Parse configuration files for one or more folders and return a list of their content. 
+#' 
+#' @param folder_paths (\code{character})
+#' The path to one or more folders from which to extract configuration file data.
+#' 
+#' @param config_name (\code{character} of length 1)
+#' The file name of configuration files minus the file extension
+#' 
+#' @return \code{list}
+#' Returns \code{NA} for folders with no configuration files.
+#' Returns \code{NULL} for empty configuration files.
+read_configuration_files <- function(folder_paths, config_name) {
+  #| Within this function we should define a function to parse each file type.
+  #| Each function should take a single file path and should assume the file type is correct.
+  #| We can use a named list of functions to associate the file type with its parser.
+  #| Since it is possible for some file types to have multiple accepted extensions (e.g. "yml" and "yaml"), the parsers should be defined independently of the list.
+  #| If a file is empty, the parser functions should return `NULL`.
+  
+  #| ### Define YAML parser ########################################################################
+  #| Lets define the YAML parser first. 
+  #| We can just reference `yaml::yaml.load_file` for now, but it might need to be more complicated eventually.
+  #| `yaml::yaml.load_file` returns `NULL` when the file is empty.
+  parse_yaml <- function(path) {
+    yaml::yaml.load_file(path)
+  }
+
+  #| ### Define R parser ###########################################################################
+  #| Next we should define the R file parser
+  #| There are more ways to do this than YAML, so there is some room for preference. 
+  #| It should be possible for their to be an arbitrary amount of R code before the configuration content so that code can be used to customize the configuration values.
+  #| I can think of two general ways to go about this:
+  #| 
+  #| * Variables with names corresponding to option names can be defined as varaibles.
+  #| * A single named list not assigned to a variable can be defined at the end of the file.
+  #|
+  #| I will use the second option since it is more explicit and easier to parse. 
+  #| It also reduces the potential for users to accendentally assign option values when they meant to assign temporary variables.
+  #| 
+  parse_r <- function(path) {
+    # `parse` loads the expressions from an R file without parsing them, resulting in a list of expressions.
+    content <- parse(path)
+    # In the file is empty, return `NULL`.
+    if (length(content) == 0) { return(NULL) }
+    # Filter out expressions that are assigned to a variable
+    content <- content[ vapply(content, class, character(1)) != "=" ]
+    # Filter out expressions that are not lists
+    content <- content[ vapply(content, function(x) class(eval(x)), character(1)) == "list" ]
+    # Return the last list not assigned to a variable
+    return( eval(content[length(content)]) )
+  }
+
+  #| ### Consolidate parsers into a list ###########################################################
+  #| Now that the parsers are defined, lets put them in a list with names corresponding to file extensions.
+  #| The extensions will be in lower case. 
+  #| We will add one entry for each type of extention accepted.
+  parsers <- list("yaml" = parse_yaml, 
+                  "yml"  = parse_yaml,
+                  "r"    = parse_r)
+
+  #| ### Get configuration file paths ##############################################################
+  #| Let find the configuration files in each folder
+  #| There could be multiple valid configuration files in a given folder.
+  #| We could append the content of multiple files together, but I cant think of a reason that this would be useful, so lets throw an error when this happens for simplicity.
+  ext_regex <- paste(names(parsers), collapse = "|")
+  file_paths <- lapply(folder_paths, 
+                       function (x) {
+                         path <- list.files(x, pattern = paste0(config_name, ".", 
+                                                                "(", ext_regex, ")"))
+                         if (length(path) == 0) { return(NA) }
+                         if (length(path) > 1) {
+                           stop(paste0('Multiple configuration files found in "', x, '".' ))
+                         }
+                         return(path)
+                       })
+  
+  #| ### Determine file extensions #################################################################
+  #| Next we need to determine the file type of input folder
+  #| They will also need to be converted to lowercase to be compatible with the format of `parsers`.
+  extensions <- tolower(tools::file_ext(folder_paths))
+
+  #| ### Parse configuration files #################################################################
+  #| Finally, we can execute the appropriate parser for each folder
+  contents <- mapply(file_paths, extensions, SIMPLIFY = FALSE,
+                     FUN = function(path, ext) {
+                       if (is.na(path)) { return(NA) }
+                       parsers[[ext]](path)
+                     })
+  
+  #| ### Return output #############################################################################
+  return(contents)
+}
+#|
 #| ## Path-specific option syntax
 #| 
 #| To maximize the flexibility of `quiltr`, most option values should be file-path-specific.
@@ -301,7 +407,7 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
 #| The goal of the configuration reformating function is to convert the format of a parsed configuration file (that of the second described) to the one-dimensional format shown above.
 #| This function will also need to tell when a path has been left off, as is done for global options and can be done for local options.
 #|
-#| ## Documentation of `reformat_configuration` ####################################################
+#| ### Documentation of `reformat_configuration` ###################################################
 #' @title Standardize configuration content
 #' 
 #' @description 
@@ -363,45 +469,12 @@ reformat_configuration <- function(raw_content, function_name) {
     }
   }
   
-  ## Find which content names match option names ---------------------------------------------------
-  matches_option_names <- names(content) %in% option_names
-  ## Check which content names are valid paths -----------------------------------------------------
-  putative_paths <- ifelse(R.utils::isAbsolutePath(names(content)), 
-                           names(content), 
-                           file.path(current_folder, names(content)))
-  are_valid_paths <- file.exists(putative_paths)
-  ## Check for ambiguous content names -------------------------------------------------------------
-  ambiguous_names <- names(content)[are_valid_paths & matches_option_names]
-  if (length(ambiguous_names) > 0) {
-    stop(paste0("The following option names are specified in the configuration file '", config_path,
-                "' but also are valid paths: ", paste(ambiguous_names, collapse = ", "),
-                " Add '.", .Platform$file.sep, "' to indicate that they are paths if they are."))
-  }
-  ## Verify path-specific values -------------------------------------------------------------------
-  for (index in which(!matches_option_names)) {
-    value <- content[[index]]
-    if (class(value) != "list" || is.null(names(value))) {
-      stop("Invalid format for path specific value in '", config_path, "'.\n",
-           "Must be in the form of a named list")
-    }
-    invalid_names <- names(content)[ ! names(content) %in% option_names ]
-    if (length(invalid_names) > 0 ) {
-      stop(paste0("The following option names are not recgnoized in configuration file '", 
-                  config_file, "': ", 
-                  paste(invalid_names, collapse = ", ")))
-    }
-    invalid_global_names <- names(content)[ names(content) %in% global_options ]
-    if (length(invalid_global_names) > 0 ) {
-      stop(paste0("The following global options cannot be given path-specific values in configuration file '", 
-                  config_file, "': ", 
-                  paste(invalid_global_names, collapse = ", ")))
-    }
-  }
-  ## Apply default paths ---------------------------------------------------------------------------
-  is_local_but_pathless <- matches_option_names & (! names(content) %in% global_options)
-  lapply(content[is_local_but_pathless], function(x) setNames(list(x), nm = default_path))
+  #| ### Run function for each piece and combine ###################################################
+  unlist(mapply(FUN = process_one, raw_content,  names(raw_content), SIMPLIFY = FALSE), 
+         recursive = FALSE)
 }
-
+#|
+#|
 
 
 
