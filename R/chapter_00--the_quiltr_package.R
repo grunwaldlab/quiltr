@@ -12,16 +12,12 @@
 #| > For example, the source of this document you are reading is a literate programming file
 #| > that is part of the quiltr source code. 
 #|
-#| This name and purpose is best understood in the context of an extension of Knuth's metaphor used in the knitr package documentation.
-#| The knitr function `spin` convertes code with comments writen in a
-#| markup language ("goat's hair") into a literate programming document ("wool").
-#| The markup portion of a literate programming document is typically [markdown](https://en.wikipedia.org/wiki/Markdown) or [latex](https://en.wikipedia.org/wiki/LaTeX) (rendered into html and pdf
-#| respectivly) and the code is often [R](https://en.wikipedia.org/wiki/R_%28programming_language%29) or [python](https://en.wikipedia.org/wiki/Python_%28programming_language%29), although many other languages can also be used. 
-#| The `knit` function can be used to execute the code in a literate programming document
-#| ("wool") and integrate it and its results into the rendered markdown document.
-#| The output of `knit` is prusumably some kind of textile if the metaphor holds ([mohair](https://en.wikipedia.org/wiki/Mohair)?).
-#| This function is called `quilt` because it was originally designed to execute and consolidate
-#| the output of many literate programming documents in specified folders into a portable website.
+#| The function's  name and purpose is best understood in the context of an extension of Knuth's metaphor used in the knitr package documentation.
+#| The knitr function `spin` convertes code with comments writen in a markup language ("goat's hair") into a literate programming document ("wool").
+#| The markup portion of a literate programming document is typically [markdown](https://en.wikipedia.org/wiki/Markdown) or [latex](https://en.wikipedia.org/wiki/LaTeX) (rendered into html and pdf respectivly) and the code is often [R](https://en.wikipedia.org/wiki/R_%28programming_language%29) or [python](https://en.wikipedia.org/wiki/Python_%28programming_language%29), although many other languages can also be used. 
+#| The `knit` function can be used to execute the code in a literate programming document ("wool") and integrate it and its results into the rendered markdown document.
+#| The output of `knit` is presumably some kind of textile if the metaphor holds ([mohair](https://en.wikipedia.org/wiki/Mohair)?).
+#| This function is called `quilt` because it was originally designed to execute and consolidate the output of many literate programming documents in specified folders into a portable website.
 #|
 #| <img src="`r file.path("..", "figures", "knitr_metaphore_figure.png")`">
 #|
@@ -31,11 +27,11 @@
 #| 
 #| ### The structure of quiltr
 #| 
-#| This document and the quiltr source code are the same set of files. 
-#| If you look at the "source" of this document ("quiltr/R/chapter_00--the_quiltr_package.R") and other quiltr source files, 
-#| you will see that they are plain text files with three distinct types of content:
+#| The source of this document is integrated into the quiltr source code. 
+#| If you look at the source code (e.g. "quiltr/R/chapter_00--the_quiltr_package.R"), you will see that they are plain text files with three distinct types of content:
 #| 
-#| * __Commented RMarkdown:__ These lines that start with `#|` and are rendered into HTML using `knitr::spin` and `knitr::knit`.
+#| * __Commented RMarkdown:__
+#| These lines that start with `#|` and are rendered into HTML using `knitr::spin` and `knitr::knit`.
 #| All formatted text, headers, and images are encoded in Rmarkdown.
 #| Since these lines are commented out (i.e. start with `#`), they do not affect how the intermixed R code is executed. 
 #| This is the "literate" part of a literate program and is used to explain the ideas behind the code and its implementation.
@@ -43,7 +39,7 @@
 #| the quiltr functions each time the package is built.
 #| Their syntax is similar to and inspired by Latex.
 #| The embedded documentation can be accessed by entering a function's name prefixed with `?` in an R console after the package is loaded.
-#| It is used to remind users of parameters and basic function use rather than explain concepts and therefore writen in a terse and technical style
+#| It is used to remind users of parameters and basic function use rather than explain concepts and therefore writen in a terse and technical style.
 #| Like the commented RMarkdown, these lines have no effect on how the code actually executes.
 #| Throughout this document, there might be some things explained in the Roxygen2 documentation that I will not explain the main text, 
 #| in order to conform to the [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) (don't repeat yourself) programming prinicipal. 
@@ -58,7 +54,7 @@
 #| ### A description of the package
 #| 
 #| Below is the first example we will encounter of Roxygen2 documentation.
-#| Typically, Roxygen2 appear before the code for functions, but in this case, it is used too describe the package as a whole.
+#| Typically, Roxygen2 appear before the code for functions, but in this case, it is used to describe the package as a whole.
 #| The `NULL` after the Roxygen2 comments is a placeholder for where a function would normally be and is the first example of R code in the package.
 #| This documentation can be accessed by typing `?quiltr` into an R console after the package is loaded using `library(quiltr)`.
 #| 

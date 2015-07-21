@@ -1,26 +1,187 @@
-#| ## Parsing Configuration Files
+#+ echo = FALSE
+knitr::opts_chunk$set(eval = FALSE)
+#|
+#| # Parsing Configuration Files
 #|
 #| Perhaps the most important goal of `quiltr` is to place the fewest restrictions possible on input folder structure. 
 #| This can be partly accomplished by having numerous options to change how folders are interpreted, such as an option to ignore file names.
 #| However, any one set of option values might not be optimal for all parts of a heterogenous folder structure.
 #| Such "global" options only allow users to choose their restrictions rather than accomidating diverse folder.
 #| Users should ask "how can I configure quiltr to represent this folder?" rather than "how can I make this folder usable with quiltr?".
-#| The accomplish this, we will use configuration files that accept path-specific values of options.
-#| The following criteria should be used:
+#| The accomplish this, we can use configuration files that accept path-specific values of options.
+#| The following criteria should be met:
 #|
 #| * __path-specificity__: 
 #| Most `quilt` options should have _consitent_ syntax for specifying file-path-specific values.
 #| This allows for a relativly small set of `quilt` options to adapt to heterogenous folder structures. For example, 
 #| A directory might have a few python scripts written by a user that should be quilted, but other python dependencies in
 #| a library folder that should not.
+#| * __embeddability__: 
+#| It should be possible to set _every option_ using configuration files,
+#| so that all settings used can be stored in the target directory. This saves time and effort for the user since they can run quilt
+#| with no parameters (except perhaps `path`) and not have to remember `quilt`'s many options for every project. 
+#| * __adaptability__:
+#| It should require minimal changes in configuration files to lump target folders together or split them apart.
+#| In other words, no "root" folder should be relied on too heavly and configuration files should be distributed thourought a directory structure.
+#| Combining two projects or splitting one into two should require minimal changes to configuration files. 
 #| * __simplicity__: 
 #| It should be possible to exclude the path information when applying a function globally. 
 #| This will make it easier for novice users to assign global options and make simple configuration files easier to read.
 #| * __maintainability__: 
 #| It should be simple to add options or modify their input.
 #| In other words, the "path-specific value" functionality should be separted from the option functionality.
+#| * __explainability__: It should be easy to explain how configuration files are found _using default options_ to avoid confusing novice users. 
+#| The default options should make using configuration files as intuitive as possible.
 #|
-#| ### Path-specific option syntax
+#| The __path-specificity__ and __embeddability__ criteria are defining characteristics of `quilt`, yet can create some troublesome circular logic.
+#| For example, there are some options (e.g. `path`, `config_name`) that can modify which configuration files are found yet these same options must be specifiable in configuration files according to the __embeddability__ criteria. 
+#| One solution to this is to split the options of `quilt` into two categories: 
+#|
+#| * __"global"__ options that can only be set by configuration files in `path` (before `path` itself has the potential to be modified by confguration files.) and do not have path-specific values.
+#| * __"local"__ options that be set in configuration files regardless of location and can have path-specific values. 
+#|
+#| Similar to `knitr::knit`'s ability to read options embedded in input files (via `knitr::opts_chunk` or YAML front matter), `quilt` uses configuration files to define options for input folders.
+#| Since the fundamental input unit of `quilt` is a folder, configuration files are best thought of as an aspect of the folder they are in.
+#|
+#| ## The configuration file parsing function
+#|
+#| We will start by making a high level function that takes one or more folders and returns a list of option settings specified by configuration files therein.
+#| This function should also do some basic checks of configuration file structure and content.
+#| Since the reading of configuration files is a rather general goal, it might be a good idea to make to function reusable for other programs. 
+#|
+#| ### Function citeria
+#|
+#| * The input should be one or more configuration file paths. 
+#| Alternativly, if a named list is given, it should be interpreted as equivalent to the parsed content of configuration files with names corresponding to the folder they apply to.
+#| This second input type could be useful for adding configuration data for read-only folders and should not be difficult to implement. 
+#| * The output should be a list of option settings for individual paths patterns (i.e. regex or file path wildcards).
+#| Each item in the list should have the following information:
+#|     + option name
+#|     + option value
+#|     + path-specific pattern
+#|     + path to source configuration file
+#| * The structure and content of configuration files should be verified and error messages should mention the path of the offending configuration file.
+#|
+#| ### Documentation for `parse_configuration` #####################################################
+#' @title  Get configuration file data
+#' 
+#' @description 
+#' Parse the data in configuration files for one or more folders.
+#' 
+#' @param folders (\code{character} or named \character{list})
+#' If \code{character}, one or more folders in which to look for configuration files to parse.
+#' If named \character{list}, one or more R lists representing parsed configuration data.
+#' 
+#' @param function_name (\code{character} of length 1) The name of the function to find options for.
+#' The set of vaild options that can be specified will be extracted from this function.
+#' 
+#' @param  config_name (\code{character} of length 1)
+#' The file name of configuration files minus the file extension.
+#' 
+#' @param global_options (\code{character})
+#' The names of global options, which should not be given path-specific values.
+#' This is only used for error checking. 
+#' By default, no global options are assumed.
+#' 
+#' @param default_path (\code{character} of length 1)
+#' The default path applied to options that accept path specific values but dont have a path
+#' specified.
+#' 
+#' @return \code{list} of \code{list} with the following items:
+#' \describe{
+#'   \item{option}{The name of an option for \code{function}}
+#'   \item{value}{The value of the option}
+#'   \item{path}{The path pattern for the option-value pair}
+#'   \item{config_path}{The full path to the configuration file the setting was derived from}
+#' }
+parse_configuration <- function(folders, function_name, config_name, global_options = NULL,
+                                default_path = "**") {
+  
+  #| ### Input vaildation ##########################################################################
+  #| Since this is a rather high-level function, lets do some thourough argument validation.
+  #|
+  #| All folder paths should exist and point to actual folders unless a named list is given.
+  #| If a named list is given, then these checks do not apply;
+  #| However, the content of the named list will still be checked later in the function.
+  is_named_list <- function(x) { is.list(x) && !is.null(names(x)) }
+  if ( ! is_named_list(folders) ) {
+    do_not_exist <- folders[ ! file.exists(folders) ]
+    if ( length(do_not_exist) > 0 ) {
+      stop( paste0("The following paths do not exist: ", paste(do_not_exist, collapse = ", ")) )
+    }
+    not_folders <- folders[ ! file.info(folders)$isdir ]
+    if ( length(not_folders) > 0 ) {
+      stop( paste0("The following paths are not folders: ", paste(not_folders, collapse = ", ")) )
+    }
+  }
+  #| The function that option names will be extracted from must also exist..
+  if ( length(function_name) != 1 ) {
+    stop( paste0("Incorrect length of 'function_name' (", length(function_name), ").") )
+  }
+  if ( ! exists(function_name) ) {
+    stop( paste0("The object '", function_name, "' is not defined.") )
+  }
+  if ( ! is.function(function_name) ) {
+    stop( paste0("The object '", function_name, "' is not a function.") )
+  }
+  #| There should only be one config name...
+  if ( length(config_name) != 1 ) {
+    stop( paste0("Incorrect length of 'config_name' (", length(config_name), ").") )
+  }
+  #| Global options should be a subset of `function_name` options...
+  option_names <- names(formals(quilt))
+  unknown_options <- global_options[!global_options %in% option_names]
+  if (length(unknown_options) > 0) {
+    stop(paste0("The following options are not known ", function_name, " options: ", 
+                paste(unknown_options, collapse = ", ")))
+  }
+  #| There should be only one default path...
+  if ( length(default_path) != 1 ) {
+    stop( paste0("Incorrect length of 'default_path' (", length(default_path), ").") )
+  }
+  
+  #| ### Get raw configuration content #############################################################
+  #| This is the step where configuration files are read and a list of raw content is obtained.
+  #| The names of the list should correspond to configuration file paths.
+  #| If a named list is given for `folders`, then it is treated as if it was the raw content.
+  #| In that case, the names of the list are the folder paths the settings apply to.
+  #| All folders might not have configuration files, so `raw_content` could have less items than `folders`
+  raw_content <- ifelse(is_named_list(folders),
+                        folders, 
+                        read_configuration_files(folders, config_name))
+  
+  #| ### Convert content to output format ##########################################################
+  #| Next we need to convert `raw_content` into the output format described in the function documentation.
+  #| This can be thought of as an operation similar to `reshape2::melt`, where the dimentionailty of the data is reduced.
+  #| For options that are not given path-specific values, the path pattern returned should be `NA`
+  settings <- standardize_configuration(raw_content, function_name)
+  
+  #| ### Verify content ############################################################################
+  #| We should vaildate the content of the settings now that it is in a form that is easy to parse. 
+  #|
+  #| Lets for global options being given path-specific values.
+  #| For options that are not given path-specific values, the path pattern returned by `standardize_configuration` should be `NA`.
+  for (setting in settings) {
+    if (setting$option %in% global_options && ! is.na(setting$path)) {
+      stop(paste0('Attempt to set global option "', setting$option,
+                  '" to a path-specific value in configuration file "', setting$config_path, '".'))
+    }
+  }
+  
+  #| ### Apply default paths #######################################################################
+  #| Finally, lets replace the `NA`s introduced by `standardize_configuration` with the default path value
+  settings <- lapply(settings, function(x) {
+    if ( (! setting$option %in% global_options) && is.na(x$path) ) {
+      x$path <- default_path
+    }
+    return(x)
+  })
+  
+  #| ### Return result #############################################################################
+  return(settings)
+}
+#|
+#| ## Path-specific option syntax
 #| 
 #| To maximize the flexibility of `quiltr`, most option values should be file-path-specific.
 #| Some options will only apply to files, such as an option specifying which file types to include, whereas others will only apply to folders, such as an option specifying where to look for files.
@@ -96,11 +257,10 @@
 #| Options specified in the function call (rather than in configuration files) can be interpreted as if they were specified in a configuraiton file located in `path` without path-specific information.
 #| This has the desireable side-effect of encouarging people to use configuration files instead of function arguments for complex uses.
 #|
-#| We will define the parsers and format of the configuration files in the next section, but lets write a function to apply defaults for path-sepcific values now.
-#| Lets assume that parsing configuration files result in R lists with the syntax described above.
-#| This function should take that parser output and convert it into a standard format with the default values applied.
-#| For reasons described in the next section, some options will not support path-specific values.
-#| If a user attempts to set path-specific values on these, an error should be thrown.
+#|
+#|
+#|
+#|
 ##==================================================================================================
 #' @title Standardize configuration content
 #' 

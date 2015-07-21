@@ -93,7 +93,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @return \code{list}
 #' Returns \code{NA} for folders with no configuration files.
 #' Returns \code{NULL} for empty configuration files.
-parse_configuration <- function(folder_paths, config_name) {
+read_configuration_files <- function(folder_paths, config_name) {
   #|
   #| Within this function we should define a function to parse each file type.
   #| Each function should take a single file path and should assume the file type is correct.
