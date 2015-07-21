@@ -154,13 +154,13 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
   #| Next we need to convert `raw_content` into the output format described in the function documentation.
   #| This can be thought of as an operation similar to `reshape2::melt`, where the dimentionailty of the data is reduced.
   #| For options that are not given path-specific values, the path pattern returned should be `NA`
-  settings <- standardize_configuration(raw_content, function_name)
+  settings <- reformat_configuration(raw_content, function_name)
   
   #| ### Verify content ############################################################################
   #| We should vaildate the content of the settings now that it is in a form that is easy to parse. 
   #|
   #| Lets for global options being given path-specific values.
-  #| For options that are not given path-specific values, the path pattern returned by `standardize_configuration` should be `NA`.
+  #| For options that are not given path-specific values, the path pattern returned by `reformat_configuration` should be `NA`.
   for (setting in settings) {
     if (setting$option %in% global_options && ! is.na(setting$path)) {
       stop(paste0('Attempt to set global option "', setting$option,
@@ -169,7 +169,7 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
   }
   
   #| ### Apply default paths #######################################################################
-  #| Finally, lets replace the `NA`s introduced by `standardize_configuration` with the default path value
+  #| Finally, lets replace the `NA`s introduced by `reformat_configuration` with the default path value
   settings <- lapply(settings, function(x) {
     if ( (! setting$option %in% global_options) && is.na(x$path) ) {
       x$path <- default_path
@@ -257,11 +257,51 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
 #| Options specified in the function call (rather than in configuration files) can be interpreted as if they were specified in a configuraiton file located in `path` without path-specific information.
 #| This has the desireable side-effect of encouarging people to use configuration files instead of function arguments for complex uses.
 #|
+#| ## The reformating function
 #|
+#| The two types of path-specific syntax described above present two ways of storing configuration file information.
+#| The first type stores settings in a nested list with the first level corresponding to option names and the second to path-specific values:
 #|
+#| ```{r}
+#| options = list(option_1 = list(path_1 = value_1,
+#|                                path_2 = value_2),
+#|                option_2 = list(path_1 = value_2),
+#|                option_3 = list(path_2 = value_3))
+#| ```
 #|
+#| The second type described, which is used in configuration files, has the same information except the first dimension is the paths and the second is options:
 #|
-##==================================================================================================
+#| ```{r}
+#| options = list(path_1 = list(option_1 = value_1,
+#|                              option_2 = value_2),
+#|                path_2 = list(option_3 = value_3,
+#|                              option_1 = value_2))
+#| ```
+#|
+#| These two dimensional data structures allow compact representation of shared attributes (paths or options) so are useful as configuration files formats.
+#| However, they are harder to parse since they require two nested loops to get at the fundamental path-option-value combination.
+#| A better data structure for computers to read is a list where each item is every path-option-value combination:
+#|
+#| ```{r}
+#| options = list(list(path_1, option_1, value_1),
+#|                list(path_1, option_2, value_2),
+#|                list(path_2, option_3, value_3),
+#|                list(path_2, option_1, value_2))
+#| ```
+#|
+#| This is effectivly a one-dimensional data structure that can be iterated over with a single loop. 
+#| It also makes it easier to store additional information like configuration file path. 
+#| To make code more informative, we can add names to the values of each combination:
+#|
+#| ```{r}
+#| options = list(list(path = path_1, option = option_1, value = value_1, config_path = config_path_1),
+#|                ...)
+#| ```
+#|
+#| The goal of the configuration reformating function is to convert the format of a parsed configuration file (that of the second described) to the one-dimensional format shown above.
+#| This function will also need to tell when a path has been left off, as is done for global options and can be done for local options.
+#|
+#| ## Documentation of `reformat_configuration` ####################################################
 #' @title Standardize configuration content
 #' 
 #' @description 
@@ -269,33 +309,60 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
 #' path-specific options. Also checks for path-spcific values being applied to global options
 #' inappropriatly.
 #' 
-#' @param content (\code{list})
-#' The parsed content of a configuration file
+#' @param raw_content (\code{list})
+#' The parsed content one or more configuration files
 #' 
-#' @param global_options (\code{character})
-#' The names of global options, which should not be given path-specific values.
-#' 
-#' @param current_folder (\code{character} of length 1)
-#' The current working directory from which relative paths originate.
-#' 
-#' @param config_file (\code{character} of length 1)
-#' The name of the config file the content was from. 
-#' This is only used for printing error messages.
-#' 
-#' @param default_path (\code{character} of length 1)
-#' The default path applied to options that accept path specific values but dont have a path
-#' specified.
+#' @param function_name (\code{character} of length 1) The name of the function get option names
+#' from.
+#' The set of vaild options that can be specified will be extracted from this function.
 #' 
 #' @return (\code{list})
-standardize_config_data <- function(content, global_options, current_folder, config_file,
-                                    default_path = "**") {
-  ## Get quilt options and check that `global_options` are valid -----------------------------------
-  option_names <- names(formals(quilt))
-  unknown_options <- global_options[!global_options %in% option_names]
-  if (length(unknown_options) > 0) {
-    stop(paste0("The following options are not known `quilt` options: ", 
-                paste(unknown_options, collapse = ", ")))
+reformat_configuration <- function(raw_content, function_name) {
+  
+  #| ### Get option names ##########################################################################
+  #| Option names are used to distinguish between paths and option names in the first dimension.
+  option_names <- names(formals(function_name))
+  
+  #| ### Define function to process one configuration file data ####################################
+  #| The function can take the data from multiple configuration files. 
+  #| To simplify the logic of the function, lets define a child function that process the data of a single file.
+  #| We can then interate over the input and concatenate the output of the child function.
+  #|
+  #| This function will use two nested for loops to iterate over the data from one configuration file and append each path-option-value combination to an output list.
+  #| Growing lists like this in R can be inefficient when the list becomes large, but I expect that most configuration files will be relativly short.
+  process_one <- function(data, config_path) {
+    output <- list()
+    add_row <- function(option, value, path) {
+      output <- c(output,
+                  list(option = option, value = value, path = path, config_path = config_path))
+    }
+    for ( index_1 in seq_along(data) ) { # Iterate over first dimension
+      dim_1_name <- names(data)[index_1]
+      dim_1_value <- data[[index_1]]
+      if ( dim_1_name %in% option_names ) {
+        if ( ( ! is.null(names(dim_1_value)) ) && all(names(dim_1_value) %in% option_names) ) {
+          stop(paste0('It appears that you are trying to specify a path-specific value for a path',
+                      ' with the same name as an option. This is ambiguous since paths can be left',
+                      ' off to make options global. If this is indeed a path-specific option,',
+                      ' the prefix the path with ".', .Platform$file.sep, '" in configuration', 
+                      ' file "', config_path, '".'))
+        }
+        add_row(dim_1_name, dim_1_value, NA)
+      } else {
+        for ( index_2 in seq_along(dim_1_value) ) { # Iterate over second dimension
+          dim_2_name <- names(dim_1_value)[index_1]
+          dim_2_value <- dim_1_value[[index_1]]
+          if ( dim_2_name %in% option_names ) {
+            add_row(dim_2_name, dim_2_value, dim_1_name)
+          } else {
+            stop(paste0('Invalid configutation file format in "', config_path,
+                        '". No option name in first or second dimension'))
+          }
+        }
+      }
+    }
   }
+  
   ## Find which content names match option names ---------------------------------------------------
   matches_option_names <- names(content) %in% option_names
   ## Check which content names are valid paths -----------------------------------------------------
