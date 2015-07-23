@@ -1,6 +1,6 @@
-#| ## The `quilt` function
+#| # The `quilt` function
 #| 
-#| ### Introduction
+#| ## Introduction
 #|
 #| This is the central function of the quiltr package.
 #| It makes a sharable representation of file content in specified folders.
@@ -10,16 +10,18 @@
 #|
 #| The file content in the output is organized using file names and folder structure.
 #| `quilt` can execute scripts/programs and integrate their code and results into the output;
-#| this is especially useful for literate programming documents (e.g. Rmarkdown), but plain code files
-#| can also be executed.
+#| this is especially useful for literate programming documents (e.g. Rmarkdown), but plain code files can also be executed.
 #|
-#| ### The function documentation
+#| ### Design goals
+#|
+#| * The 
+#|
+#| ## The function documentation
 #| 
 #| The commented lines in the code below are [roxygen2](http://cran.r-project.org/web/packages/roxygen2/README.html)
 #| documentation that is parsed into the embedded 
 #| function help menu that can be accessed by entering `?quilt` in the R console. 
 #| The function help menu documentation should serve as an introduction to the capibilities of `quilt`.
-#| More detailed commentary about desgin and concepts will be included with the code it applies to.
 #| 
 #| ### The "Title" and "Description"
 #|
@@ -219,51 +221,61 @@ quilt <- function(path = getwd(), output_formats = "website", config_name = "qui
   
   #| ### Validate input ############################################################################
   validate_quilt_input()
+  
+  #| ### Define output types #######################################################################
+  #| The `quilt` function itself mostly deals with intrepreting options for rendering functions, each of which correspond to an output type.
+  #| To make it easy to add output types, the rendering functions are identified by their name. 
+  #| Simply creating a function with the appropriate name and parameters, even outside of the quiltr package source, will effectivly add a new output type.
+  #| The function `get_quilt_renderes` searchs the current namespaces for functions named `quilt_[output type]`, where `[output type]` is the one-word name for an output type.
+  #| It returns the list of renderer functions named by their output type. 
+  renderers <- get_quilt_renderes()
+  
   #| ### Get global option values from configuration files #########################################
   #| Apply any global option values in root configuration file.
-  #| The function `get_global_options` should return a named list of option values derived from a configuration file.
-  #| Defaults should be applied based on function definitions for options not assigned in the configuration file.
-  #| This has to be done before looking up global values specific to an output type in order for options like `config_path` and `config_name`.
+  #| These options are determined before the local options since many of them effect the way local options are determined.
   #| Note that `config_path` is used instead of `path`; however, the default for `config_path` is `path`. 
+  #| The function `get_global_options` should return a named list of named lists, representing the options for each output type. 
+  #| The first dimension groups options by output type, and the second is the lists of options.
   global_option_names <- c("path", "output_formats", "config_name", "config_path")
-  global_options <- get_global_options(global_option_names, config_path, config_name)
+  global_options <- get_global_options(main_function = "quilt", sub_functions = names(renderers),
+                                       options = global_option_names, config_path, config_name)
   
   #| ### Define function to process each output format #############################################
-  process_format <- function(output_format) {
+  process_format <- function(global_options, output_format) {
     
-    #| #### Get format-specific global option values ###############################################
-    #| The function `get_global_options` is used again, but this time it is used to look up the values of format-specific global options.
-    #| It has to be run agin (as opposed to all options being determined once) in order for generic global options like `config_name` to have an effect on determining format-specific global options.
-    format_global_option_names <- paste(output_format, global_option_names, sep = ".")
-    format_global_options <- get_global_options(format_global_option_names,
-                                                global_options$config_path,
-                                                global_options$config_name)
-
-    #| #### Get format-specific path ###############################################################
-    format_global_options$path <- get_format_path(output_format, path)
-        
     #| #### Find configuration files for local options #############################################
-    config_paths <- find_config_files(format_global_options$path, format_global_options$config_name)
+    config_paths <- find_config_files(global_options$path, global_options$config_name)
     
     #| #### Find all target file paths #############################################################
-    target_paths <- get_target_paths(format_global_options$path)
+    target_paths <- get_target_paths(global_options$path)
     
     #| #### Get local option values from configuration files #######################################
-    format_options <- get_local_options(global_option_names,
-                                       target_paths, 
-                                       config_paths)
+    local_options <- get_path_specific_options(functions = c("quilt", renderers),
+                                                paths = target_paths, 
+                                                config_paths = config_paths,
+                                                global_options = global_option_names)
     
     #| #### Get organizational hierarchy for target file paths #####################################
     hierarchy <- get_hierarchy(target_paths, ...)
     
     #| #### Render output ##########################################################################
-    execute_quilt_for_format(target_paths, hierarchy, format_options)
+    do.call(renderers[[output_format]],
+            c(list(file_paths = target_paths, hierarchy = hierarchy), local_options))
   }
   
   #| ### Process each output format and return results #############################################
-  lapply(global_options$output_formats, process_format)
+  mapply(process_format, global_options, names(global_options), SIMPLIFY = TRUE)
 }
 #|
+
+
+
+
+
+
+
+
+
 
 quilt <- function(path = getwd(), output = NULL, name = "Home", 
                   overwrite = FALSE, clean = TRUE, output_dir_name = "website",
