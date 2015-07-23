@@ -62,9 +62,15 @@
 #| the implementation of this option more subtle and complex than it might first appear.
 #| More information on this important characteristic is provided with it implementation. `r # add explicit reference`
 #| 
-#' @param path (\code{character}) One or more paths to folders in which to look for files to
+#| NOTE: add global/local stuff here
+#|
+#' @param path (\code{character} of length 1) [not path-specific or output-specific]
+#' A path a to folder in which to look for files to
 #' display in the output. This also determines where to look for configuration files.
-#' The paths used can be "redirected" by configuration files. 
+#' A configuration file in \code{path} can modify the path before is it used to find content 
+#' and configuration files for the rest of the options. 
+#' Although only one path can be specified in the function call, it can be modified to multiple
+#' paths in configuration files. 
 #|
 #| #### Configuration files
 #|
@@ -203,6 +209,53 @@
 #' }
 #' 
 #' @export
+quilt <- function(path = getwd(), output_formats = "website", config_name = "quilt_config",
+                  overwrite = FALSE, output_dir_name = "website",
+                  partial_copy = TRUE, open = TRUE, theme = "journal",
+                  type = formats_quilt_can_render(), apply_theme = FALSE,
+                  use_file_names = FALSE, use_dir_names = TRUE,
+                  name_sep = NULL, use_file_suffix = TRUE, use_dir_suffix = TRUE,
+                  menu_name_parser = function(x) {x}, placement = character(0), cumulative = FALSE) {
+  
+  #| ### Validate input ############################################################################
+  
+  #| ### Get global option values from configuration files #########################################
+  #| Apply any output format values in root configuration file.
+  global_option_names <- c("path", "output_formats", "config_name", "config_path")
+  global_options <- get_global_options(global_option_names, path, config_name)
+  
+  #| ### Define function to process each output format #############################################
+  process_format <- function(output_format) {
+    
+    #| #### Get format-specific global option values ###############################################
+    format_global_options <- get_format_options(output_format, global_options$config_path, global_options$config_name)
+
+    #| #### Get format-specific path ###############################################################
+    format_global_options$path <- get_format_path(output_format, path)
+        
+    #| #### Find configuration files for local options #############################################
+    config_paths <- find_config_files(format_global_options$path, format_global_options$config_name)
+    
+    #| #### Find all target file paths #############################################################
+    target_paths <- get_target_paths(format_global_options$path)
+    
+    #| #### Get local option values from configuration files #######################################
+    format_options <- get_local_options(global_option_names,
+                                       target_paths, 
+                                       config_paths)
+    
+    #| #### Get organizational hierarchy for target file paths #####################################
+    hierarchy <- get_hierarchy(target_paths, ...)
+    
+    #| #### Render output ##########################################################################
+    execute_quilt_for_format(target_paths, hierarchy, format_options)
+  }
+  
+  #| ### Process each output format and return results #############################################
+  lapply(global_options$output_formats, process_format)
+}
+#|
+
 quilt <- function(path = getwd(), output = NULL, name = "Home", 
                   overwrite = FALSE, clean = TRUE, output_dir_name = "website",
                   partial_copy = TRUE, open = TRUE, theme = "journal",
