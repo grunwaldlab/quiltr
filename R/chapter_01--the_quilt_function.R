@@ -209,7 +209,7 @@
 #' }
 #' 
 #' @export
-quilt <- function(path = getwd(), output_formats = "website", config_name = "quilt_config",
+quilt <- function(path = getwd(), output_formats = "website", config_name = "quilt_config", config_path = path,
                   overwrite = FALSE, output_dir_name = "website",
                   partial_copy = TRUE, open = TRUE, theme = "journal",
                   type = formats_quilt_can_render(), apply_theme = FALSE,
@@ -218,17 +218,26 @@ quilt <- function(path = getwd(), output_formats = "website", config_name = "qui
                   menu_name_parser = function(x) {x}, placement = character(0), cumulative = FALSE) {
   
   #| ### Validate input ############################################################################
-  
+  validate_quilt_input()
   #| ### Get global option values from configuration files #########################################
-  #| Apply any output format values in root configuration file.
+  #| Apply any global option values in root configuration file.
+  #| The function `get_global_options` should return a named list of option values derived from a configuration file.
+  #| Defaults should be applied based on function definitions for options not assigned in the configuration file.
+  #| This has to be done before looking up global values specific to an output type in order for options like `config_path` and `config_name`.
+  #| Note that `config_path` is used instead of `path`; however, the default for `config_path` is `path`. 
   global_option_names <- c("path", "output_formats", "config_name", "config_path")
-  global_options <- get_global_options(global_option_names, path, config_name)
+  global_options <- get_global_options(global_option_names, config_path, config_name)
   
   #| ### Define function to process each output format #############################################
   process_format <- function(output_format) {
     
     #| #### Get format-specific global option values ###############################################
-    format_global_options <- get_format_options(output_format, global_options$config_path, global_options$config_name)
+    #| The function `get_global_options` is used again, but this time it is used to look up the values of format-specific global options.
+    #| It has to be run agin (as opposed to all options being determined once) in order for generic global options like `config_name` to have an effect on determining format-specific global options.
+    format_global_option_names <- paste(output_format, global_option_names, sep = ".")
+    format_global_options <- get_global_options(format_global_option_names,
+                                                global_options$config_path,
+                                                global_options$config_name)
 
     #| #### Get format-specific path ###############################################################
     format_global_options$path <- get_format_path(output_format, path)
