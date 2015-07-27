@@ -1,27 +1,31 @@
-#| # The `quilt` function
+#| # The quilt function
 #| 
 #| ## Introduction
 #|
 #| This is the central function of the quiltr package.
-#| It makes a sharable representation of file content in specified folders.
-#| 
-#| > **Note:** The representation (i.e. the output type) currently being developed is a static html website,
-#| but a PDF book-style output is also a goal.
+#| The function's goal is to make a sharable representation of file content in a *target folder*.
 #|
-#| The file content in the output is organized using file names and folder structure.
-#| `quilt` can execute scripts/programs and integrate their code and results into the output;
-#| this is especially useful for literate programming documents (e.g. Rmarkdown), but plain code files can also be executed.
+#| > **Target folder:**
+#| > The primary "input" of the `quilt` function; the folder that a sharable representation will be made from.
 #|
-#| ### Design goals
+#| Currently, the representation being developed is a static html website, but book-style PDF/DOCX output are also possible goals.
+#| Typically the organization of file content in the output reflects file names and folder structure.
+#| Scripts/programs can be executed and their code and results integrated into the output.
+#| This is especially useful for literate programming documents (e.g. Rmarkdown), but plain code files can also be executed.
 #|
-#| * The 
+#| ## Design criteria
+#|
+#| * The `quilt` function should be a wrapper that integrates other self-contained *renderer* functions, each corresponding to an output type.  
+#| * It should be possible to specify all options using configuration files.
+#|   These configuration files can be scattered throughout the target folder.
+#|   Options in configuration files of sub directories should have the ability to overwrite options specified in parent directories. 
+#| * There should be a consistent way to set path-specific and output-specific option values. 
+#|   The implementation of this should be independent from the implementation of the options themselves.
+#| * It should be possible to set all options of renderer functions using `quilt`, even if the options of different renderers share same name. 
+#| * The default behavior of all options should be intuitive and simple to explain yet still conform to a flexible conceptual model.
+#|   In other words, intuitive default behavior should be a special case of more complicated and flexible behavior
 #|
 #| ## The function documentation
-#| 
-#| The commented lines in the code below are [roxygen2](http://cran.r-project.org/web/packages/roxygen2/README.html)
-#| documentation that is parsed into the embedded 
-#| function help menu that can be accessed by entering `?quilt` in the R console. 
-#| The function help menu documentation should serve as an introduction to the capibilities of `quilt`.
 #| 
 #| ### The "Title" and "Description"
 #|
