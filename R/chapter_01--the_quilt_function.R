@@ -12,22 +12,26 @@ knitr::opts_chunk$set(eval = FALSE)
 #| Scripts/programs can be executed and their code and results integrated into the output.
 #| This is especially useful for literate programming documents (e.g. Rmarkdown), but plain code files can also be executed.
 #|
-#| There are no required arguments to `quilt` since all options have default values.
-#| This is a design feature meant to encourage people to use configuration files to specify 
-#| options rather than include them in the function call.
+#| There are no required arguments to `quilt` since all have default values.
+#| Therefore, all inputs to the `quilt` function will be referred to as "options". 
+#| All options can be specified via *configration files* making it unnecessary to set options in the function call.
+#| Configuration files store the values of options relevant to the folders they are saved in. 
+#| This is a design feature meant to encourage people to use configuration files to specify options.
+#| Using configuration files makes it easier to re-use a complex configuration of `quilt`.
 #| It also allows for beginers to use the function with limited understanding of its capibilities.
-#| However, there are a core set of options that govern input and output.
 #|
 #| > **Target folder**:
 #| > The primary "input" of the `quilt` function; the folder that a sharable representation will be made from.
 #|
+#| > **Configuration file**: 
+#| > A file that stores option values for `quilt` in the folder they apply to. 
 #|
 #| ## Design criteria
 #|
 #| * The `quilt` function should be a wrapper that integrates other self-contained *renderer* functions, each corresponding to an output type.  
-#| * It should be possible to specify all options using *configuration files*.
+#| * It should be possible to specify all options using configuration files.
 #|   These configuration files can be scattered throughout the target folder.
-#|   Options in configuration files of sub directories should have the ability to overwrite options specified in parent directories. 
+#|   Options in configuration files of sub directories should override options specified in parent directories. 
 #| * There should be a consistent way to set *path-specific* and *output-specific* option values. 
 #|   The implementation of this should be independent from the implementation of the options themselves.
 #| * It should be possible to set all options of renderer functions using `quilt`, even if the options of different renderers share same name. 
@@ -36,9 +40,6 @@ knitr::opts_chunk$set(eval = FALSE)
 #| 
 #| > **Renderer**: 
 #| > A function used to make a specific output type (e.g. website). 
-#| 
-#| > **Configuration file**: 
-#| > A file that stores option values for `quilt` in the folder they apply to. 
 #| 
 #| > **Path-specific options**: 
 #| > Option values that apply only to a single file path or file paths matching a pattern.
@@ -199,26 +200,31 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
   #| The function `get_global_options` should return a named list of named lists, representing the options for each output type. 
   #| The first dimension groups options by output type, and the second is the lists of options.
   global_option_names <- names(formals(quilt))
-  global_options <- get_global_options(main_function = "quilt", sub_functions = names(renderers),
-                                       options = global_option_names, config_path, config_name)
+  global_options <- get_global_options(main_function = "quilt",
+                                       sub_functions = renderers,
+                                       options       = global_option_names, 
+                                       config_path   = config_path,
+                                       config_name   = config_name)
   
   #| ### Define function to process each output format #############################################
-  process_format <- function(global_options, output_format) {
+  process_format <- function(global_options, renderer) {
     
-    #| #### Find configuration files for local options #############################################
+    ## Find configuration files for local options
     config_paths <- find_config_files(global_options$path, global_options$config_name)
     
-    #| #### Find all target file paths #############################################################
+    ## Find all input files
     target_paths <- get_target_paths(global_options$path)
     
-    #| #### Get local option values from configuration files #######################################
-    local_options <- get_path_specific_options(functions = c("quilt", renderers),
-                                                paths = target_paths, 
-                                                config_paths = config_paths,
-                                                global_options = global_option_names)
+    ## Get local option values from configuration files
+    local_options <- get_path_specific_options(main_function  = "quilt",
+                                               sub_function   = renderer,
+                                               paths          = target_paths, 
+                                               config_paths   = config_paths,
+                                               global_options = global_option_names)
     
-    #| #### Render output ##########################################################################
-    do.call(renderers[[output_format]], c(list(file_paths = target_paths), local_options))
+    ## Call renderer functions with path-specific options
+    local_options$file_paths <- target_paths
+    do.call(renderer, local_options)
   }
   
   #| ### Process each output format and return results #############################################
