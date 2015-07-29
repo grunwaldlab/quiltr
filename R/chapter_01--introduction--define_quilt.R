@@ -128,6 +128,24 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @param config_path (\code{character} of length 1) [not path-specific]
 #' Path to a folder in which to look for a configuration file with name specified by \code{config_name}.
 #' The default is the value of \code{path} given during the function call. 
+#' This only applies to global options is not effected by \code{config_search_type}.
+#' To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
+#' 
+#' @param config_search_type (\code{character}) [not path-specific]
+#' Where to look for configuration files relative to \code{path}.
+#' Only applies to local options and is not affected by \code{config_path}.
+#' 
+#' Accepts one or more of the following values:
+#' 
+#' \describe{
+#'   \item{parents}{Files in parent folders of \code{path}}
+#'   \item{root}{Files in \code{path}}
+#'   \item{children}{Files in child folders of \code{path}}
+#' }
+#' 
+#' By default, this option is set to c("root", "children").
+#' This means that all configuration files in \code{path} and any subfolder will be used when determining values for local options.
+#' To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
 #' 
 #' @section Configuration files:
 #' Configuration files are used to store option values in the folders they apply to. 
@@ -180,7 +198,8 @@ knitr::opts_chunk$set(eval = FALSE)
 #| ## The code
 #|
 quilt <- function(path = getwd(), output_format = "website", output_path = NULL, output_name = NULL,
-                  overwrite = FALSE, config_name = "quilt_config", config_path = path) {
+                  overwrite = FALSE, config_name = "quilt_config", config_path = path,
+                  config_search_type = c("root", "children"), file_search_type = c("root", "children")) {
   
   #| ### Validate input ############################################################################
   validate_quilt_input()
@@ -210,15 +229,18 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
   process_format <- function(global_options, renderer) {
     
     ## Find configuration files for local options
-    config_paths <- find_config_files(global_options$path, global_options$config_name)
+    config_paths <- find_config_files(paths = global_options$path,
+                                      config_name = global_options$config_name,
+                                      search_type = global_options$config_search_type)
     
     ## Find all input files
-    target_paths <- get_target_paths(global_options$path)
+    target_paths <- get_target_paths(paths = global_options$path,
+                                     search_type = global_options$file_search_type)
     
     ## Get local option values from configuration files
     local_options <- get_path_specific_options(main_function  = "quilt",
                                                sub_function   = renderer,
-                                               paths          = target_paths, 
+                                               target_paths   = target_paths, 
                                                config_paths   = config_paths,
                                                global_options = global_option_names)
     
