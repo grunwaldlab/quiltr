@@ -3,6 +3,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #|
 #| # Parsing Configuration Files
 #|
+#| In order to determine local and global options, we first need to define the format of configuration files and their format.
 #|
 #| ## The configuration file parsing function
 #|
@@ -37,7 +38,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #' The set of vaild options that can be specified will be extracted from this function.
 #' 
 #' @param  config_name (\code{character} of length 1)
-#' The file name of configuration files minus the file extension.
+#' The file name of configuration files without the file extension.
 #' 
 #' @param global_options (\code{character})
 #' The names of global options, which should not be given path-specific values.
@@ -59,7 +60,7 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
                                 default_path = "**") {
   
   #| ### Input vaildation ##########################################################################
-  #| Since this is a rather high-level function, lets do some thourough argument validation.
+  #| Since this is a rather high-level function, lets do some argument validation.
   #|
   #| All folder paths should exist and point to actual folders unless a named list is given.
   #| If a named list is given, then these checks do not apply;
@@ -75,7 +76,7 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
       stop( paste0("The following paths are not folders: ", paste(not_folders, collapse = ", ")) )
     }
   }
-  #| The function that option names will be extracted from must also exist..
+  # The function that option names will be extracted from must also exist..
   if ( length(function_name) != 1 ) {
     stop( paste0("Incorrect length of 'function_name' (", length(function_name), ").") )
   }
@@ -89,14 +90,14 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
   if ( length(config_name) != 1 ) {
     stop( paste0("Incorrect length of 'config_name' (", length(config_name), ").") )
   }
-  #| Global options should be a subset of `function_name` options...
+  # Global options should be a subset of `function_name` options...
   option_names <- names(formals(quilt))
   unknown_options <- global_options[!global_options %in% option_names]
   if (length(unknown_options) > 0) {
     stop(paste0("The following options are not known ", function_name, " options: ", 
                 paste(unknown_options, collapse = ", ")))
   }
-  #| There should be only one default path...
+  # There should be only one default path...
   if ( length(default_path) != 1 ) {
     stop( paste0("Incorrect length of 'default_path' (", length(default_path), ").") )
   }
@@ -142,7 +143,7 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
   return(settings)
 }
 #|
-#| ## Configuration file parser 
+#| ## Reading configuration files
 #|
 #| This function should not attempt to validate or standardize the content, besides any changes that are specific to the input file format.
 #| The output should be an R data structure representing the raw content of the configuration files. 
@@ -173,7 +174,6 @@ read_configuration_files <- function(folder_paths, config_name) {
   #| We can use a named list of functions to associate the file type with its parser.
   #| Since it is possible for some file types to have multiple accepted extensions (e.g. "yml" and "yaml"), the parsers should be defined independently of the list.
   #| If a file is empty, the parser functions should return `NULL`.
-  ssh -T git@github.com
   #| ### Define YAML parser ########################################################################
   #| Lets define the YAML parser first. 
   #| We can just reference `yaml::yaml.load_file` for now, but it might need to be more complicated eventually.
