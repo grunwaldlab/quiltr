@@ -3,32 +3,87 @@ knitr::opts_chunk$set(eval = FALSE)
 #|
 #| # The quilt function
 #| 
+#| <img src="
+#|```{r, eval = TRUE, results = "asis", echo = FALSE}
+#|cat(file.path("..", "figures", "knitr_metaphore_figure.png"))
+#|```
+#| ">
+#|
 #| ## Introduction
 #|
 #| This is the central function of the quiltr package.
 #| The function's goal is to make a sharable representation of file content in a *target folder*.
-#| Currently, the representation being developed is a static html website, but book-style PDF/DOCX output are also possible goals.
-#| Typically the organization of file content in the output reflects file names and folder structure.
-#| Scripts/programs can be executed and their code and results integrated into the output.
+#| Examples of possible representations include a static html website and book-style PDF/DOCX.
+#| The organization of file content in the output can be inferred from file names and folder structure.
+#| Scripts/programs in the target folder can be executed and their code and results integrated into the output.
 #| This is especially useful for literate programming documents (e.g. Rmarkdown), but plain code files can also be executed.
-#|
-#| There are no required arguments to `quilt` since all have default values.
-#| Therefore, all inputs to the `quilt` function will be referred to as "options". 
-#| All options can be specified via *configration files* making it unnecessary to set options in the function call.
-#| Configuration files store the values of options relevant to the folders they are saved in. 
-#| This is a design feature meant to encourage people to use configuration files to specify options.
-#| Using configuration files makes it easier to re-use a complex configuration of `quilt`.
-#| It also allows for beginers to use the function with limited understanding of its capibilities.
 #|
 #| > **Target folder**:
 #| > The primary "input" of the `quilt` function; the folder that a sharable representation will be made from.
 #|
+#| ### Configuration files
+#|
+#| There are no required arguments to `quilt` since all have default values.
+#| Therefore, all inputs to the `quilt` function will be referred to as "options". 
+#| All options can be specified via *configration files* making it unnecessary to set options in the function call.
+#| Configuration files store the values of options relevant to the folders they are saved in.
+#| Much more complex uses of `quilt` are possible with configuration files than with options specified in the function call. 
+#| This is a design feature meant to encourage people to use configuration files to specify options.
+#| Using configuration files makes it easier to re-use a complex configuration of `quilt`.
+#| It also allows for beginers to use the function with limited understanding of its capibilities.
+#|
 #| > **Configuration file**: 
 #| > A file that stores option values for `quilt` in the folder they apply to. 
 #|
+#| ### Path-specific option values
+#|
+#| The `quilt` function must be able to work intuitivly on complex folder structures.
+#| It is not likly that all parts of a complex folder will be optimally represented by a single set of option values.
+#| Therefore, *path-specific option values* can be specified in configuration files for applicable options.
+#| This allows for different parts of a target folder to be treated diffrently. 
+#| Paths associated with option values can be absolute or relative and can include wildcards.
+#| How path-specific options are implemented is covered in chapter 2. 
+#|
+#| > **Path-specific option**: 
+#| > An option setting that only applies to files/folders whose path/name matches a given pattern. 
+#|
+#| ### Output-specific option values
+#|
+#| Since `quilt` supports multiple output types and uses configuration files for option settings, it allows for *output-specific option* values. 
+#| This is useful when a given folder is represented in multiple output formats.
+#| Some options are shared amoung differnet output *renderer* functions and some are unique to a subset.
+#| Using output-specific option values allows a given folder to be represented in multiple independent output formats.
+#| Each output format can have its own settings during a single execution of `quilt`.
+#| Therefore, configurations files do not need to be constantly changes to accomidate multiple output formats. 
+#| 
+#| > **Output-specific option**: 
+#| > An option setting that applies to a single output format (i.e. renderer).
+#|
+#| > **Renderer**: 
+#| > A function used to make a specific output type (e.g. website). 
+#| > They are called by `quilt`.
+#|
+#| ### Global vs local options
+#|
+#| There are some options that can effect how configuration files are found, yet these same options can be set by configuration files.
+#| This has the possiblity of introducing some circular logic. 
+#| To get around this, options are split up into two classifications: *global options* and *local options*.
+#| Global options tend to apply to general input/output and how option values are determined from configuration files.
+#| Local options tend to apply to settings specific to output formats and file paths.
+#| Since the values of local options can be influenced by those of global options, global options are parsed first. 
+#| 
+#| > **Global options**: 
+#| > Options defined in the `quilt` function itself.
+#| > They can only be set by configuration files in `config_path` and can not have path-specific values.
+#|
+#| > **Local options**: 
+#| > Options defined in renderer functions.
+#| > They can be set by configuration files in `path` and can have path-specific values.
+#|
 #| ## Design criteria
 #|
-#| * The `quilt` function should be a wrapper that integrates other self-contained *renderer* functions, each corresponding to an output type.  
+#| * The `quilt` function should be a wrapper that integrates other self-contained *renderer* functions.
+#|   Each renderer should corresponding to an output type.  
 #| * It should be possible to specify all options using configuration files.
 #|   These configuration files can be scattered throughout the target folder.
 #|   Options in configuration files of sub directories should override options specified in parent directories. 
@@ -38,25 +93,16 @@ knitr::opts_chunk$set(eval = FALSE)
 #| * The default behavior of all options should be intuitive and simple to explain yet still conform to a flexible conceptual model.
 #|   In other words, intuitive default behavior should be a special case of more complicated and flexible behavior
 #| 
-#| > **Renderer**: 
-#| > A function used to make a specific output type (e.g. website). 
-#| 
-#| > **Path-specific options**: 
-#| > Option values that apply only to a single file path or file paths matching a pattern.
-#| 
-#| > **Output-specific options**: 
-#| > Option values that apply only to a single output format (i.e. renderer).
-#|
-#|
 #| ## The function documentation
 #| 
+#| Below is the source of the documentation that is accessed by executing `?quilt` in an R consol.
+#|
 #| ### The "Title" and "Description"
 #|
 #| The following text is used for the "Title" and "Description" sections in the help menu.
-#| They should contain the minimal amount of detail necessary to give a general impression; more
-#| in-depth documentation appears in the "Details" section after the option documentation.
+#| They should contain the minimal amount of detail necessary to give a general impression;
+#| more in-depth documentation appears in sections (i.e. `@section` tags) after the option documentation.
 #|
-#===================================================================================================
 #' @title 
 #' Renders the contents of folder(s) into a sharable form.
 #' 
@@ -71,19 +117,14 @@ knitr::opts_chunk$set(eval = FALSE)
 #' It is possible to do much more with configuration files than with arguments specified during the
 #' function call.
 #| 
-#| ### Input
+#| ### The input 
 #| 
-#| The most important input for `quilt` is paths to _folders_ in which to look for input files.
+#| The most important input for `quilt` is a path to a folder in which to look for input files.
 #| Although `quilt` ultimatly works only on file content, it is meant to represent folders by doing so.
-#| By default, this input path is the current working folder, so that even this central argument can
-#| usually be excluded from function calls.
-#| This option has a unique relationship with configuration files, which are intorduced with the next option.
-#| Although `path` is used to specify where to look for configuration files, those same files can modify `path`,
-#| thus allowing more configuration files to be found and more resulting modification of path, making the
-#| the implementation of this option more subtle and complex than it might first appear.
-#| More information on this important characteristic is provided with it implementation. `r # add explicit reference`
-#| 
-#| NOTE: add global/local stuff here
+#| By default, this input path is the current working folder, so even this central argument can usually be unspecified.
+#| This option provides the default value for the `config_path` option described below. 
+#| Although only a single path can be specified in the function call, configuration files can specify multiple paths.
+#| This behavior avoids the ambiguity of multiple configuration files specifying global options. 
 #|
 #' @param path (\code{character} of length 1)  [not path-specific or output-specific]
 #' A path a to folder in which to look for files to display in the output.
@@ -93,10 +134,32 @@ knitr::opts_chunk$set(eval = FALSE)
 #' Although only one path can be specified in the function call, it can be modified to multiple
 #' paths in configuration files. 
 #|
-#| ### Output
+#| ### Output options
 #|
 #' @param output_format (\code{character}) [not path-specific or output-specific]
 #' The type of output to generate. 
+#' Each output type is associated with a renderer function.
+#' The following output types are supported:
+#' \describe{
+#'   \item{\code{"website"}{
+#'     A set of HTML files linked together by a shared hierarchical menu.
+#'     File content is rendered as HTML and displayed using iframes.  
+#'   }
+#'   \item{\code{"book"}{
+#'     IN DEVLOPMENT
+#'     A single book-style pdf document containing file content rendered as pdf.
+#'   }
+#'   \item{\code{"figure"}{
+#'     IN DEVLOPMENT
+#'     A single image file containing a scematic of input folder structure. 
+#'   }
+#' }
+#' 
+#' Output-type-specific option values can be specified in configuration files.
+#' To make multiple outputs of the same type, with potentailly differnt options, supply a named character vector.
+#' The names are used to identify corresponding output-specific options values in configuration files.
+#' For example, \code{output_format = c("pubic" = "website, "private" = "website")} would create two websites;
+#' Option names prefixed with \code{"public."} in configuration files, would only apply to the "public" website.
 #'
 #' @param output_path (\code{character} of length 1) [not path-specific]
 #' Path to folder in which to write the output file/folder. 
@@ -107,9 +170,9 @@ knitr::opts_chunk$set(eval = FALSE)
 #' The name of the \code{output_format} will be appended onto this name to allow for multiple outputs at once.
 #' 
 #' @param overwrite (\code{logical} of length 1) If \code{TRUE}, an existing directory with the 
-#' same name as the output directory will be overwritten. 
+#' same name as an output directory will be overwritten. 
 #|
-#| ### Configuration files
+#| ### Configuration file options
 #|
 #' @param config_name (\code{character} of length 1) [not path-specific]
 #' The name of configuration files to use.

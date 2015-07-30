@@ -35,6 +35,7 @@
 #| All formatted text, headers, and images are encoded in Rmarkdown.
 #| Since these lines are commented out (i.e. start with `#`), they do not affect how the intermixed R code is executed. 
 #| This is the "literate" part of a literate program and is used to explain the ideas behind the code and its implementation.
+#| Note that `#|` is not the format `knitr::spin` assumes be default, so the option `doc = "^ *#\\| ?"` must be used when spinning.
 #| * __Roxygen2 Documentation:__ These lines start with `#`r "'"`` and are used to generate the documentation embedded into
 #| the quiltr functions each time the package is built.
 #| Their syntax is similar to and inspired by Latex.

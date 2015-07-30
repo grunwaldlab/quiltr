@@ -212,7 +212,7 @@ read_configuration_files <- function(folder_paths, config_name) {
   #| We can use a named list of functions to associate the file type with its parser.
   #| Since it is possible for some file types to have multiple accepted extensions (e.g. "yml" and "yaml"), the parsers should be defined independently of the list.
   #| If a file is empty, the parser functions should return `NULL`.
-  
+  ssh -T git@github.com
   #| ### Define YAML parser ########################################################################
   #| Lets define the YAML parser first. 
   #| We can just reference `yaml::yaml.load_file` for now, but it might need to be more complicated eventually.
