@@ -3,45 +3,6 @@ knitr::opts_chunk$set(eval = FALSE)
 #|
 #| # Parsing Configuration Files
 #|
-#| Perhaps the most important goal of `quiltr` is to place the fewest restrictions possible on input folder structure. 
-#| This can be partly accomplished by having numerous options to change how folders are interpreted, such as an option to ignore file names.
-#| However, any one set of option values might not be optimal for all parts of a heterogenous folder structure.
-#| Such "global" options only allow users to choose their restrictions rather than accomidating diverse folder.
-#| Users should ask "how can I configure quiltr to represent this folder?" rather than "how can I make this folder usable with quiltr?".
-#| The accomplish this, we can use configuration files that accept path-specific values of options.
-#| The following criteria should be met:
-#|
-#| * __path-specificity__: 
-#| Most `quilt` options should have _consitent_ syntax for specifying file-path-specific values.
-#| This allows for a relativly small set of `quilt` options to adapt to heterogenous folder structures. For example, 
-#| A directory might have a few python scripts written by a user that should be quilted, but other python dependencies in
-#| a library folder that should not.
-#| * __embeddability__: 
-#| It should be possible to set _every option_ using configuration files,
-#| so that all settings used can be stored in the target directory. This saves time and effort for the user since they can run quilt
-#| with no parameters (except perhaps `path`) and not have to remember `quilt`'s many options for every project. 
-#| * __adaptability__:
-#| It should require minimal changes in configuration files to lump target folders together or split them apart.
-#| In other words, no "root" folder should be relied on too heavly and configuration files should be distributed thourought a directory structure.
-#| Combining two projects or splitting one into two should require minimal changes to configuration files. 
-#| * __simplicity__: 
-#| It should be possible to exclude the path information when applying a function globally. 
-#| This will make it easier for novice users to assign global options and make simple configuration files easier to read.
-#| * __maintainability__: 
-#| It should be simple to add options or modify their input.
-#| In other words, the "path-specific value" functionality should be separted from the option functionality.
-#| * __explainability__: It should be easy to explain how configuration files are found _using default options_ to avoid confusing novice users. 
-#| The default options should make using configuration files as intuitive as possible.
-#|
-#| The __path-specificity__ and __embeddability__ criteria are defining characteristics of `quilt`, yet can create some troublesome circular logic.
-#| For example, there are some options (e.g. `path`, `config_name`) that can modify which configuration files are found yet these same options must be specifiable in configuration files according to the __embeddability__ criteria. 
-#| One solution to this is to split the options of `quilt` into two categories: 
-#|
-#| * __"global"__ options that can only be set by configuration files in `path` (before `path` itself has the potential to be modified by confguration files.) and do not have path-specific values.
-#| * __"local"__ options that be set in configuration files regardless of location and can have path-specific values. 
-#|
-#| Similar to `knitr::knit`'s ability to read options embedded in input files (via `knitr::opts_chunk` or YAML front matter), `quilt` uses configuration files to define options for input folders.
-#| Since the fundamental input unit of `quilt` is a folder, configuration files are best thought of as an aspect of the folder they are in.
 #|
 #| ## The configuration file parsing function
 #|

@@ -82,16 +82,26 @@ knitr::opts_chunk$set(eval = FALSE)
 #|
 #| ## Design criteria
 #|
-#| * The `quilt` function should be a wrapper that integrates other self-contained *renderer* functions.
-#|   Each renderer should corresponding to an output type.  
-#| * It should be possible to specify all options using configuration files.
-#|   These configuration files can be scattered throughout the target folder.
-#|   Options in configuration files of sub directories should override options specified in parent directories. 
-#| * There should be a consistent way to set *path-specific* and *output-specific* option values. 
+#| * __embeddability__:
+#|   It should be possible to specify all options using configuration files.
+#|   This allows quilt to be run with no parameters (except perhaps `path`) so`quilt`'s many options do not need to be remembered. 
+#|   No "root" folder should be relied on too heavly and configuration files should be distributed thourought a directory structure.
+#|   Options in configuration files of sub directories should override options specified in parent directories.
+#|   Combining two projects or splitting one into two should require minimal changes to configuration files. 
+#| * __contextual options__: 
+#|   There should be a consistent way to set *path-specific* and *output-specific* option values. 
 #|   The implementation of this should be independent from the implementation of the options themselves.
-#| * It should be possible to set all options of renderer functions using `quilt`, even if the options of different renderers share same name. 
-#| * The default behavior of all options should be intuitive and simple to explain yet still conform to a flexible conceptual model.
-#|   In other words, intuitive default behavior should be a special case of more complicated and flexible behavior
+#|   This allows `quilt` to adapt to heterogenous folder structures.
+#| * __simplicity__: 
+#|   The default behavior of all options should be intuitive and simple to explain yet still conform to a flexible conceptual model.
+#|   In other words, intuitive default behavior should be a special case of more complicated and flexible behavior.
+#|   It should be possible to leave off path and output information when the **contextual options** behavior is not needed. 
+#| * __modularity__:
+#|   It should be possible to extend `quilt` by defineing new functions with appropriate inputs/outputs and names. 
+#| * __delegation__"
+#|   The `quilt` function allow for multiple outputs per execution by calling other self-contained renderer functions.
+#|   Each renderer function should corresponding to an output type.
+#|   It should be possible to set all options of renderer functions using `quilt`. 
 #| 
 #| ## The function documentation
 #| 
@@ -173,6 +183,15 @@ knitr::opts_chunk$set(eval = FALSE)
 #' same name as an output directory will be overwritten. 
 #|
 #| ### Configuration file options
+#|
+#| Perhaps the most important goal of `quiltr` is to place the fewest restrictions possible on input folder structure. 
+#| This can be partly accomplished by having numerous options to change how folders are interpreted, such as an option to ignore file names.
+#| However, any one set of option values might not be optimal for all parts of a heterogenous folder structure.
+#| Such "global" options only allow users to choose their restrictions rather than accomidating diverse folder stuctures.
+#| Users should ask "how can I configure quiltr to represent this folder?" rather than "how can I make this folder usable with quiltr?".
+#| The accomplish this, we can use configuration files that accept path-specific values of options.
+#| Similar to `knitr::knit`'s ability to read options embedded in input files (via `knitr::opts_chunk` or YAML front matter), `quilt` uses configuration files to define options for input folders.
+#| Since the fundamental input unit of `quilt` is a folder, configuration files are best thought of as an aspect of the folder they are in.
 #|
 #' @param config_name (\code{character} of length 1) [not path-specific]
 #' The name of configuration files to use.
