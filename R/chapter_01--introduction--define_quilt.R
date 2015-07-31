@@ -151,15 +151,15 @@ knitr::opts_chunk$set(eval = FALSE)
 #' Each output type is associated with a renderer function.
 #' The following output types are supported:
 #' \describe{
-#'   \item{\code{"website"}{
+#'   \item{\code{"website"}}{
 #'     A set of HTML files linked together by a shared hierarchical menu.
 #'     File content is rendered as HTML and displayed using iframes.  
 #'   }
-#'   \item{\code{"book"}{
+#'   \item{\code{"book"}}{
 #'     IN DEVLOPMENT
 #'     A single book-style pdf document containing file content rendered as pdf.
 #'   }
-#'   \item{\code{"figure"}{
+#'   \item{\code{"figure"}}{
 #'     IN DEVLOPMENT
 #'     A single image file containing a scematic of input folder structure. 
 #'   }
@@ -168,7 +168,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #' Output-type-specific option values can be specified in configuration files.
 #' To make multiple outputs of the same type, with potentailly differnt options, supply a named character vector.
 #' The names are used to identify corresponding output-specific options values in configuration files.
-#' For example, \code{output_format = c("pubic" = "website, "private" = "website")} would create two websites;
+#' For example, \code{output_format = c("pubic" = "website", "private" = "website")} would create two websites;
 #' Option names prefixed with \code{"public."} in configuration files, would only apply to the "public" website.
 #'
 #' @param output_path (\code{character} of length 1) [not path-specific]

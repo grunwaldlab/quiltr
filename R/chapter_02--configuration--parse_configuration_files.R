@@ -30,9 +30,9 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @description 
 #' Parse the data in configuration files for one or more folders.
 #' 
-#' @param folders (\code{character} or named \character{list})
+#' @param folders (\code{character} or named \code{list})
 #' If \code{character}, one or more folders in which to look for configuration files to parse.
-#' If named \character{list}, one or more R lists representing parsed configuration data.
+#' If named \code{list}, one or more R lists representing parsed configuration data.
 #' 
 #' @param function_name (\code{character} of length 1) The name of the function to find options for.
 #' The set of vaild options that can be specified will be extracted from this function.
@@ -223,7 +223,8 @@ read_configuration_files <- function(folder_paths, config_name) {
   file_paths <- lapply(folder_paths, 
                        function (x) {
                          path <- list.files(x, pattern = paste0(config_name, ".", 
-                                                                "(", ext_regex, ")"))
+                                                                "(", ext_regex, ")"),
+                                            ignore.case = TRUE, full.names = TRUE)
                          if (length(path) == 0) { return(NA) }
                          if (length(path) > 1) {
                            stop(paste0('Multiple configuration files found in "', x, '".' ))
@@ -234,7 +235,7 @@ read_configuration_files <- function(folder_paths, config_name) {
   #| ### Determine file extensions #################################################################
   #| Next we need to determine the file type of input folder
   #| They will also need to be converted to lowercase to be compatible with the format of `parsers`.
-  extensions <- tolower(tools::file_ext(folder_paths))
+  extensions <- tolower(tools::file_ext(file_paths))
 
   #| ### Parse configuration files #################################################################
   #| Finally, we can execute the appropriate parser for each folder
@@ -379,16 +380,12 @@ read_configuration_files <- function(folder_paths, config_name) {
 #' @param raw_content (\code{list})
 #' The parsed content one or more configuration files
 #' 
-#' @param function_name (\code{character} of length 1) The name of the function get option names
-#' from.
-#' The set of vaild options that can be specified will be extracted from this function.
+#' @param option_names (\code{character} of length 1) 
+#' The set of vaild options that can be specified.
+#' This is used to tell the differnece between options with and without path specificity
 #' 
 #' @return (\code{list})
-reformat_configuration <- function(raw_content, function_name) {
-  
-  #| ### Get option names ##########################################################################
-  #| Option names are used to distinguish between paths and option names in the first dimension.
-  option_names <- names(formals(function_name))
+reformat_configuration <- function(raw_content, option_names) {
   
   #| ### Define function to process one configuration file data ####################################
   #| The function can take the data from multiple configuration files. 
