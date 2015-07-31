@@ -245,7 +245,8 @@ read_configuration_files <- function(folder_paths, config_name) {
                        parsers[[ext]](path)
                      })
   
-  #| ### Return output #############################################################################
+  #| ### Name by input and return ##################################################################
+  names(contents) <- file_paths
   return(contents)
 }
 #|
@@ -397,8 +398,8 @@ reformat_configuration <- function(raw_content, option_names) {
   process_one <- function(data, config_path) {
     output <- list()
     add_row <- function(option, value, path) {
-      output <- c(output,
-                  list(option = option, value = value, path = path, config_path = config_path))
+      output <<- c(output,
+                  list(list(option = option, value = value, path = path, config_path = config_path)))
     }
     for ( index_1 in seq_along(data) ) { # Iterate over first dimension
       dim_1_name <- names(data)[index_1]
@@ -411,13 +412,13 @@ reformat_configuration <- function(raw_content, option_names) {
                       ' the prefix the path with ".', .Platform$file.sep, '" in configuration', 
                       ' file "', config_path, '".'))
         }
-        add_row(dim_1_name, dim_1_value, NA)
+        add_row(option = dim_1_name, value = dim_1_value, path = NA)
       } else {
         for ( index_2 in seq_along(dim_1_value) ) { # Iterate over second dimension
-          dim_2_name <- names(dim_1_value)[index_1]
-          dim_2_value <- dim_1_value[[index_1]]
+          dim_2_name <- names(dim_1_value)[index_2]
+          dim_2_value <- dim_1_value[[index_2]]
           if ( dim_2_name %in% option_names ) {
-            add_row(dim_2_name, dim_2_value, dim_1_name)
+            add_row(option = dim_2_name, value = dim_2_value, path = dim_1_name)
           } else {
             stop(paste0('Invalid configutation file format in "', config_path,
                         '". No option name in first or second dimension'))
@@ -425,11 +426,12 @@ reformat_configuration <- function(raw_content, option_names) {
         }
       }
     }
+    return(output)
   }
   
   #| ### Run function for each piece and combine ###################################################
   unlist(mapply(FUN = process_one, raw_content,  names(raw_content), SIMPLIFY = FALSE), 
-         recursive = FALSE)
+         recursive = FALSE, use.names = FALSE)
 }
 #|
 #|

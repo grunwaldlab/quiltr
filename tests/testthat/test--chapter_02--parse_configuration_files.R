@@ -17,11 +17,11 @@ context("Reading configuration files")
 #|
 #| #### Create config data
 data_a <- list("theme" = "example",
-               "folder_b" = list(theme = "value",
-                             include = FALSE),
+               "folder_b" = list("theme" = "value",
+                                 "include" = FALSE),
                "other_option" = NA)
-data_b <- list("path_2" = list(include = NULL),
-               "other_option" = list(x = c))
+data_b <- list("path_2" = list("include" = NULL),
+               "other_option" = list("x" = c))
 #| 
 #| #### Create folders
 root_path = tempfile()
@@ -36,16 +36,35 @@ file_path_b <- file.path(folder_path_b, "config.yaml")
 cat(yaml::as.yaml(data_b), file = file_path_b)
 #|
 #| #### Check if input is same as output
-raw_output <- quiltr:::read_configuration_files(folder_paths = c(folder_path_a, folder_path_b),
+raw_config <- quiltr:::read_configuration_files(folder_paths = c(folder_path_a, folder_path_b),
                                                 config_name = "config")
-expected <- list(data_a, data_b)
-raw_output
 test_that("Configuration files can be read", {
-  expect_identical(raw_output, list(data_a, data_b))
+  expect_identical(raw_config,
+                   setNames(list(data_a, data_b), c(file_path_a, file_path_b)))
+  expect_identical(quiltr:::read_configuration_files(folder_paths = folder_path_a,
+                                                     config_name = "config"),
+                   setNames(list(data_a), file_path_a))
+  
 })
 #|
 #| ## Reformating configuration file data
 context("Reformating configuration file data")
+#|
+#| ### Typical usage
+#|
+#| We can use the test data generated above to test the reformating function.
+option_names <- c("theme", "other_option", "include")
+reformated <- quiltr:::reformat_configuration(raw_config, option_names)
+reformated
+test_that("Configuration data can be reformatted", {
+  expect_equal(reformated[[1]]$option, "theme")
+  expect_equal(reformated[[1]]$value, "example")
+  expect_equal(reformated[[1]]$path, NA)
+  expect_false(reformated[[3]]$value)
+  expect_equal(reformated[[4]]$value, NA)
+  expect_equal(reformated[[5]]$option, "include")
+  expect_equal(reformated[[6]]$value, list(x = c))
+})
 #|
 #| ## Parsing configuration files
 context("Parsing configuration files")
