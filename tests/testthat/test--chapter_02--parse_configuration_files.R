@@ -63,9 +63,28 @@ test_that("Configuration data can be reformatted", {
   expect_false(reformated[[3]]$value)
   expect_equal(reformated[[4]]$value, NA)
   expect_equal(reformated[[5]]$option, "include")
+  expect_null(reformated[[5]]$value)
   expect_equal(reformated[[6]]$value, list(x = c))
 })
 #|
 #| ## Parsing configuration files
 context("Parsing configuration files")
 #|
+#| ### Typical usage
+#|
+parsed <- quiltr:::parse_configuration(folders = c(folder_path_a, folder_path_b),
+                                       option_names = option_names,
+                                       config_name = "config")
+parsed
+test_that("Configuration files can be parsed", {
+  expect_equal(parsed[[1]]$option, "theme")
+  expect_equal(parsed[[1]]$value, "example")
+  expect_equal(parsed[[1]]$path, formals(quiltr:::parse_configuration)$default_path)
+  expect_false(parsed[[3]]$value)
+  expect_equal(parsed[[4]]$value, NA)
+  expect_equal(parsed[[5]]$option, "include")
+  expect_null(parsed[[5]]$value)
+  expect_equal(parsed[[6]]$value, list(x = c))
+  
+})
+  

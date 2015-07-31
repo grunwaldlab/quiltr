@@ -34,8 +34,9 @@ knitr::opts_chunk$set(eval = FALSE)
 #' If \code{character}, one or more folders in which to look for configuration files to parse.
 #' If named \code{list}, one or more R lists representing parsed configuration data.
 #' 
-#' @param function_name (\code{character} of length 1) The name of the function to find options for.
-#' The set of vaild options that can be specified will be extracted from this function.
+#' @param option_names (\code{character} of length 1) 
+#' The set of vaild options that can be specified.
+#' This is used to tell the differnece between options with and without path specificity
 #' 
 #' @param  config_name (\code{character} of length 1)
 #' The file name of configuration files without the file extension.
@@ -56,7 +57,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #'   \item{path}{The path pattern for the option-value pair}
 #'   \item{config_path}{The full path to the configuration file the setting was derived from}
 #' }
-parse_configuration <- function(folders, function_name, config_name, global_options = NULL,
+parse_configuration <- function(folders, option_names, config_name, global_options = NULL,
                                 default_path = "**") {
   
   #| ### Input vaildation ##########################################################################
@@ -76,25 +77,14 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
       stop( paste0("The following paths are not folders: ", paste(not_folders, collapse = ", ")) )
     }
   }
-  # The function that option names will be extracted from must also exist..
-  if ( length(function_name) != 1 ) {
-    stop( paste0("Incorrect length of 'function_name' (", length(function_name), ").") )
-  }
-  if ( ! exists(function_name) ) {
-    stop( paste0("The object '", function_name, "' is not defined.") )
-  }
-  if ( ! is.function(function_name) ) {
-    stop( paste0("The object '", function_name, "' is not a function.") )
-  }
   #| There should only be one config name...
   if ( length(config_name) != 1 ) {
     stop( paste0("Incorrect length of 'config_name' (", length(config_name), ").") )
   }
-  # Global options should be a subset of `function_name` options...
-  option_names <- names(formals(quilt))
+  # Global options should be a subset of `option_names`...
   unknown_options <- global_options[!global_options %in% option_names]
   if (length(unknown_options) > 0) {
-    stop(paste0("The following options are not known ", function_name, " options: ", 
+    stop(paste0("The following options are not known options: ", 
                 paste(unknown_options, collapse = ", ")))
   }
   # There should be only one default path...
@@ -108,15 +98,16 @@ parse_configuration <- function(folders, function_name, config_name, global_opti
   #| If a named list is given for `folders`, then it is treated as if it was the raw content.
   #| In that case, the names of the list are the folder paths the settings apply to.
   #| All folders might not have configuration files, so `raw_content` could have less items than `folders`
-  raw_content <- ifelse(is_named_list(folders),
-                        folders, 
-                        read_configuration_files(folders, config_name))
-  
+  raw_content <- lapply(folders, function(x) {
+    if (is_named_list(x)) { return(list(x)) } else { return(read_configuration_files(x, config_name)) }
+  })
+  raw_content <- unlist(raw_content, recursive = FALSE)
+
   #| ### Convert content to output format ##########################################################
   #| Next we need to convert `raw_content` into the output format described in the function documentation.
   #| This can be thought of as an operation similar to `reshape2::melt`, where the dimentionailty of the data is reduced.
   #| For options that are not given path-specific values, the path pattern returned should be `NA`
-  settings <- reformat_configuration(raw_content, function_name)
+  settings <- reformat_configuration(raw_content, option_names)
   
   #| ### Verify content ############################################################################
   #| We should vaildate the content of the settings now that it is in a form that is easy to parse. 
