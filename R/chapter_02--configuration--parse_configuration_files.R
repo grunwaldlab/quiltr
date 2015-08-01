@@ -57,8 +57,8 @@ knitr::opts_chunk$set(eval = FALSE)
 #'   \item{path}{The path pattern for the option-value pair}
 #'   \item{config_path}{The full path to the configuration file the setting was derived from}
 #' }
-parse_configuration <- function(folders, option_names, config_name, global_options = NULL,
-                                default_path = "**") {
+parse_configuration <- function(folders, target_options, config_name, global_options = NULL,
+                                default_path = "**", valid_options = target_options) {
   
   #| ### Input vaildation ##########################################################################
   #| Since this is a rather high-level function, lets do some argument validation.

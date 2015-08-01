@@ -48,4 +48,35 @@ knitr::opts_chunk$set(eval = FALSE)
 #|
 get_global_options <- function(main_function, sub_functions, config_path, config_name) {
   
+  #| ### Define default output structure
+  #| The first thing we will do is make the output two-dimensional list output structure.
+  #| It will be populated with default values of `main_funciton` (`quilt` in this case).
+  #| To make the structure we need the list of output types and the list of `main_funciton` options.
+  output_types <- get_output_types(sub_functions)
+  defaut_options <- as.list(formals("quilt"))
+  output <- t(vapply(output_types,
+                     USE.NAMES = TRUE, FUN.VALUE = defaut_options, 
+                     FUN = function(x) defaut_options))
+  
+  #| ### Read configuration file(s)
+  #| Since a `config_path` specified in a configuration file can redirect to multiple configuration file, this will be a recursive process.
+  valid_options <- unique(unlist(lapply(sub_functions,
+                                        function(x) names(formals(x)))))
+  read_config_path <- function(config_path, config_name, group = NULL) {
+    options <- parse_configuration(folders = config_path, config_name = config_name, 
+                                   target_options = names(defaut_options),
+                                   global_options =  names(defaut_options),
+                                   valid_options = valid_options,
+                                   prefix_groups = output_types)
+    if ( ! is.null(group)) { options[ , "group"] = group }
+    path_settings <- options[ options[ , "option"] == "config_path", ]
+    if (length(config_path_settings) > 1) {
+      
+    sub_config_data <- apply(path_settings, MARGIN = 1, FUN = read_config_path,
+                             path_settings[ , "config_path"], config_name, path_settings[ , "group"])
+      
+    }
+                                   
+  }
+  #| ### Apply configuration file settings and return 
 }
