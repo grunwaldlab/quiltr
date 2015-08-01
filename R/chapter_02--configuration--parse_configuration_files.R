@@ -13,7 +13,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #|
 #| ### Function citeria
 #|
-#| * The input should be one or more configuration file paths. 
+#| * The input should be one or more configuration file paths or folders containing configuration files with a specified name. 
 #| Alternativly, if a named list is given, it should be interpreted as equivalent to the parsed content of configuration files with names corresponding to the folder they apply to.
 #| This second input type could be useful for adding configuration data for read-only folders and should not be difficult to implement. 
 #| * The output should be a list of option settings for individual paths patterns (i.e. regex or file path wildcards).
@@ -22,6 +22,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #|     + option value
 #|     + path-specific pattern
 #|     + path to source configuration file
+#|     + optional grouping defined by a set of valid prefixes to option names
 #| * The structure and content of configuration files should be verified and error messages should mention the path of the offending configuration file.
 #|
 #| ### Documentation for `parse_configuration` #####################################################
@@ -30,16 +31,16 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @description 
 #' Parse the data in configuration files for one or more folders.
 #' 
-#' @param folders (\code{character} or named \code{list})
+#' @param paths (\code{character} or named \code{list})
 #' If \code{character}, one or more folders in which to look for configuration files to parse.
 #' If named \code{list}, one or more R lists representing parsed configuration data.
 #' 
-#' @param option_names (\code{character} of length 1) 
+#' @param config_name (\code{character} of length 1)
+#' The file name of configuration files without the file extension.
+#' 
+#' @param valid_options (\code{character} of length 1) 
 #' The set of vaild options that can be specified.
 #' This is used to tell the differnece between options with and without path specificity
-#' 
-#' @param  config_name (\code{character} of length 1)
-#' The file name of configuration files without the file extension.
 #' 
 #' @param global_options (\code{character})
 #' The names of global options, which should not be given path-specific values.
@@ -50,6 +51,9 @@ knitr::opts_chunk$set(eval = FALSE)
 #' The default path applied to options that accept path specific values but dont have a path
 #' specified.
 #' 
+#' @param group_prefixes (\code{character})
+#' Prefixes that can be put in front option names to define groups.
+#' 
 #' @return \code{list} of \code{list} with the following items:
 #' \describe{
 #'   \item{option}{The name of an option for \code{function}}
@@ -57,8 +61,8 @@ knitr::opts_chunk$set(eval = FALSE)
 #'   \item{path}{The path pattern for the option-value pair}
 #'   \item{config_path}{The full path to the configuration file the setting was derived from}
 #' }
-parse_configuration <- function(folders, target_options, config_name, global_options = NULL,
-                                default_path = "**", valid_options = target_options) {
+parse_configuration <- function(paths, config_name, valid_options, global_options = NULL,
+                                default_path = "**", group_prefixes = NULL) {
   
   #| ### Input vaildation ##########################################################################
   #| Since this is a rather high-level function, lets do some argument validation.
@@ -67,12 +71,12 @@ parse_configuration <- function(folders, target_options, config_name, global_opt
   #| If a named list is given, then these checks do not apply;
   #| However, the content of the named list will still be checked later in the function.
   is_named_list <- function(x) { is.list(x) && !is.null(names(x)) }
-  if ( ! is_named_list(folders) ) {
-    do_not_exist <- folders[ ! file.exists(folders) ]
+  if ( ! is_named_list(paths) ) {
+    do_not_exist <- paths[ ! file.exists(paths) ]
     if ( length(do_not_exist) > 0 ) {
       stop( paste0("The following paths do not exist: ", paste(do_not_exist, collapse = ", ")) )
     }
-    not_folders <- folders[ ! file.info(folders)$isdir ]
+    not_folders <- paths[ ! file.info(paths)$isdir ]
     if ( length(not_folders) > 0 ) {
       stop( paste0("The following paths are not folders: ", paste(not_folders, collapse = ", ")) )
     }
@@ -81,8 +85,8 @@ parse_configuration <- function(folders, target_options, config_name, global_opt
   if ( length(config_name) != 1 ) {
     stop( paste0("Incorrect length of 'config_name' (", length(config_name), ").") )
   }
-  # Global options should be a subset of `option_names`...
-  unknown_options <- global_options[!global_options %in% option_names]
+  # Global options should be a subset of `valid_options`...
+  unknown_options <- global_options[!global_options %in% valid_options]
   if (length(unknown_options) > 0) {
     stop(paste0("The following options are not known options: ", 
                 paste(unknown_options, collapse = ", ")))
@@ -95,10 +99,10 @@ parse_configuration <- function(folders, target_options, config_name, global_opt
   #| ### Get raw configuration content #############################################################
   #| This is the step where configuration files are read and a list of raw content is obtained.
   #| The names of the list should correspond to configuration file paths.
-  #| If a named list is given for `folders`, then it is treated as if it was the raw content.
+  #| If a named list is given for `paths`, then it is treated as if it was the raw content.
   #| In that case, the names of the list are the folder paths the settings apply to.
-  #| All folders might not have configuration files, so `raw_content` could have less items than `folders`
-  raw_content <- lapply(folders, function(x) {
+  #| All folders might not have configuration files, so `raw_content` could have less items than `paths`
+  raw_content <- lapply(paths, function(x) {
     if (is_named_list(x)) { return(list(x)) } else { return(read_configuration_files(x, config_name)) }
   })
   raw_content <- unlist(raw_content, recursive = FALSE)
@@ -107,7 +111,7 @@ parse_configuration <- function(folders, target_options, config_name, global_opt
   #| Next we need to convert `raw_content` into the output format described in the function documentation.
   #| This can be thought of as an operation similar to `reshape2::melt`, where the dimentionailty of the data is reduced.
   #| For options that are not given path-specific values, the path pattern returned should be `NA`
-  settings <- reformat_configuration(raw_content, option_names)
+  settings <- reformat_configuration(raw_content, valid_options)
   
   #| ### Verify content ############################################################################
   #| We should vaildate the content of the settings now that it is in a form that is easy to parse. 
@@ -152,6 +156,7 @@ parse_configuration <- function(folders, target_options, config_name, global_opt
 #' 
 #' @param folder_paths (\code{character})
 #' The path to one or more folders from which to extract configuration file data.
+#' This can also include the paths to configuration files themselves
 #' 
 #' @param config_name (\code{character} of length 1)
 #' The file name of configuration files minus the file extension
@@ -210,18 +215,22 @@ read_configuration_files <- function(folder_paths, config_name) {
   #| Let find the configuration files in each folder
   #| There could be multiple valid configuration files in a given folder.
   #| We could append the content of multiple files together, but I cant think of a reason that this would be useful, so lets throw an error when this happens for simplicity.
-  ext_regex <- paste(names(parsers), collapse = "|")
-  file_paths <- lapply(folder_paths, 
-                       function (x) {
-                         path <- list.files(x, pattern = paste0(config_name, ".", 
-                                                                "(", ext_regex, ")"),
-                                            ignore.case = TRUE, full.names = TRUE)
-                         if (length(path) == 0) { return(NA) }
-                         if (length(path) > 1) {
-                           stop(paste0('Multiple configuration files found in "', x, '".' ))
-                         }
-                         return(path)
-                       })
+  ext_regex <- paste0( paste(names(parsers), collapse = "|"),
+                      ".", "(", ext_regex, ")" )
+  find_file <- function(folder_or_file) {
+    if (grepl(pattern = ext_regex, folder_or_file)) {
+      return(folder_or_file)
+    } else {
+      path <- list.files(folder_or_file, pattern = ext_regex,
+                         ignore.case = TRUE, full.names = TRUE)
+      if (length(path) == 0) { return(NA) }
+      if (length(path) > 1) {
+        stop(paste0('Multiple configuration files found in "', folder_or_file, '".' ))
+      }
+      return(path)
+    }
+  }
+  file_paths <- lapply(folder_paths, find_file)
   
   #| ### Determine file extensions #################################################################
   #| Next we need to determine the file type of input folder
