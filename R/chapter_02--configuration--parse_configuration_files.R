@@ -24,6 +24,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #|     + path to source configuration file
 #|     + optional grouping defined by a set of valid prefixes to option names
 #| * The structure and content of configuration files should be verified and error messages should mention the path of the offending configuration file.
+#| * Relative paths for path-specific options should be made absolute by assuming the current working directory is the location of the configuration file.
 #|
 #| ### Documentation for `parse_configuration` #####################################################
 #' @title  Get configuration file data
@@ -76,10 +77,6 @@ parse_configuration <- function(paths, config_name, valid_options, global_option
     if ( length(do_not_exist) > 0 ) {
       stop( paste0("The following paths do not exist: ", paste(do_not_exist, collapse = ", ")) )
     }
-    not_folders <- paths[ ! file.info(paths)$isdir ]
-    if ( length(not_folders) > 0 ) {
-      stop( paste0("The following paths are not folders: ", paste(not_folders, collapse = ", ")) )
-    }
   }
   #| There should only be one config name...
   if ( length(config_name) != 1 ) {
@@ -127,6 +124,11 @@ parse_configuration <- function(paths, config_name, valid_options, global_option
   #| ### Apply default paths #######################################################################
   #| Finally, lets replace the `NA`s introduced by `reformat_configuration` with the default path value
   settings[is.na(settings[, "path"]), "path"] <- default_path
+  
+  #| ### Make paths absolute #######################################################################
+  settings[ , "config_path"] <- R.utils::getAbsolutePath(settings[ , "config_path"])
+  settings[ , "path"] <- mapply(R.utils::getAbsolutePath, settings[ , "path"],
+                                workDirectory = dirname(unlist(settings[ , "config_path"])))
   
   #| ### Return result #############################################################################
   return(settings)
@@ -211,8 +213,8 @@ read_configuration_files <- function(folder_paths, config_name) {
   #| We could append the content of multiple files together, but I cant think of a reason that this would be useful, so lets throw an error when this happens for simplicity.
   ext_regex <- paste0("\\.", "(", paste(names(parsers), collapse = "|"), ")" )
   find_file <- function(folder_or_file) {
-    if (grepl(pattern = ext_regex, folder_or_file)) {
-      return(folder_or_file)
+    if (grepl(pattern = ext_regex, folder_or_file, ignore.case = TRUE)) {
+      path <- folder_or_file
     } else {
       path <- list.files(folder_or_file, pattern = ext_regex,
                          ignore.case = TRUE, full.names = TRUE)
@@ -220,8 +222,9 @@ read_configuration_files <- function(folder_paths, config_name) {
       if (length(path) > 1) {
         stop(paste0('Multiple configuration files found in "', folder_or_file, '".' ))
       }
-      return(path)
     }
+    path <- R.utils::getAbsolutePath(path)
+    return(path)
   }
   file_paths <- lapply(folder_paths, find_file)
   

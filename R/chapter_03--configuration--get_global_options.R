@@ -60,22 +60,21 @@ get_global_options <- function(main_function, sub_functions, config_path, config
   
   #| ### Read configuration file(s)
   #| Since a `config_path` specified in a configuration file can redirect to multiple configuration file, this will be a recursive process.
-  valid_options <- unique(unlist(lapply(sub_functions,
-                                        function(x) names(formals(x)))))
-  read_config_path <- function(config_path, config_name, group = NULL) {
+  valid_options <- unique(unlist(lapply(sub_functions, function(x) names(formals(x)))))
+  read_config_path <- function(config_path, config_name, group = NA) {
     options <- parse_configuration(paths = config_path, 
                                    config_name = config_name,
                                    valid_options = valid_options,
                                    global_options =  names(defaut_options),
                                    group_prefixes = output_types)
-    if ( ! is.null(group)) { options[ , "group"] = group }
-    path_settings <- options[ options[ , "option"] == "config_path", ]
+    if ( ! is.na(group)) { options[ , "group"] = group }
+    config_path_settings <- options[ options[ , "option"] == "config_path", ]
     if (length(config_path_settings) > 1) {
       
     sub_config_data <- apply(path_settings, MARGIN = 1, FUN = read_config_path,
-                             config_path = path_settings[ , "config_path"],
+                             config_path = config_path_settings[ , "config_path"],
                              config_name = config_name,
-                             group = path_settings[ , "group"])
+                             group = config_path_settings[ , "group"])
       
     }
                                    

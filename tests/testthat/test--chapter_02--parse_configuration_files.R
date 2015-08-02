@@ -65,6 +65,7 @@ test_that("Configuration data can be reformatted", {
   expect_equal(reformated[[4, "value"]], NA)
   expect_equal(reformated[[5, "option"]], "include")
   expect_null(reformated[[5, "value"]])
+  expect_equal(reformated[[5, "group"]], "group2.")
   expect_equal(reformated[[6, "value"]], list(x = c))
 })
 #|
@@ -81,13 +82,26 @@ parsed
 test_that("Configuration files can be parsed", {
   expect_equal(parsed[[1, "option"]], "theme")
   expect_equal(parsed[[1, "value"]], "example")
-  expect_equal(parsed[[1, "path"]], formals(quiltr:::parse_configuration)$default_path)
   expect_false(parsed[[3, "value"]])
   expect_equal(parsed[[4, "value"]], NA)
   expect_equal(parsed[[5, "option"]], "include")
   expect_null(parsed[[5, "value"]])
+  expect_equal(parsed[[5, "group"]], "group2.")
   expect_equal(parsed[[6, "value"]], list(x = c))
-  
-  
 })
-  
+#|
+#| ### Using file paths instead of folder/config_name
+#|
+parsed_file <- quiltr:::parse_configuration(paths = c(file_path_a, file_path_b),
+                                            valid_options = option_names,
+                                            config_name = "config", 
+                                            group_prefixes = groups)
+parsed_mixed <- quiltr:::parse_configuration(paths = c(file_path_a, folder_path_b),
+                                             valid_options = option_names,
+                                             config_name = "config", 
+                                             group_prefixes = groups)
+test_that("Reference configuration file path explicitly", {
+  expect_equal(parsed, parsed_file)
+  expect_equal(parsed, parsed_mixed)
+})
+
