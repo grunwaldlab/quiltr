@@ -70,14 +70,26 @@ get_global_options <- function(main_function, sub_functions, config_path, config
     if ( ! is.na(group)) { options[ , "group"] = group }
     config_path_settings <- options[ options[ , "option"] == "config_path", ]
     if (length(config_path_settings) > 1) {
-      
-    sub_config_data <- apply(path_settings, MARGIN = 1, FUN = read_config_path,
-                             config_path = config_path_settings[ , "config_path"],
-                             config_name = config_name,
-                             group = config_path_settings[ , "group"])
-      
+      redirect <- function(settings) {
+        if (normalizePath(settings$config_path) == normalizePath(config_path)) {
+          return(options)
+        } else {
+          return(read_config_path(settings$config_path,
+                                  config_name,
+                                  settings$group))
+        }
+      }
+      sub_config_data <- apply(path_settings, MARGIN = 1, FUN = redirect)
+      return(sub_config_data)
+    } else {
+      return(options)
     }
-                                   
   }
-  #| ### Apply configuration file settings and return 
+  settings <- read_config_path(config_path, config_name)
+  
+  #| ### Apply configuration file settings and return
+  for (setting in settings) {
+    output[setting$group, settings$option] <- settings$value
+  }
+  return(output)
 }
