@@ -111,28 +111,22 @@ parse_configuration <- function(paths, config_name, valid_options, global_option
   #| Next we need to convert `raw_content` into the output format described in the function documentation.
   #| This can be thought of as an operation similar to `reshape2::melt`, where the dimentionailty of the data is reduced.
   #| For options that are not given path-specific values, the path pattern returned should be `NA`
-  settings <- reformat_configuration(raw_content, valid_options)
+  settings <- reformat_configuration(raw_content, valid_options, group_prefixes)
   
   #| ### Verify content ############################################################################
   #| We should vaildate the content of the settings now that it is in a form that is easy to parse. 
   #|
   #| Lets for global options being given path-specific values.
   #| For options that are not given path-specific values, the path pattern returned by `reformat_configuration` should be `NA`.
-  for (setting in settings) {
-    if (setting$option %in% global_options && ! is.na(setting$path)) {
-      stop(paste0('Attempt to set global option "', setting$option,
-                  '" to a path-specific value in configuration file "', setting$config_path, '".'))
-    }
+  invalid_rows <- which(settings[, "option"] %in% global_options & !is.na(settings[, "path"]))
+  if (length(invalid_rows) > 0) {
+    stop(paste0('Attempt to set global option "', settings[invalid_rows[1], "option"],
+                '" to a path-specific value in configuration file "', settings[invalid_rows[1], "path"], '".'))
   }
   
   #| ### Apply default paths #######################################################################
   #| Finally, lets replace the `NA`s introduced by `reformat_configuration` with the default path value
-  settings <- lapply(settings, function(x) {
-    if ( (! setting$option %in% global_options) && is.na(x$path) ) {
-      x$path <- default_path
-    }
-    return(x)
-  })
+  settings[is.na(settings[, "path"]), "path"] <- default_path
   
   #| ### Return result #############################################################################
   return(settings)
@@ -215,8 +209,7 @@ read_configuration_files <- function(folder_paths, config_name) {
   #| Let find the configuration files in each folder
   #| There could be multiple valid configuration files in a given folder.
   #| We could append the content of multiple files together, but I cant think of a reason that this would be useful, so lets throw an error when this happens for simplicity.
-  ext_regex <- paste0( paste(names(parsers), collapse = "|"),
-                      ".", "(", ext_regex, ")" )
+  ext_regex <- paste0("\\.", "(", paste(names(parsers), collapse = "|"), ")" )
   find_file <- function(folder_or_file) {
     if (grepl(pattern = ext_regex, folder_or_file)) {
       return(folder_or_file)
@@ -385,8 +378,19 @@ read_configuration_files <- function(folder_paths, config_name) {
 #' The set of vaild options that can be specified.
 #' This is used to tell the differnece between options with and without path specificity
 #' 
+#' @param group_prefixes (\code{character})
+#' Prefixes that can be put in front option names to define groups.
+#' 
+#' 
 #' @return (\code{list})
-reformat_configuration <- function(raw_content, option_names) {
+reformat_configuration <- function(raw_content, option_names, group_prefixes) {
+  
+  #| ### Define valid option names
+  #| We use the knowledge of valid option names to identify when path-specific information is left off.
+  #| We must take into account possible group prefixes.
+  #| A conceptually simple, but potentially inefficeint, stragey is to calculate every possible group-option combination.
+  valid_option_names <- c(option_names, 
+                          unlist(lapply(group_prefixes, FUN = paste0, sep = "", option_names)))
   
   #| ### Define function to process one configuration file data ####################################
   #| The function can take the data from multiple configuration files. 
@@ -398,13 +402,15 @@ reformat_configuration <- function(raw_content, option_names) {
   process_one <- function(data, config_path) {
     output <- list()
     add_row <- function(option, value, path) {
-      output <<- c(output,
-                  list(list(option = option, value = value, path = path, config_path = config_path)))
+      group_regex <- paste0("^", paste(group_prefixes, collapse = "|"))
+      group <- stringr::str_extract(option, group_regex)
+      option <- gsub(group_regex, "", option)
+      output <<- c(output, list(option, value, path, config_path, group))
     }
     for ( index_1 in seq_along(data) ) { # Iterate over first dimension
       dim_1_name <- names(data)[index_1]
       dim_1_value <- data[[index_1]]
-      if ( dim_1_name %in% option_names ) {
+      if ( dim_1_name %in% valid_option_names ) {
         if ( ( ! is.null(names(dim_1_value)) ) && all(names(dim_1_value) %in% option_names) ) {
           stop(paste0('It appears that you are trying to specify a path-specific value for a path',
                       ' with the same name as an option. This is ambiguous since paths can be left',
@@ -417,7 +423,7 @@ reformat_configuration <- function(raw_content, option_names) {
         for ( index_2 in seq_along(dim_1_value) ) { # Iterate over second dimension
           dim_2_name <- names(dim_1_value)[index_2]
           dim_2_value <- dim_1_value[[index_2]]
-          if ( dim_2_name %in% option_names ) {
+          if ( dim_2_name %in% valid_option_names ) {
             add_row(option = dim_2_name, value = dim_2_value, path = dim_1_name)
           } else {
             stop(paste0('Invalid configutation file format in "', config_path,
@@ -430,8 +436,16 @@ reformat_configuration <- function(raw_content, option_names) {
   }
   
   #| ### Run function for each piece and combine ###################################################
-  unlist(mapply(FUN = process_one, raw_content,  names(raw_content), SIMPLIFY = FALSE), 
-         recursive = FALSE, use.names = FALSE)
+  output <- unlist(mapply(FUN = process_one, raw_content,  names(raw_content), SIMPLIFY = FALSE), 
+                   recursive = FALSE, use.names = FALSE)
+  
+  #| ### Define dimensions and names
+  #| At this point, `output` is a simple list of values with option, value, path, config_path, and group data all together.
+  #| We need to apply named dimensions to identify what each value is.
+  dim(output) <- c(5, length(output) / 5)
+  rownames(output) <- c("option", "value", "path", "config_path", "group")
+  output <- t(output)
+  return(output)
 }
 #|
 #|
