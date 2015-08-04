@@ -16,11 +16,11 @@ context("Reading configuration files")
 #| We will attempt to read both test that the output and the input are the same.
 #|
 #| #### Create config data
-data_a <- list("theme" = "example",
+data_a <- list("group1.theme" = "example",
                "folder_b" = list("theme" = "value",
                                  "include" = FALSE),
                "other_option" = NA)
-data_b <- list("path_2" = list("include" = NULL),
+data_b <- list("path_2" = list("group2.include" = NULL),
                "other_option" = list("x" = c))
 #| 
 #| #### Create folders
@@ -54,17 +54,19 @@ context("Reformating configuration file data")
 #|
 #| We can use the test data generated above to test the reformating function.
 option_names <- c("theme", "other_option", "include")
-reformated <- quiltr:::reformat_configuration(raw_config, option_names)
+groups <- c("group1.", "group2.")
+reformated <- quiltr:::reformat_configuration(raw_config, option_names, groups)
 reformated
 test_that("Configuration data can be reformatted", {
-  expect_equal(reformated[[1]]$option, "theme")
-  expect_equal(reformated[[1]]$value, "example")
-  expect_equal(reformated[[1]]$path, NA)
-  expect_false(reformated[[3]]$value)
-  expect_equal(reformated[[4]]$value, NA)
-  expect_equal(reformated[[5]]$option, "include")
-  expect_null(reformated[[5]]$value)
-  expect_equal(reformated[[6]]$value, list(x = c))
+  expect_equal(reformated[[1, "option"]], "theme")
+  expect_equal(reformated[[1, "value"]], "example")
+  expect_equal(reformated[[1, "path"]], NA)
+  expect_false(reformated[[3, "value"]])
+  expect_equal(reformated[[4, "value"]], NA)
+  expect_equal(reformated[[5, "option"]], "include")
+  expect_null(reformated[[5, "value"]])
+  expect_equal(reformated[[5, "group"]], "group2.")
+  expect_equal(reformated[[6, "value"]], list(x = c))
 })
 #|
 #| ## Parsing configuration files
@@ -72,19 +74,34 @@ context("Parsing configuration files")
 #|
 #| ### Typical usage
 #|
-parsed <- quiltr:::parse_configuration(folders = c(folder_path_a, folder_path_b),
-                                       option_names = option_names,
-                                       config_name = "config")
+parsed <- quiltr:::parse_configuration(paths = c(folder_path_a, folder_path_b),
+                                       valid_options = option_names,
+                                       config_name = "config", 
+                                       group_prefixes = groups)
 parsed
 test_that("Configuration files can be parsed", {
-  expect_equal(parsed[[1]]$option, "theme")
-  expect_equal(parsed[[1]]$value, "example")
-  expect_equal(parsed[[1]]$path, formals(quiltr:::parse_configuration)$default_path)
-  expect_false(parsed[[3]]$value)
-  expect_equal(parsed[[4]]$value, NA)
-  expect_equal(parsed[[5]]$option, "include")
-  expect_null(parsed[[5]]$value)
-  expect_equal(parsed[[6]]$value, list(x = c))
-  
+  expect_equal(parsed[[1, "option"]], "theme")
+  expect_equal(parsed[[1, "value"]], "example")
+  expect_false(parsed[[3, "value"]])
+  expect_equal(parsed[[4, "value"]], NA)
+  expect_equal(parsed[[5, "option"]], "include")
+  expect_null(parsed[[5, "value"]])
+  expect_equal(parsed[[5, "group"]], "group2.")
+  expect_equal(parsed[[6, "value"]], list(x = c))
 })
-  
+#|
+#| ### Using file paths instead of folder/config_name
+#|
+parsed_file <- quiltr:::parse_configuration(paths = c(file_path_a, file_path_b),
+                                            valid_options = option_names,
+                                            config_name = "config", 
+                                            group_prefixes = groups)
+parsed_mixed <- quiltr:::parse_configuration(paths = c(file_path_a, folder_path_b),
+                                             valid_options = option_names,
+                                             config_name = "config", 
+                                             group_prefixes = groups)
+test_that("Reference configuration file path explicitly", {
+  expect_equal(parsed, parsed_file)
+  expect_equal(parsed, parsed_mixed)
+})
+
