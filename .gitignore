@@ -5,3 +5,5 @@ packrat/lib*/
 packrat/src/
 inst/doc
 website
+*.html
+*.md
