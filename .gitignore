@@ -5,11 +5,8 @@ packrat/lib*/
 packrat/src/
 inst/doc
 website
-<<<<<<< HEAD
 **/*.html
 **/*.md
 man/*.Rd
-=======
 *.html
 *.md
->>>>>>> f7d4ae6ccc8bb9b2dd77cd3b740866f65c837e92
