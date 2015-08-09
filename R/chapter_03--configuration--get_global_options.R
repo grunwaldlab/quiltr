@@ -3,12 +3,14 @@ knitr::opts_chunk$set(eval = FALSE)
 #|
 #| # Getting global options
 #|
-#| Global options can inflence how local options are read from configurations files and what renders are executed, amoung other things.
-#| Therefore, global options must be determined before local options.
+#| Some of `quilt`'s options can inflence how other options are interpreted.
+#| For example, `config_name` determines the name used by configuration files, which in turn are used to specify other `quilt` and renderer options.
+#| Therefore the values of these options must be determined before those of other options.
+#| This is the reason the concept of "global options" was introduced. 
 #| Global cannot be path-specific and only use configuration files in `config_path`.
 #| Currently, all options of `quilt` are global options and all options of renders are local options.
-#| Even though they are not options of the renders they can still be output-type specific.
-#| This because some code that uses the options, such as the code that determines local options, is in the same loop that executes the renderer functions.\
+#| However, global options can still be output-type specific.
+#| This because some code that uses the options, such as the code that determines local options, is in the same loop that executes the renderer functions.
 #|
 #|
 #| ## Design citeria
@@ -89,7 +91,7 @@ get_global_options <- function(main_function, sub_functions, config_path, config
   
   #| ### Apply configuration file settings and return
   for (setting in settings) {
-    output[setting$group, settings$option] <- settings$value
+    output[setting$group, setting$option] <- setting$value
   }
   return(output)
 }
