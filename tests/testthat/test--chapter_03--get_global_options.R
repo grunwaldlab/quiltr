@@ -19,7 +19,7 @@ context("Finding global option values")
 data_a <- list("theme" = "default_theme",
                "folder_b" = list("wensite.theme" = "website_theme", 
                                  "include" = FALSE),
-               )
+               "other_option" = NA)
 data_b <- list("path_2" = list("group2.include" = NULL),
                "other_option" = list("x" = c))
 #| 
