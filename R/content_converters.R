@@ -245,4 +245,32 @@ quiltr_convert_r_to_html <- function(input, output = tempfile(fileext = ".html")
 }
 
 
+#===================================================================================================
+#' Convert png to html
+#' 
+#' Display png files via html embed
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+quiltr_convert_png_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  content <- paste0("<h1>", basename(input), "</h1>\n\n", 
+                    '<img src="', basename(input), 
+                    '" width="100%">')
+  cat(content, file = output)
+  return(output)
+}
 
+
+#===================================================================================================
+#' Convert exe to html link
+#' 
+#' Display exe files via html link
+#' 
+#' @param input (\code{character} of length 1)
+#' @param output (\code{character} of length 1)
+quiltr_convert_exe_to_html <- function(input, output = tempfile(fileext = ".html")) {
+  content <- paste0("<h1>", basename(input), "</h1>\n\n", 
+                    '<h2><a href="', basename(input), '"> link to ', basename(input), "</a></h2>")
+  cat(content, file = output)
+  return(output)
+}
