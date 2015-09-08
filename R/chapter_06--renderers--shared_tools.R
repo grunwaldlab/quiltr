@@ -16,12 +16,16 @@ knitr::opts_chunk$set(eval = FALSE)
 #' Finds the list of renderers for \code{quilt}.
 #' Renderer functions are identified by their name in any namespace.
 #' 
-#' @param regex (\code{character})
+#' @param pattern (\code{character})
 #' A regular expression with a single capture group used to identify renderer functions. 
 #' The capture group identifies the output type.
 #' 
 #' @return \code{list} of functions
 #' 
-get_quilt_renderers <- function(regex = "quilt_(*)") {
-  
+get_quilt_renderers <- function(pattern = "quilt_(*)") {
+  quiltr_functions <- unclass(lsf.str(envir = asNamespace(package), all = T))
+  function_names <- quiltr_functions[grep(pattern, quiltr_functions)]
+  renderers <- mget(function_names, inherits = TRUE)
+  names(renderers) <- tolower(stringr::str_match(function_names, pattern)[, 2])
+  return(converters)
 }
