@@ -22,10 +22,10 @@ knitr::opts_chunk$set(eval = FALSE)
 #' 
 #' @return \code{list} of functions
 #' 
-get_quilt_renderers <- function(pattern = "quilt_(*)") {
+get_quilt_renderers <- function(pattern = "^quilt_([^_]*)$") {
   quiltr_functions <- unclass(lsf.str(envir = asNamespace("quiltr"), all = T))
   function_names <- quiltr_functions[grep(pattern, quiltr_functions)]
-  renderers <- mget(function_names, inherits = TRUE)
+  renderers <- mget(function_names, inherits = TRUE, envir = asNamespace("quiltr"))
   names(renderers) <- tolower(stringr::str_match(function_names, pattern)[, 2])
-  return(converters)
+  return(renderers)
 }

@@ -73,7 +73,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #' \dontrun{}
 #' 
 
-quilt_wesbite <- function(file_paths = list.files(full.names = TRUE, include.dirs = TRUE, recursive = TRUE),
+quilt_website <- function(file_paths = list.files(full.names = TRUE, include.dirs = TRUE, recursive = TRUE),
                           output_path = getwd(), output_name = "website", overwrite = FALSE,
                           full_copy = FALSE, open = TRUE, name = "Home", theme = "cerulean",
                           display = TRUE, execute = FALSE, link = TRUE,
