@@ -50,12 +50,13 @@ knitr::opts_chunk$set(eval = FALSE)
 #' Defines a function that determines how file paths are used to infer the placement of file content in the menu hierarchy.
 #' The function should take a absolute file/folder path (\code{character} of length 1) and return one or more menu hierarchy elements (\code{character}).
 #' The function is called once for each folder/file in the file path and the values returned are combined to make the menu hierarchy.
+#' By default, a function is used that simply returns the name of each folder, capitalized and with underscores converted to spaces.
 #' @param placement (\code{character}) 
 #' Specify a custom menu heirarchy placement for file content.
 #' This can override or add to the hierarchy inferred from file/directory names (\code{path_parser}).
 #' The following special values can be included: 
 #' \describe{
-#'   \item{+}{Insert the heirarchy elements that would have resulted from (\code{path_parser}).}
+#'   \item{+}{Insert the heirarchy elements that would have resulted from (\code{path_parser}) at this location.}
 #' }
 #' 
 #' @return (\code{character} of length 1) The file path to the created website's home page 
@@ -65,4 +66,10 @@ knitr::opts_chunk$set(eval = FALSE)
 #' \dontrun{
 #' 
 
-quilt_wesbite <- function()
+quilt_wesbite <- function(file_paths = list.files(full.names = TRUE, include.dirs = TRUE, recursive = TRUE),
+                          output_path = getwd(), output_name = "website", overwrite = FALSE,
+                          full_copy = FALSE, open = TRUE, name = "Home", theme = "cerulean",
+                          display = TRUE, execute = FALSE, link = TRUE,
+                          path_parser = quiltr::use_folder_names, placement = NULL) {
+  
+}
