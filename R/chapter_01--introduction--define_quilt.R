@@ -303,7 +303,6 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
   global_option_names <- names(formals(quilt))
   global_options <- get_global_options(main_function = "quilt",
                                        sub_functions = renderers,
-                                       options       = global_option_names, 
                                        config_path   = config_path,
                                        config_name   = config_name)
   

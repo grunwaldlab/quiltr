@@ -2,6 +2,13 @@
 knitr::opts_chunk$set(eval = FALSE)
 #|
 #| # 
+#' @title
+#' Render files into a website
+#' 
+#' @description 
+#' Makes a website representation of a set of files.
+#' This function is typically used via the \code{\link{quilt}} function rather than being executed directly.
+#' 
 #' @param file_paths (\code{character})
 #' Files to render.
 #' 
@@ -63,7 +70,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #' (\code{index.html})
 #' 
 #' @examples
-#' \dontrun{
+#' \dontrun{}
 #' 
 
 quilt_wesbite <- function(file_paths = list.files(full.names = TRUE, include.dirs = TRUE, recursive = TRUE),
