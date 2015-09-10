@@ -292,7 +292,7 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
   #| Simply creating a function with the appropriate name and parameters, even outside of the quiltr package source, will effectivly add a new output type.
   #| The function `get_quilt_renderes` searchs the current namespaces for functions named `quilt_[output type]`, where `[output type]` is the one-word name for an output type.
   #| It returns the list of renderer functions named by their output type. 
-  renderers <- get_quilt_renderes()
+  renderers <- get_quilt_renderers()
   
   #| ### Get global option values from configuration files #########################################
   #| Apply any global option values in root configuration file.
@@ -302,7 +302,7 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
   #| The first dimension groups options by output type, and the second is the lists of options.
   global_option_names <- names(formals(quilt))
   global_options <- get_global_options(main_function = "quilt",
-                                       sub_functions = renderers,
+                                       renderers = renderers,
                                        config_path   = config_path,
                                        config_name   = config_name)
   
@@ -331,6 +331,6 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
   }
   
   #| ### Process each output format and return results #############################################
-  mapply(process_format, global_options, names(global_options), SIMPLIFY = TRUE)
+  mapply(process_format, global_options, renderers, SIMPLIFY = TRUE)
 }
 #|

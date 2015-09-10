@@ -16,11 +16,12 @@ context("Finding global option values")
 #| We will attempt to read both test that the output and the input are the same.
 #|
 #| #### Create config data
-data_a <- list("theme" = "default_theme",
-               "folder_b" = list("wensite.theme" = "website_theme", 
-                                 "include" = FALSE),
-               "other_option" = NA)
-data_b <- list("path_2" = list("group2.include" = NULL),
+data_a <- list("config_search_type" = "parents",
+               "website.config_search_type" = "root",
+               "folder_b" = list("execute" = TRUE, 
+                                 "display" = FALSE),
+               "output_name" = "a_name")
+data_b <- list("path_2" = list("group2.display" = NULL),
                "other_option" = list("x" = c))
 #| 
 #| #### Create folders
@@ -34,3 +35,10 @@ file_path_a <- file.path(folder_path_a, "config.R")
 dput(data_a, file = file_path_a)
 file_path_b <- file.path(folder_path_b, "config.yaml")
 cat(yaml::as.yaml(data_b), file = file_path_b)
+#|
+#| #### Call function 
+#|
+global_options <- quiltr:::get_global_options(main_function = "quilt",
+                                              renderers = quiltr:::get_quilt_renderers(),
+                                              config_path   = folder_path_a,
+                                              config_name   = "config")

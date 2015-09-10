@@ -33,7 +33,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @param  main_function (\code{character} of length 1)
 #' The name of the function to get global option names and default values from.
 #' 
-#' @param  sub_functions (\code{character})
+#' @param  renderers (\code{character})
 #' The name of the functions called by \code{main_function}.
 #' This is used to identify invalid options in configuration files.
 #' 
@@ -48,26 +48,28 @@ knitr::opts_chunk$set(eval = FALSE)
 #' The first dimension is output types and the second a list of settings for that output type.
 #|
 #|
-get_global_options <- function(main_function, sub_functions, config_path, config_name) {
+get_global_options <- function(main_function, renderers, config_path, config_name) {
   
   #| ### Define default output structure
   #| The first thing we will do is make the output two-dimensional list output structure.
   #| It will be populated with default values of `main_funciton` (`quilt` in this case).
   #| To make the structure we need the list of output types and the list of `main_funciton` options.
-  output_types <- get_output_types(sub_functions)
-  defaut_options <- as.list(formals("quilt"))
+  output_types <- names(renderers)
+  default_options <- as.list(formals("quilt"))
+  global_options =  names(default_options)
   output <- t(vapply(output_types,
-                     USE.NAMES = TRUE, FUN.VALUE = defaut_options, 
-                     FUN = function(x) defaut_options))
+                     USE.NAMES = TRUE, FUN.VALUE = default_options, 
+                     FUN = function(x) default_options))
   
   #| ### Read configuration file(s)
   #| Since a `config_path` specified in a configuration file can redirect to multiple configuration file, this will be a recursive process.
-  valid_options <- unique(unlist(lapply(sub_functions, function(x) names(formals(x)))))
+  valid_options <- c(unique(unlist(lapply(renderers, function(x) names(formals(x))))),
+                     names(default_options))
   read_config_path <- function(config_path, config_name, group = NA) {
     options <- parse_configuration(paths = config_path, 
                                    config_name = config_name,
                                    valid_options = valid_options,
-                                   global_options =  names(defaut_options),
+                                   global_options =  global_options,
                                    group_prefixes = output_types)
     if ( ! is.na(group)) { options[ , "group"] = group }
     config_path_settings <- options[ options[ , "option"] == "config_path", ]
@@ -88,10 +90,16 @@ get_global_options <- function(main_function, sub_functions, config_path, config
     }
   }
   settings <- read_config_path(config_path, config_name)
+  settings <- settings[settings[, "option"] %in% global_options, ]
   
   #| ### Apply configuration file settings and return
-  for (setting in settings) {
-    output[setting$group, setting$option] <- setting$value
+  apply_setting <- function(setting) {
+    if (is.na(setting$group)) {
+      output[ , setting$option] <<- setting$value
+    } else {
+      output[setting$group, setting$option] <<- setting$value
+    }
   }
+  apply(settings, MARGIN = 1, apply_setting)
   return(output)
 }

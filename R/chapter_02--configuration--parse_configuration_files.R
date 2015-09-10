@@ -383,7 +383,7 @@ read_configuration_files <- function(folder_paths, config_name) {
 #' 
 #' @param group_prefixes (\code{character})
 #' Prefixes that can be put in front option names to define groups.
-#' 
+#' The group prefix and the option name must be separated by a period. 
 #' 
 #' @return (\code{list})
 reformat_configuration <- function(raw_content, option_names, group_prefixes) {
@@ -393,7 +393,7 @@ reformat_configuration <- function(raw_content, option_names, group_prefixes) {
   #| We must take into account possible group prefixes.
   #| A conceptually simple, but potentially inefficeint, stragey is to calculate every possible group-option combination.
   valid_option_names <- c(option_names, 
-                          unlist(lapply(group_prefixes, FUN = paste0, sep = "", option_names)))
+                          unlist(lapply(group_prefixes, FUN = paste0, sep = ".", option_names)))
   
   #| ### Define function to process one configuration file data ####################################
   #| The function can take the data from multiple configuration files. 
@@ -407,7 +407,7 @@ reformat_configuration <- function(raw_content, option_names, group_prefixes) {
     add_row <- function(option, value, path) {
       group_regex <- paste0("^", paste(group_prefixes, collapse = "|"))
       group <- stringr::str_extract(option, group_regex)
-      option <- gsub(group_regex, "", option)
+      option <- gsub(paste0(group_regex, "\\."), "", option)
       output <<- c(output, list(option, value, path, config_path, group))
     }
     for ( index_1 in seq_along(data) ) { # Iterate over first dimension
