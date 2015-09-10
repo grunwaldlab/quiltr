@@ -27,7 +27,7 @@
 #| 
 #| ### The structure of quiltr
 #| 
-#| The source of this document is integrated into the quiltr source code. 
+#| The source of this document is also the quiltr source code. 
 #| If you look at the source code (e.g. "quiltr/R/chapter_00--the_quiltr_package.R"), you will see that they are plain text files with three distinct types of content:
 #| 
 #| * __Commented RMarkdown:__
