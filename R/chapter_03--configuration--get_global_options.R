@@ -83,7 +83,7 @@ get_global_options <- function(main_function, renderers, config_path, config_nam
                                   settings$group))
         }
       }
-      sub_config_data <- apply(path_settings, MARGIN = 1, FUN = redirect)
+      sub_config_data <- apply(config_path_settings, MARGIN = 1, FUN = redirect)
       return(sub_config_data)
     } else {
       return(options)

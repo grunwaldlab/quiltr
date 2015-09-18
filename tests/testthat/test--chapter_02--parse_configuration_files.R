@@ -54,7 +54,7 @@ context("Reformating configuration file data")
 #|
 #| We can use the test data generated above to test the reformating function.
 option_names <- c("theme", "other_option", "include")
-groups <- c("group1.", "group2.")
+groups <- c("group1", "group2")
 reformated <- quiltr:::reformat_configuration(raw_config, option_names, groups)
 reformated
 test_that("Configuration data can be reformatted", {
@@ -65,7 +65,7 @@ test_that("Configuration data can be reformatted", {
   expect_equal(reformated[[4, "value"]], NA)
   expect_equal(reformated[[5, "option"]], "include")
   expect_null(reformated[[5, "value"]])
-  expect_equal(reformated[[5, "group"]], "group2.")
+  expect_equal(reformated[[5, "group"]], "group2")
   expect_equal(reformated[[6, "value"]], list(x = c))
 })
 #|
@@ -86,7 +86,7 @@ test_that("Configuration files can be parsed", {
   expect_equal(parsed[[4, "value"]], NA)
   expect_equal(parsed[[5, "option"]], "include")
   expect_null(parsed[[5, "value"]])
-  expect_equal(parsed[[5, "group"]], "group2.")
+  expect_equal(parsed[[5, "group"]], "group2")
   expect_equal(parsed[[6, "value"]], list(x = c))
 })
 #|

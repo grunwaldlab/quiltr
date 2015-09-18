@@ -405,9 +405,10 @@ reformat_configuration <- function(raw_content, option_names, group_prefixes) {
   process_one <- function(data, config_path) {
     output <- list()
     add_row <- function(option, value, path) {
-      group_regex <- paste0("^", paste(group_prefixes, collapse = "|"))
-      group <- stringr::str_extract(option, group_regex)
-      option <- gsub(paste0(group_regex, "\\."), "", option)
+      group_regex <- paste0("^", group_prefixes, "\\.", collapse = "|")
+      group <- stringr::str_extract(option, group_regex) # extract group from option name
+      group <- gsub(pattern = "\\.$", replacement = "", group) # remove trailing dot from group
+      option <- gsub(group_regex, "", option) # remove group from option name
       output <<- c(output, list(option, value, path, config_path, group))
     }
     for ( index_1 in seq_along(data) ) { # Iterate over first dimension
