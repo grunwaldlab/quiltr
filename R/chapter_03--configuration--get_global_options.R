@@ -72,8 +72,8 @@ get_global_options <- function(main_function, renderers, config_path, config_nam
                                    global_options =  global_options,
                                    group_prefixes = output_types)
     if ( ! is.na(group)) { options[ , "group"] = group }
-    config_path_settings <- options[ options[ , "option"] == "config_path", ]
-    if (length(config_path_settings) > 1) {
+    config_path_settings <- options[ options[ , "option"] == "config_path", , drop = FALSE]
+    if (nrow(config_path_settings) > 1) {
       redirect <- function(settings) {
         if (normalizePath(settings$config_path) == normalizePath(config_path)) {
           return(options)
