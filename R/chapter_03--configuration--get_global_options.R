@@ -73,17 +73,25 @@ get_global_options <- function(main_function, renderers, config_path, config_nam
                                    group_prefixes = output_types)
     if ( ! is.na(group)) { options[ , "group"] = group }
     config_path_settings <- options[ options[ , "option"] == "config_path", , drop = FALSE]
-    if (nrow(config_path_settings) > 1) {
+    if (nrow(config_path_settings) > 0) {
       redirect <- function(settings) {
-        if (normalizePath(settings$config_path) == normalizePath(config_path)) {
-          return(options)
-        } else {
-          return(read_config_path(settings$config_path,
-                                  config_name,
-                                  settings$group))
+        original_wd <- getwd()
+        on.exit(setwd(original_wd))
+        setwd(dirname(settings$config_path))
+        
+        redirect_one <- function(path) {
+          if (normalizePath(path) == normalizePath(config_path)) {
+            return(options)
+          } else {
+            return(read_config_path(normalizePath(path),
+                                    config_name,
+                                    settings$group))
+          }
         }
+        x = do.call(rbind, lapply(settings$value, FUN = redirect_one))
+        return(x)
       }
-      sub_config_data <- apply(config_path_settings, MARGIN = 1, FUN = redirect)
+      sub_config_data <- do.call(rbind, apply(config_path_settings, MARGIN = 1, FUN = redirect))
       return(sub_config_data)
     } else {
       return(options)
@@ -95,9 +103,9 @@ get_global_options <- function(main_function, renderers, config_path, config_nam
   #| ### Apply configuration file settings and return
   apply_setting <- function(setting) {
     if (is.na(setting$group)) {
-      output[ , setting$option] <<- setting$value
+      output[ , setting$option] <<- lapply(1:nrow(output), function(x) setting$value)
     } else {
-      output[setting$group, setting$option] <<- setting$value
+      output[[setting$group, setting$option]] <<- setting$value
     }
   }
   apply(settings, MARGIN = 1, apply_setting)

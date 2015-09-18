@@ -57,18 +57,19 @@ test_that("Output types have the correct global option values", {
 #| A `config_path` setting in a configuration file should be able to specify a different configuration files to use.
 #|
 #| #### Create config data
-data_a <- list("output_name" = "name_a",
+data_a <- list("output_path" = "a_path",
+               "output_name" = "name_a",
                "config_path" = c(".",
                                  "folder_b"))
 data_b <- list("output_name" = "name_b",
-               "website.config_path" = "../folder_c")
+               "website.config_path" = c(".", "../folder_c"))
 data_c <- list("output_name" = "name_c")
 #| 
 #| #### Create folder
 root_path = tempfile()
 folder_path_a <- file.path(root_path, "folder_a")
 folder_path_b <- file.path(folder_path_a, "folder_b")
-folder_path_c <- file.path(root_path, "folder_c")
+folder_path_c <- file.path(folder_path_a, "folder_c")
 dir.create(folder_path_b, recursive = TRUE)
 dir.create(folder_path_c, recursive = TRUE)
 #|
