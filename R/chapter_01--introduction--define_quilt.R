@@ -310,8 +310,7 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
   process_format <- function(global_options, renderer) {
     
     ## Find configuration files for local options
-    config_paths <- find_config_files(paths = global_options$path,
-                                      config_name = global_options$config_name,
+    config_paths <- find_config_folders(paths = global_options$path,
                                       search_type = global_options$config_search_type)
     
     ## Find all input files

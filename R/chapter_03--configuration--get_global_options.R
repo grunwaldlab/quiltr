@@ -3,7 +3,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #|
 #| # Getting global options
 #|
-#| Some of `quilt`'s options can inflence how other options are interpreted.
+#| Some of `quilt`'s options can influence how other options are interpreted.
 #| For example, `config_name` determines the name used by configuration files, which in turn are used to specify other `quilt` and renderer options.
 #| Therefore the values of these options must be determined before those of other options.
 #| This is the reason the concept of "global options" was introduced. 

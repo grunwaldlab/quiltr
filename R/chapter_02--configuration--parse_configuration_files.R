@@ -158,6 +158,7 @@ parse_configuration <- function(paths, config_name, valid_options, global_option
 #' The file name of configuration files minus the file extension
 #' 
 #' @return \code{list}
+#' A \code{list} representing the raw content of the configuration files
 #' Returns \code{NA} for folders with no configuration files.
 #' Returns \code{NULL} for empty configuration files.
 read_configuration_files <- function(folder_paths, config_name) {
@@ -208,7 +209,7 @@ read_configuration_files <- function(folder_paths, config_name) {
                   "r"    = parse_r)
 
   #| ### Get configuration file paths ##############################################################
-  #| Let find the configuration files in each folder
+  #| Lets find the configuration files in each folder
   #| There could be multiple valid configuration files in a given folder.
   #| We could append the content of multiple files together, but I cant think of a reason that this would be useful, so lets throw an error when this happens for simplicity.
   ext_regex <- paste0("\\.", "(", paste(names(parsers), collapse = "|"), ")" )

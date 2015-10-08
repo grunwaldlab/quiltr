@@ -55,6 +55,7 @@ test_that("Output types have the correct global option values", {
 #| ### Redirecting using `config_path`
 #|
 #| A `config_path` setting in a configuration file should be able to specify a different configuration files to use.
+#| If the `config_path` setting is output-type-specific then all options specified in that file should apply only to the output type
 #|
 #| #### Create config data
 data_a <- list("output_path" = "a_path",
