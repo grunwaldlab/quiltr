@@ -88,3 +88,6 @@ global_options <- quiltr:::get_global_options(main_function = "quilt",
                                               renderers = quiltr:::get_quilt_renderers(),
                                               config_path   = folder_path_a,
                                               config_name   = "config")
+test_that("`config_path` changes the configuration files used", {
+  expect_equal(global_options[["website", "output_name"]], data_c$output_name)
+})

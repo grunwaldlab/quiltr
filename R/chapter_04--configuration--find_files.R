@@ -15,7 +15,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #| ## Design citeria
 #|
 #| * The arguments should include the target folders and the search location(s).
-#| * The output should be a character vector of absolute configuration folder paths. 
+#| * The output should be a character vector of absolute folder paths in which configuration files might be found. 
 #|   The function that parses configuration files (`read_configuration_files`) knows which file types are valid so this function will not attempt to find the config files themselves, only their potential locations.
 #|
 #| ## The code
@@ -87,11 +87,11 @@ find_config_folders <- function(paths, search_type = c("parents", "root", "child
   #| To simplify the logic of the overall function, lets make a function to process a single input path and call it once for each path.
   #| This function should call the specified seach functions and concatenate their results.
   process_one <- function(path) {
-    unlist(lapply(search_functions, function(f) f(path)))
+    unlist(lapply(search_functions[search_type], function(f) f(path)))
   }
   
   #| ### Process each path and return results
   #| Now we just need to call `process_one` on each path
-  unlist(lapply(paths, process_one))
+  unname(unlist(lapply(paths, process_one)))
 } 
 
