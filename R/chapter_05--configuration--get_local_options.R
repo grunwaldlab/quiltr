@@ -4,6 +4,8 @@ knitr::opts_chunk$set(eval = FALSE)
 #| # Getting local options
 #|
 #| 
+#|
+#|
 #' @title 
 #' Get local options from configuration files
 #' 
@@ -31,18 +33,15 @@ knitr::opts_chunk$set(eval = FALSE)
 #' Given a set of file paths and folder paths that might contain configuration files, this function
 #' returns the local options that apply to 
 get_path_specific_options <- function(sub_function, target_paths, config_paths, config_name) {
-  main_function <- "quilt"
-  valid_options <- c(unique(unlist(lapply(renderers, function(x) names(formals(x))))),
-                     names(default_options))
-  
+
   #| ### Define default output structure
   #| The first thing we will do is make the two-dimensional list output structure.
-  #| It will be populated with default values of `sub_function` (`quilt` in this case).
-  #| To make the structure we need the list of target_paths and the list of `main_funciton` options.
-  default_options <- as.list(formals(sub_function))
+  #| It will be populated with default values of `sub_function` (a renderer).
+  #| To make the structure we need the list of target_paths and the list of `quiltr` options.
+  renderer_options <- as.list(formals(sub_function))
   output <- t(vapply(target_paths,
-                     USE.NAMES = TRUE, FUN.VALUE = default_options, 
-                     FUN = function(x) default_options))
+                     USE.NAMES = TRUE, FUN.VALUE = renderer_options, 
+                     FUN = function(x) renderer_options))
   
   
   #| ### Order `config_paths` by folder depth
@@ -56,13 +55,18 @@ get_path_specific_options <- function(sub_function, target_paths, config_paths, 
   #| All of the configuration files are parsed at the same time and consolidated into the same 2-dimensional list.
   config_data <- parse_configuration(paths = config_paths,
                                      valid_options = valid_config_options(),
-                                     config_name = global_options$config_name, 
+                                     config_name = config_name, 
                                      group_prefixes = names(get_quilt_renderers()))
+  
+  #| ### Filter out non-applicable options 
+  #| Only options that are specific to this renderer (i.e. output type) should be considered.
+  config_data <- config_data[config_data[, "option"] %in% names(renderer_options), ]
   
   #| ### Apply each setting one at a time
   #| The following function will be run on each row of the parsed configuration file data and apply the changes specficied to the ouptut data. 
   apply_setting <- function(setting) {
-    output[matches_pattern(setting$path), setting$option] <<- setting$value
+    matching_paths <- sys_glob(setting$path)
+    output[target_paths %in% matching_paths, setting$option] <<- setting$value
   }
   apply(config_data, MARGIN = 1, FUN = apply_setting)
   
@@ -91,4 +95,38 @@ valid_config_options <- function() {
 
 
 
-matches_pattern <- function()
+  
+#' @title 
+#' Wildcard expansion
+#' 
+#' @description 
+#' Like \code{\link[base]{Sys.glob}}, but also understands double wildcards for recursive matching using
+#' double wildcards (\code{**})
+#' 
+#' @param path (\code{character} of length 1) The path to expand.
+#' @param max_search_depth (\code{integer} of length 1) How deep to search.
+#' 
+#' @return \code{character} 
+#' File paths matching the input pattern.
+sys_glob <- function(path, max_search_depth = 50) {
+  # Find location of double wildcard ---------------------------------------------------------------
+  split_path <- strsplit(path, .Platform$file.sep)[[1]]
+  pair_index <- which(grepl(pattern = "\\*\\*", split_path))
+  if (length(pair_index) > 1) {
+    stop(paste0("Currently, Quiltr only supports one double wildcard (**) per path. ",
+                "The following path has more than one:\n\t", path))
+  }
+  if (length(pair_index) == 0) { return(Sys.glob(path)) }
+  # List possible paths using single wildcards -----------------------------------------------------
+  possibilities <- lapply(0:max_search_depth, rep, x = "*")
+  
+  split_path[pair_index] <- gsub(pattern = "\\*\\*", replacement = "*",
+                                 split_path[pair_index])
+  possible_paths <- lapply(possibilities,
+                           function(x) c(split_path[seq(from = 1, length.out = pair_index - 1)],
+                                         x,
+                                         split_path[seq(from = pair_index, to = length(split_path))]))
+  possible_paths <- lapply(possible_paths, function(x) do.call(file.path, as.list(x)))
+  # Search all possible paths ----------------------------------------------------------------------
+  unique(unlist(lapply(possible_paths, Sys.glob)))
+}
