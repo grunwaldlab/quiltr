@@ -11,9 +11,7 @@ Depends:
 Encoding: UTF-8    
 License: GPL-2 | GPL-3
 LazyData: true
-Imports: rmarkdown,
-    yaml,
-    XML,
+Imports: yaml,
     stringr,
     R.utils
 Suggests: testthat,

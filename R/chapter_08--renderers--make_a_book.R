@@ -53,10 +53,6 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @return (\code{character} of length 1) The file path to the created file
 #' (\code{index.html})
 #' 
-#' @examples
-#' \dontrun{}
-#' 
-
 quilt_book <- function(file_paths = list.files(full.names = TRUE, include.dirs = TRUE, recursive = TRUE),
                        output_path = getwd(), output_name = "website", overwrite = FALSE, open = TRUE,
                        name = NA, display = TRUE, execute = FALSE, path_parser = quiltr::use_folder_names, placement = NULL) {

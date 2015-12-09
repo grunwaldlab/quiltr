@@ -69,10 +69,6 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @return (\code{character} of length 1) The file path to the created website's home page 
 #' (\code{index.html})
 #' 
-#' @examples
-#' \dontrun{}
-#' 
-
 quilt_website <- function(file_paths = list.files(full.names = TRUE, include.dirs = TRUE, recursive = TRUE),
                           output_path = getwd(), output_name = "website", overwrite = FALSE,
                           full_copy = FALSE, open = TRUE, name = "Home", theme = "cerulean",

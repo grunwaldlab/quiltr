@@ -99,10 +99,10 @@ find_config_folders <- function(paths, search_type = c("parents", "root", "child
 #' Find locations of target files
 #' 
 #' @description 
-#' Find the file paths of potential target files using folder paths and one or more search strategies.
+#' Find the file paths of potential target files/folders using folder paths and one or more search strategies.
 #' 
 #' @param paths (\code{character})
-#' The target paths that the search space will be relative to.
+#' The paths to folders that will be searched for potential target files/folders.
 #' 
 #' @param search_type (\code{character}) [not path-specific]
 #' Where to look for files relative to \code{path}.
@@ -116,7 +116,23 @@ find_config_folders <- function(paths, search_type = c("parents", "root", "child
 #' }
 #' 
 #' @return \code{character}
-#' The file paths of potential target files.
+#' The file paths of potential target files/folders.
 get_target_paths <- function(paths, search_type = c("parents", "root", "children")) {
-  NULL
+  #| ### Get appropriate folders
+  #| Since there is a lot of similarity in the function of `find_config_folders` and `get_target_paths`, we can reuse a lot of the code.
+  #| I will use `find_config_folders` to get the list of folders to in which to look for files.
+  #| Therefore, `find_config_folders` will handle the implementation of `search_type` and error checking.
+  folder_paths <- find_config_folders(paths, search_type = search_type)
+  
+  #| ### Get files in target folders
+  file_paths <- list.files(folder_paths, full.names = TRUE)
+  
+  #| ### Remove any double slashes
+  #| For some reason, `list.files` can return paths with two file separators if a path is inputted that has a trailing slash.
+  #| This is ok for most operating system shells but can confuse regex matches.
+  #| I will remove these double files seperators.
+  double_sep <- paste0(rep(.Platform$file.sep, 2), collapse = '')
+  file_paths <- gsub(file_paths, pattern = double_sep, replacement = .Platform$file.sep)
+  
+  return(file_paths)
 }
