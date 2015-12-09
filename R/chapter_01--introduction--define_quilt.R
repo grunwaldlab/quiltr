@@ -306,8 +306,7 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
                                      search_type = global_options$file_search_type)
     
     ## Get local option values from configuration files
-    local_options <- get_path_specific_options(main_function  = "quilt",
-                                               sub_function   = renderer,
+    local_options <- get_path_specific_options(sub_function   = renderer,
                                                target_paths   = target_paths, 
                                                config_paths   = config_paths,
                                                global_options = global_option_names)
