@@ -16,14 +16,17 @@ context("Finding local option values")
 #| Other options are left as the defaults.
 #|
 #| #### Create config data
-data_a <- list("config_search_type" = "parents",
+data_a <- list("book.config_search_type" = "parents",
                "website.config_search_type" = "root",
-               "folder_a/folder_b" = list("execute" = TRUE, 
-                                          "display" = FALSE),
+               "open" = FALSE,
+               "111.txt" = list("book.overwrite" = TRUE),
                "**.txt" = list("execute" = FALSE, 
                                "link" = TRUE),
                "*.txt" = list("link" = FALSE),
-               "**/folder_b/*.R" = list("placement" = "x"))
+               "**/folder_b/*.R" = list("placement" = "x"),
+               "**.R" = list("theme" = "test_theme"))
+data_b <- list("555.R" = list("placement" = "y"),
+               "../../111.txt" = list(theme = "test_theme_2"))
 #| 
 #| #### Create folders
 root_path <- tempfile()
@@ -32,18 +35,47 @@ folder_path_b <- file.path(folder_path_a, "folder_b")
 dir.create(folder_path_b, recursive = TRUE)
 #|
 #| #### Create configuration file
-config_path <- file.path(root_path, "config.R")
-dput(data_a, file = config_path)
+config_paths <- c(file.path(root_path, "config.R"),
+                  file.path(folder_path_b, "config.R"))
+dput(data_a, file = config_paths[1])
+dput(data_b, file = config_paths[2])
 #|
 #| #### Create empty test files
 files <- c(file.path(root_path, "111.txt"),
            file.path(folder_path_a, "222.txt"),
-           file.path(folder_path_b, "333.txt"))
+           file.path(folder_path_b, "333.txt"),
+           file.path(folder_path_b, "444.R"),
+           file.path(folder_path_b, "555.R"))
 file.create(files)
 #|
 #| #### Call function 
 #|
-output <- quiltr:::get_path_specific_options(sub_function = quiltr:::get_quilt_renderers()$website,
+output <- quiltr:::get_path_specific_options(sub_function = "website",
                                              target_paths = files,
-                                             config_paths = config_path,
+                                             config_paths = config_paths,
                                              config_name = "config")
+
+test_that("options for other output types are not used", {
+  expect_equal(output[[files[1], "overwrite"]], FALSE)
+})
+
+test_that("options for undefined output types are used", {
+  expect_true(all(output[, "open"] == FALSE))
+})
+
+test_that("setting in the same file can be overwritten", {
+  expect_equal(output[[files[1], "link"]], FALSE)
+})
+
+test_that("setting in a differnet file can be overwritten", {
+  expect_equal(output[[files[5], "placement"]], "y")
+})
+
+test_that("double wildcards work", {
+  expect_equal(output[[files[4], "theme"]], "test_theme")
+  expect_equal(output[[files[5], "theme"]], "test_theme")
+})
+
+test_that("Moving up the folder structure with '..' works", {
+  expect_equal(output[[files[1], "theme"]], "test_theme_2")
+})

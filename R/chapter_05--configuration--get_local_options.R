@@ -14,8 +14,8 @@ knitr::opts_chunk$set(eval = FALSE)
 #' configuration files that might be present in a set of folders.
 #' Default option values defined in the renderer function are used if no configuration file settings apply. 
 #' 
-#' @param sub_function (\code{function} of length 1)
-#' The function whose options are set using configuration files.
+#' @param sub_function (\code{character} of length 1)
+#' The name of the renderer function whose options are set using configuration files.
 #' 
 #' @param target_paths (\code{character})
 #' Files paths that can each have a unique set of options values each.
@@ -38,7 +38,7 @@ get_path_specific_options <- function(sub_function, target_paths, config_paths, 
   #| The first thing we will do is make the two-dimensional list output structure.
   #| It will be populated with default values of `sub_function` (a renderer).
   #| To make the structure we need the list of target_paths and the list of `quiltr` options.
-  renderer_options <- as.list(formals(sub_function))
+  renderer_options <- as.list(formals(get_quilt_renderers()[[sub_function]]))
   output <- t(vapply(target_paths,
                      USE.NAMES = TRUE, FUN.VALUE = renderer_options, 
                      FUN = function(x) renderer_options))
@@ -61,6 +61,7 @@ get_path_specific_options <- function(sub_function, target_paths, config_paths, 
   #| ### Filter out non-applicable options 
   #| Only options that are specific to this renderer (i.e. output type) should be considered.
   config_data <- config_data[config_data[, "option"] %in% names(renderer_options), ]
+  config_data <- config_data[config_data[, "group"] %in% c(NA, sub_function), ]
   
   #| ### Apply each setting one at a time
   #| The following function will be run on each row of the parsed configuration file data and apply the changes specficied to the ouptut data. 
