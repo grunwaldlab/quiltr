@@ -73,7 +73,7 @@
 #' components of \code{\link{quilt}}.
 #' 
 #' @details
-#' Quiltr relies heavly on other R packages, especially \code{\link{knitr}} and \code{\link{rmarkdown}}.
+#' Quiltr relies heavly on other R packages, especially \code{\link[knitr]{knitr}} and \code{\link[rmarkdown]{rmarkdown}}.
 #' The source of the package is available on GitHub at \url{https://github.com/grunwaldlab/quiltr} and more
 #' documentation is available on the GitHub Pages site at \url{http://grunwaldlab.github.io/quiltr/}.
 #' For error reports and requests for new/changed functionality, start an 

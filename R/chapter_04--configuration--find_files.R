@@ -95,3 +95,28 @@ find_config_folders <- function(paths, search_type = c("parents", "root", "child
   unname(unlist(lapply(paths, process_one)))
 } 
 
+#' @title
+#' Find locations of target files
+#' 
+#' @description 
+#' Find the file paths of potential target files using folder paths and one or more search strategies.
+#' 
+#' @param paths (\code{character})
+#' The target paths that the search space will be relative to.
+#' 
+#' @param search_type (\code{character}) [not path-specific]
+#' Where to look for files relative to \code{path}.
+#' 
+#' Accepts one or more of the following values:
+#' 
+#' \describe{
+#'   \item{parents}{Files in parent folders of \code{path}}
+#'   \item{root}{Files in \code{path}}
+#'   \item{children}{Files in child folders of \code{path}}
+#' }
+#' 
+#' @return \code{character}
+#' The file paths of potential target files.
+get_target_paths <- function(paths, search_type = c("parents", "root", "children")) {
+  NULL
+}

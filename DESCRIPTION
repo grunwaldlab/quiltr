@@ -13,10 +13,9 @@ License: GPL-2 | GPL-3
 LazyData: true
 Imports: rmarkdown,
     yaml,
-    rstudioapi,
     XML,
     stringr,
-    memoise
+    R.utils
 Suggests: testthat,
     knitr
 VignetteBuilder: knitr

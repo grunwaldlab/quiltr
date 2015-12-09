@@ -1,7 +1,0 @@
----
-output: html_fragment
----
-
-## Note 3
-
-Ius hinc exerci graece ut, accusamus necessitatibus duo ex. Quod voluptatum cotidieque mel at, impetus tractatos mel te. Wisi delicatissimi cu vim, et ferri iudico cum. Viris habemus concludaturque ut pri, quo at graece ancillae consetetur, has eu iuvaret pertinacia.
