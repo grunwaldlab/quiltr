@@ -3,8 +3,11 @@ knitr::opts_chunk$set(eval = FALSE)
 #|
 #| # Getting local options
 #|
-#| 
+#| File path specific options are supplied to each renderer function after being parsed from configuration files.
+#| This chapter deals with the parsing of path-specific options given a set of configuration files and a set of target files. 
+#| Which configuration and target files that are used is determined in previous chapters.
 #|
+#| ## The code
 #|
 #' @title 
 #' Get local options from configuration files
@@ -60,8 +63,8 @@ get_path_specific_options <- function(sub_function, target_paths, config_paths, 
   
   #| ### Filter out non-applicable options 
   #| Only options that are specific to this renderer (i.e. output type) should be considered.
-  config_data <- config_data[config_data[, "option"] %in% names(renderer_options), ]
-  config_data <- config_data[config_data[, "group"] %in% c(NA, sub_function), ]
+  config_data <- config_data[config_data[, "option"] %in% names(renderer_options), , drop = FALSE]
+  config_data <- config_data[config_data[, "group"] %in% c(NA, sub_function), , drop = FALSE]
   
   #| ### Apply each setting one at a time
   #| The following function will be run on each row of the parsed configuration file data and apply the changes specficied to the ouptut data. 
@@ -74,29 +77,19 @@ get_path_specific_options <- function(sub_function, target_paths, config_paths, 
   #| Return the output data
   return(output)
 }
-
-
-
-
-#' @title 
-#' Valid configuration file options
-#' 
-#' @description 
-#' Returns the names of options that can appear in configuration files.
-#' These include all of the options of \code{\link{quilt}} and any of its renderers.
-#' Renderers used can be found by running \code{quiltr:::\link{get_quilt_renderers}}.
-#' 
-#' @return \code{character}
-valid_config_options <- function() {
-  renderers <- get_quilt_renderers()
-  renderer_options <- unique(unlist(lapply(renderers, function(x) names(formals(x)))))
-  quilt_options <- names(as.list(formals("quilt")))
-  return(c(renderer_options, quilt_options))
-}
-
-
-
-  
+#|
+#|
+#|
+#| ### Interpreting path patterns
+#|
+#| The paths supplied to the above function might be in the form of path patterns.
+#| Potentially these could be in the form of paths with wildcards ('*') or regex, although currently only wildcards are supported.
+#| The `Sys.glob' function in the R base handles wildcard expansion, but does not understand double wildcards ('**').
+#| Double wildcards can be used to match in any decendent of the preceding folder. 
+#| This is useful for setting options for file types regardless of locations.
+#| For example, `**.txt` would match all `*.txt` files in any decendent folder of the current working directory.
+#| The function below acts as a replacement for `Sys.glob' that incorepates this ability. 
+#|
 #' @title 
 #' Wildcard expansion
 #' 

@@ -46,4 +46,11 @@ result <- quiltr:::find_config_folders(folder_path_a, search_type = c("root", "p
 test_that("all folder(s) are found", {
   expect_true(all(c(root_path, folder_path_a, folder_path_b, folder_path_c, folder_path_d, folder_path_e) %in% result))
 })
-
+#|
+#| ## Test that errors are thrown
+file_path <- file.path(folder_path_a, "a_file.txt")
+file.create(file_path)
+test_that("using file paths causes an error", {
+  expect_error(quiltr:::find_config_folders(file_path, search_type = c("root", "parents", "children")),
+               "Not all paths supplied are folders.")
+})

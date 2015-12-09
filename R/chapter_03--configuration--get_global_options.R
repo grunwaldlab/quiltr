@@ -63,12 +63,10 @@ get_global_options <- function(main_function, renderers, config_path, config_nam
   
   #| ### Read configuration file(s)
   #| Since a `config_path` specified in a configuration file can redirect to multiple configuration file, this will be a recursive process.
-  valid_options <- c(unique(unlist(lapply(renderers, function(x) names(formals(x))))),
-                     names(default_options))
   read_config_path <- function(config_path, config_name, group = NA) {
     options <- parse_configuration(paths = config_path, 
                                    config_name = config_name,
-                                   valid_options = valid_options,
+                                   valid_options = valid_config_options(),
                                    global_options =  global_options,
                                    group_prefixes = output_types)
     if ( ! is.na(group)) { options[ , "group"] = group }
@@ -110,4 +108,24 @@ get_global_options <- function(main_function, renderers, config_path, config_nam
   }
   apply(settings, MARGIN = 1, apply_setting)
   return(output)
+}
+
+
+
+
+
+#' @title 
+#' Valid configuration file options
+#' 
+#' @description 
+#' Returns the names of options that can appear in configuration files.
+#' These include all of the options of \code{\link{quilt}} and any of its renderers.
+#' Renderers used can be found by running \code{quiltr:::\link{get_quilt_renderers}}.
+#' 
+#' @return \code{character}
+valid_config_options <- function() {
+  renderers <- get_quilt_renderers()
+  renderer_options <- unique(unlist(lapply(renderers, function(x) names(formals(x)))))
+  quilt_options <- names(as.list(formals("quilt")))
+  return(c(renderer_options, quilt_options))
 }

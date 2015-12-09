@@ -79,3 +79,22 @@ test_that("double wildcards work", {
 test_that("Moving up the folder structure with '..' works", {
   expect_equal(output[[files[1], "theme"]], "test_theme_2")
 })
+
+
+#| ## File path pattern matching
+#|
+#| ### Prepare data
+#|
+data_c <- list("**/**.R" = list("placement" = "y"))
+config_path_c <- file.path(root_path, "config.R")
+dput(data_c, file = config_path_c)
+#|
+#| ### Call function
+#|
+test_that("Trying to use two double wilcards causes an error", {
+  expect_error(quiltr:::get_path_specific_options(sub_function = "website",
+                                                  target_paths = files,
+                                                  config_paths = config_path_c,
+                                                  config_name = "config"),
+               "Currently, Quiltr only supports one double wildcard")
+})
