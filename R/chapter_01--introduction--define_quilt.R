@@ -40,7 +40,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #| The `quilt` function must be able to work intuitivly on complex folder structures.
 #| It is not likly that all parts of a complex folder will be optimally represented by a single set of option values.
 #| Therefore, *path-specific option values* can be specified in configuration files for applicable options.
-#| This allows for different parts of a target folder to be treated diffrently. 
+#| This allows for different parts of a target folder to be treated differently. 
 #| Paths associated with option values can be absolute or relative and can include wildcards.
 #| How path-specific options are implemented is covered in chapter 2. 
 #|
@@ -54,14 +54,13 @@ knitr::opts_chunk$set(eval = FALSE)
 #| Some options are shared amoung differnet output *renderer* functions and some are unique to a subset.
 #| Using output-specific option values allows a given folder to be represented in multiple independent output formats.
 #| Each output format can have its own settings during a single execution of `quilt`.
-#| Therefore, configurations files do not need to be constantly changes to accomidate multiple output formats. 
+#| Therefore, configurations files do not need to be constantly changed to accomidate multiple output formats. 
 #| 
 #| > **Output-specific option**: 
 #| > An option setting that applies to a single output format (i.e. renderer).
 #|
 #| > **Renderer**: 
-#| > A function used to make a specific output type (e.g. website). 
-#| > They are called by `quilt`.
+#| > A function called by `quilt` used to make a specific output type (e.g. website). 
 #|
 #| ### Global vs local options
 #|
@@ -101,7 +100,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #| * __delegation__"
 #|   The `quilt` function allow for multiple outputs per execution by calling other self-contained renderer functions.
 #|   Each renderer function should corresponding to an output type.
-#|   It should be possible to set all options of renderer functions using `quilt`. 
+#|   It should be possible to set all options of renderer functions via the `quilt` function. 
 #| 
 #| ## The function documentation
 #| 
@@ -196,21 +195,12 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @param config_name (\code{character} of length 1) [not path-specific]
 #' The name of configuration files to use.
 #' They can be anywhere in directories under \code{config_path}.
-#' Configuration files are in YAML or R format and specify the values of options for this function.
-#' Options that are file-path-specific (e.g. \code{type}) can take the form of named lists,
-#' where names are file paths relative to the location of the configuration file 
-#' (possibly with \code{*} or \code{**} wildcards) and values are the option values relevant
-#' to the paths specified in the names.
-#' Path-specific options can be specified by configuraion files anywhere in the target 
-#' directory, not just the root specified by \code{path}.
-#' Only some of this function's options are file-path-specific; those that are not
-#' (e.g. \code{output}) can be specified by values in a configuration file in \code{path}.
 #' To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
 #' 
 #' @param config_path (\code{character} of length 1) [not path-specific]
 #' Path to a folder in which to look for a configuration file with name specified by \code{config_name}.
 #' The default is the value of \code{path} given during the function call. 
-#' This only applies to global options is not effected by \code{config_search_type}.
+#' This only applies to global options and is not effected by \code{config_search_type}.
 #' To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
 #' 
 #' @param config_search_type (\code{character}) [not path-specific]
@@ -241,8 +231,6 @@ knitr::opts_chunk$set(eval = FALSE)
 #' directory, not just the root specified by \code{path}.
 #' Only some of this function's options are file-path-specific; those that are not
 #' (e.g. \code{output}) can be specified by values in a configuration file in \code{path}.
-#' This is the only option that cannot be specified by a configuration file.
-#' To ignore website configuartion files, set this option to \code{NA} or \code{NULL}.
 #' 
 #|
 #| ### Accepted input file formats

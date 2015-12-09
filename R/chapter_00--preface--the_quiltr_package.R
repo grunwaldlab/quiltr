@@ -14,7 +14,8 @@
 #|
 #| The function's  name and purpose is best understood in the context of an extension of Knuth's metaphor used in the knitr package documentation.
 #| The knitr function `spin` convertes code with comments writen in a markup language ("goat's hair") into a literate programming document ("wool").
-#| The markup portion of a literate programming document is typically [markdown](https://en.wikipedia.org/wiki/Markdown) or [latex](https://en.wikipedia.org/wiki/LaTeX) (rendered into html and pdf respectivly) and the code is often [R](https://en.wikipedia.org/wiki/R_%28programming_language%29) or [python](https://en.wikipedia.org/wiki/Python_%28programming_language%29), although many other languages can also be used. 
+#| The markup portion of a literate programming document is typically [markdown](https://en.wikipedia.org/wiki/Markdown) or [latex](https://en.wikipedia.org/wiki/LaTeX) (rendered into html and pdf respectivly)
+#| The code is often [R](https://en.wikipedia.org/wiki/R_%28programming_language%29) or [python](https://en.wikipedia.org/wiki/Python_%28programming_language%29), although many other languages can also be used. 
 #| The `knit` function can be used to execute the code in a literate programming document ("wool") and integrate it and its results into the rendered markdown document.
 #| The output of `knit` is presumably some kind of textile if the metaphor holds ([mohair](https://en.wikipedia.org/wiki/Mohair)?).
 #| This function is called `quilt` because it was originally designed to execute and consolidate the output of many literate programming documents in specified folders into a portable website.
@@ -22,8 +23,7 @@
 #| <img src="`r file.path("..", "figures", "knitr_metaphore_figure.png")`">
 #|
 #| Each "patch" or "block" of the "quilt" is the rendering of a specific file in this metaphor.
-#| Since quiltr is itself a literate program it can be run on its own source code to create
-#| the documentation you are reading now.
+#| Since quiltr is itself a literate program it can be run on its own source code to create the documentation you are reading now.
 #| 
 #| ### The structure of quiltr
 #| 
