@@ -309,7 +309,7 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
     local_options <- get_path_specific_options(sub_function   = renderer,
                                                target_paths   = target_paths, 
                                                config_paths   = config_paths,
-                                               global_options = global_option_names)
+                                               config_name    = global_options$config_name)
     
     ## Call renderer functions with path-specific options
     local_options$file_paths <- target_paths

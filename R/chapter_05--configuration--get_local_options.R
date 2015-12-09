@@ -22,15 +22,18 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @param config_paths (\code{character})
 #' Folder paths where configuration files might exist.
 #' 
-#' @param global_options (\code{character})
+#' @param config_name (\code{character} of length 1)
+#' The file name of configuration files without the file extension.
 #' 
 #' 
-#' @return a 2-dimentional \code{list}
+#' @return a 2-dimensional \code{list}
 #' 
 #' Given a set of file paths and folder paths that might contain configuration files, this function
 #' returns the local options that apply to 
-get_path_specific_options <- function(sub_function, target_paths, config_paths, global_options) {
+get_path_specific_options <- function(sub_function, target_paths, config_paths, config_name) {
   main_function <- "quilt"
+  valid_options <- c(unique(unlist(lapply(renderers, function(x) names(formals(x))))),
+                     names(default_options))
   
   #| ### Define default output structure
   #| The first thing we will do is make the two-dimensional list output structure.
@@ -50,17 +53,19 @@ get_path_specific_options <- function(sub_function, target_paths, config_paths, 
   config_paths <- config_paths[order(path_depth)]
   
   #| ### Parse configuration files
-  #| All of the configuration files are parsed at the same time and consolidated into the same 2-dimentional list.
+  #| All of the configuration files are parsed at the same time and consolidated into the same 2-dimensional list.
+  config_data <- parse_configuration(paths = config_paths,
+                                     valid_options = valid_config_options(), #not made yet
+                                     config_name = global_options$config_name, 
+                                     group_prefixes = names(get_quilt_renderers()))
   
-  
-  #| ### Define function to apply a single option
-  #| This function will be run on each row of the parsed configuration file data and apply the changes specficied to the ouptut data. 
-  apply_config_file <- function(config_path) {
-    # Determine which file paths the option setting applies to
-    
-    # Apply the setting to the relevant files
-    
+  #| ### Apply each setting one at a time
+  #| The following function will be run on each row of the parsed configuration file data and apply the changes specficied to the ouptut data. 
+  apply_setting <- function(setting) {
+    output[matches_pattern(setting$path), setting$option] <<- setting$value
   }
+  apply(config_data, MARGIN = 1, FUN = apply_setting)
   
   #| Return the output data
+  return(output)
 }
