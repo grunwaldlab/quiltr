@@ -55,7 +55,7 @@ get_path_specific_options <- function(sub_function, target_paths, config_paths, 
   #| ### Parse configuration files
   #| All of the configuration files are parsed at the same time and consolidated into the same 2-dimensional list.
   config_data <- parse_configuration(paths = config_paths,
-                                     valid_options = valid_config_options(), #not made yet
+                                     valid_options = valid_config_options(),
                                      config_name = global_options$config_name, 
                                      group_prefixes = names(get_quilt_renderers()))
   
@@ -69,3 +69,26 @@ get_path_specific_options <- function(sub_function, target_paths, config_paths, 
   #| Return the output data
   return(output)
 }
+
+
+
+
+#' @title 
+#' Valid configuration file options
+#' 
+#' @description 
+#' Returns the names of options that can appear in configuration files.
+#' These include all of the options of \code{\link{quilt}} and any of its renderers.
+#' Renderers used can be found by running \code{quiltr:::\link{get_quilt_renderers}}.
+#' 
+#' @return \code{character}
+valid_config_options <- function() {
+  renderers <- get_quilt_renderers()
+  renderer_options <- unique(unlist(lapply(renderers, function(x) names(formals(x)))))
+  quilt_options <- names(as.list(formals("quilt")))
+  return(c(renderer_options, quilt_options))
+}
+
+
+
+matches_pattern <- function()
