@@ -299,7 +299,6 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
   #| Note that `config_path` is used instead of `path`; however, the default for `config_path` is `path`. 
   #| The function `get_global_options` should return a named list of named lists, representing the options for each output type. 
   #| The first dimension groups options by output type, and the second is the lists of options.
-  global_option_names <- names(formals(quilt))
   global_options <- get_global_options(main_function = "quilt",
                                        renderers = renderers,
                                        config_path   = config_path,

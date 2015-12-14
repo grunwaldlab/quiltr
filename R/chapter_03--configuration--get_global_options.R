@@ -96,7 +96,7 @@ get_global_options <- function(main_function, renderers, config_path, config_nam
     }
   }
   settings <- read_config_path(config_path, config_name)
-  settings <- settings[settings[, "option"] %in% global_options, ]
+  settings <- settings[settings[, "option"] %in% global_options, , drop = FALSE]
   
   #| ### Apply configuration file settings and return
   apply_setting <- function(setting) {
