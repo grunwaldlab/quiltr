@@ -67,8 +67,7 @@ get_global_options <- function(main_function, renderers, config_path, config_nam
     options <- parse_configuration(paths = config_path, 
                                    config_name = config_name,
                                    valid_options = valid_config_options(),
-                                   global_options =  global_options,
-                                   group_prefixes = output_types)
+                                   global_options =  global_options)
     if ( ! is.na(group)) { options[ , "group"] = group }
     config_path_settings <- options[ options[ , "option"] == "config_path", , drop = FALSE]
     if (nrow(config_path_settings) > 0) {

@@ -58,8 +58,7 @@ get_path_specific_options <- function(sub_function, target_paths, config_paths, 
   #| All of the configuration files are parsed at the same time and consolidated into the same 2-dimensional list.
   config_data <- parse_configuration(paths = config_paths,
                                      valid_options = valid_config_options(),
-                                     config_name = config_name, 
-                                     group_prefixes = names(get_quilt_renderers()))
+                                     config_name = config_name)
   
   #| ### Filter out non-applicable options 
   #| Only options that are specific to this renderer (i.e. output type) should be considered.

@@ -52,9 +52,6 @@ knitr::opts_chunk$set(eval = FALSE)
 #' The default path applied to options that accept path specific values but dont have a path
 #' specified.
 #' 
-#' @param group_prefixes (\code{character})
-#' Prefixes that can be put in front option names to define groups.
-#' 
 #' @return \code{list} of \code{list} with the following items:
 #' \describe{
 #'   \item{option}{The name of an option for \code{function}}
@@ -63,7 +60,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #'   \item{config_path}{The full path to the configuration file the setting was derived from}
 #' }
 parse_configuration <- function(paths, config_name, valid_options, global_options = NULL,
-                                default_path = "**", group_prefixes = NULL) {
+                                default_path = "**") {
   
   #| ### Input vaildation ##########################################################################
   #| Since this is a rather high-level function, lets do some argument validation.
@@ -100,7 +97,11 @@ parse_configuration <- function(paths, config_name, valid_options, global_option
   #| In that case, the names of the list are the folder paths the settings apply to.
   #| All folders might not have configuration files, so `raw_content` could have less items than `paths`
   raw_content <- lapply(paths, function(x) {
-    if (is_named_list(x)) { return(list(x)) } else { return(read_configuration_files(x, config_name)) }
+    if (is_named_list(x)) {
+      return(list(x))
+    } else {
+      return(read_configuration_files(x, config_name))
+    }
   })
   raw_content <- unlist(raw_content, recursive = FALSE)
 
@@ -108,7 +109,7 @@ parse_configuration <- function(paths, config_name, valid_options, global_option
   #| Next we need to convert `raw_content` into the output format described in the function documentation.
   #| This can be thought of as an operation similar to `reshape2::melt`, where the dimentionailty of the data is reduced.
   #| For options that are not given path-specific values, the path pattern returned should be `NA`
-  settings <- reformat_configuration(raw_content, valid_options, group_prefixes)
+  settings <- reformat_configuration(raw_content, valid_options)
   
   #| ### Verify content ############################################################################
   #| We should vaildate the content of the settings now that it is in a form that is easy to parse. 
@@ -382,19 +383,22 @@ read_configuration_files <- function(folder_paths, config_name) {
 #' The set of vaild options that can be specified.
 #' This is used to tell the differnece between options with and without path specificity
 #' 
-#' @param group_prefixes (\code{character})
-#' Prefixes that can be put in front option names to define groups.
-#' The group prefix and the option name must be separated by a period. 
+#' @param group_regex (\code{character} of length 1)
+#' Fragment of regular expression that matches a group name at the start of the option name. 
+#' 
+#' @param group_sep (\code{character} of length 1)
+#' Fragment of regular expression that matches what separates group names from option names. 
 #' 
 #' @return (\code{list})
-reformat_configuration <- function(raw_content, option_names, group_prefixes) {
+reformat_configuration <- function(raw_content, option_names,
+                                   group_regex = "[a-zA-Z0-9_.]+", group_sep = "\\.") {
   
   #| ### Define valid option names
   #| We use the knowledge of valid option names to identify when path-specific information is left off.
-  #| We must take into account possible group prefixes.
-  #| A conceptually simple, but potentially inefficeint, stragey is to calculate every possible group-option combination.
-  valid_option_names <- c(option_names, 
-                          unlist(lapply(group_prefixes, FUN = paste0, sep = ".", option_names)))
+  #| We must take into account unknown group prefixes.
+  valid_regex <- paste0("((^", group_regex, ")",
+                        group_sep, ")?",
+                        "(", paste(option_names, collapse = "|"), "$)")
   
   #| ### Define function to process one configuration file data ####################################
   #| The function can take the data from multiple configuration files. 
@@ -406,16 +410,14 @@ reformat_configuration <- function(raw_content, option_names, group_prefixes) {
   process_one <- function(data, config_path) {
     output <- list()
     add_row <- function(option, value, path) {
-      group_regex <- paste0("^", group_prefixes, "\\.", collapse = "|")
-      group <- stringr::str_extract(option, group_regex) # extract group from option name
-      group <- gsub(pattern = "\\.$", replacement = "", group) # remove trailing dot from group
-      option <- gsub(group_regex, "", option) # remove group from option name
+      group <- stringr::str_match(option, valid_regex)[1, 3] # extract group from option name
+      option <- stringr::str_match(option, valid_regex)[1, 4] # extract option name
       output <<- c(output, list(option, value, path, config_path, group))
     }
     for ( index_1 in seq_along(data) ) { # Iterate over first dimension
       dim_1_name <- names(data)[index_1]
       dim_1_value <- data[[index_1]]
-      if ( dim_1_name %in% valid_option_names ) {
+      if ( grepl(valid_regex, dim_1_name) ) {
         if ( ( ! is.null(names(dim_1_value)) ) && all(names(dim_1_value) %in% option_names) ) {
           stop(paste0('It appears that you are trying to specify a path-specific value for a path',
                       ' with the same name as an option. This is ambiguous since paths can be left',
@@ -428,7 +430,7 @@ reformat_configuration <- function(raw_content, option_names, group_prefixes) {
         for ( index_2 in seq_along(dim_1_value) ) { # Iterate over second dimension
           dim_2_name <- names(dim_1_value)[index_2]
           dim_2_value <- dim_1_value[[index_2]]
-          if ( dim_2_name %in% valid_option_names ) {
+          if ( grepl(valid_regex, dim_2_name) ) {
             add_row(option = dim_2_name, value = dim_2_value, path = dim_1_name)
           } else {
             stop(paste0('Invalid configutation file format in "', config_path,

@@ -54,8 +54,7 @@ context("Reformating configuration file data")
 #|
 #| We can use the test data generated above to test the reformating function.
 option_names <- c("theme", "other_option", "include")
-groups <- c("group1", "group2")
-reformated <- quiltr:::reformat_configuration(raw_config, option_names, groups)
+reformated <- quiltr:::reformat_configuration(raw_config, option_names)
 reformated
 test_that("Configuration data can be reformatted", {
   expect_equal(reformated[[1, "option"]], "theme")
@@ -76,8 +75,7 @@ context("Parsing configuration files")
 #|
 parsed <- quiltr:::parse_configuration(paths = c(folder_path_a, folder_path_b),
                                        valid_options = option_names,
-                                       config_name = "config", 
-                                       group_prefixes = groups)
+                                       config_name = "config")
 parsed
 test_that("Configuration files can be parsed", {
   expect_equal(parsed[[1, "option"]], "theme")
@@ -94,12 +92,10 @@ test_that("Configuration files can be parsed", {
 #|
 parsed_file <- quiltr:::parse_configuration(paths = c(file_path_a, file_path_b),
                                             valid_options = option_names,
-                                            config_name = "config", 
-                                            group_prefixes = groups)
+                                            config_name = "config")
 parsed_mixed <- quiltr:::parse_configuration(paths = c(file_path_a, folder_path_b),
                                              valid_options = option_names,
-                                             config_name = "config", 
-                                             group_prefixes = groups)
+                                             config_name = "config")
 test_that("Reference configuration file path explicitly", {
   expect_equal(parsed, parsed_file)
   expect_equal(parsed, parsed_mixed)
