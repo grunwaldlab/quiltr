@@ -30,13 +30,6 @@ knitr::opts_chunk$set(eval = FALSE)
 #' Return a two dimensional list of output types vs option values.
 #' The `config_path` option in configuration files can be used to add additional configuration files recursivly.
 #' 
-#' @param  main_function (\code{character} of length 1)
-#' The name of the function to get global option names and default values from.
-#' 
-#' @param  renderers (\code{character})
-#' The name of the functions called by \code{main_function}.
-#' This is used to identify invalid options in configuration files.
-#' 
 #' @param  config_path  (\code{character} of length 1)
 #' The path to a configuration file or a folder that might contain a configuration file.
 #' If a path to a folder is supplied, the \code{config_name} option is used to look for the file.
@@ -44,30 +37,21 @@ knitr::opts_chunk$set(eval = FALSE)
 #' @param  config_name (\code{character}) 
 #' The name(s) of configuration files without file extension(s).
 #' 
+#' @param  default_format (\code{character}, possibly named)
+#' 
+#' 
 #' @return named \code{list} of named \code{list}s
 #' The first dimension is output types and the second a list of settings for that output type.
 #|
 #|
-get_global_options <- function(main_function, renderers, config_path, config_name) {
-  
-  #| ### Define default output structure
-  #| The first thing we will do is make the output two-dimensional list output structure.
-  #| It will be populated with default values of `main_funciton` (`quilt` in this case).
-  #| To make the structure we need the list of output types and the list of `main_funciton` options.
-  output_types <- names(renderers)
-  default_options <- as.list(formals("quilt"))
-  global_options =  names(default_options)
-  output <- t(vapply(output_types,
-                     USE.NAMES = TRUE, FUN.VALUE = default_options, 
-                     FUN = function(x) default_options))
-  
+get_global_options <- function(config_path, config_name, default_format) {
+
   #| ### Read configuration file(s)
   #| Since a `config_path` specified in a configuration file can redirect to multiple configuration file, this will be a recursive process.
   read_config_path <- function(config_path, config_name, group = NA) {
     options <- parse_configuration(paths = config_path, 
                                    config_name = config_name,
-                                   valid_options = valid_config_options(),
-                                   global_options =  global_options)
+                                   valid_options = valid_config_options())
     if ( ! is.na(group)) { options[ , "group"] = group }
     config_path_settings <- options[ options[ , "option"] == "config_path", , drop = FALSE]
     if (nrow(config_path_settings) > 0) {
@@ -95,7 +79,48 @@ get_global_options <- function(main_function, renderers, config_path, config_nam
     }
   }
   settings <- read_config_path(config_path, config_name)
+  
+  #| ### Verify content ############################################################################
+  #| We should vaildate the content of the settings now that it is in a form that is easy to parse. 
+  #|
+  #| Lets check for global options being given path-specific values.
+  #| For options that are not given path-specific values, the path pattern returned by `reformat_configuration` should be `NA`.
+  invalid_rows <- which(settings[, "option"] %in% names(global_options()) & !is.na(settings[, "path"]))
+  if (length(invalid_rows) > 0) {
+    stop(paste0('Attempt to set global option "', settings[invalid_rows[1], "option"],
+                '" to a path-specific value in configuration file "', settings[invalid_rows[1], "path"], '".'))
+  }
+  #| Some options should be independent of output type, so they should not be assinged an output type
+  output_independent <- c("path", "output_format")
+  invalid_rows <- which(settings[, "option"] %in% output_independent & !is.na(settings[, "group"]))
+  if (length(invalid_rows) > 0) {
+    stop(paste0('Attempt to set output-type-independent option "', settings[invalid_rows[1], "option"],
+                '" to a output-type-specific value in configuration file "', settings[invalid_rows[1], "path"], '".'))
+  }
+  
+  
+  
+  #| ### Define default output structure
+  #| The first thing we will do is make the output two-dimensional list output structure.
+  #| It will be populated with default values of `main_funciton` (`quilt` in this case).
+  #| To make the structure we need the list of output types and the list of `main_funciton` options.
+  
+  
+  
+  output_format_settings <- settings[settings[, "option"] == "output_format"], ]
+  if (length(output_format_settings) > 0) {
+    output_types <- output_format_settings[length(output_format_settings
+                                                  )]
+  }
+  
+  
+  output <- t(vapply(output_types,
+                     USE.NAMES = TRUE, FUN.VALUE = global_options(), 
+                     FUN = function(x) global_options()))
+
+  #| ### 
   settings <- settings[settings[, "option"] %in% global_options, , drop = FALSE]
+  
   
   #| ### Apply configuration file settings and return
   apply_setting <- function(setting) {
@@ -110,6 +135,17 @@ get_global_options <- function(main_function, renderers, config_path, config_nam
 }
 
 
+
+#' @title 
+#' Valid global options
+#' 
+#' @description 
+#' Returns the names and default values of quilt options.
+#' 
+#' @return \code{character}
+global_options <- function() {
+  as.list(formals("quilt"))
+}
 
 
 
@@ -128,3 +164,6 @@ valid_config_options <- function() {
   quilt_options <- names(as.list(formals("quilt")))
   return(c(renderer_options, quilt_options))
 }
+
+
+

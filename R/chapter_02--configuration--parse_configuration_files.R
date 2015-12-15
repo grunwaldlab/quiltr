@@ -43,11 +43,6 @@ knitr::opts_chunk$set(eval = FALSE)
 #' The set of vaild options that can be specified.
 #' This is used to tell the differnece between options with and without path specificity
 #' 
-#' @param global_options (\code{character})
-#' The names of global options, which should not be given path-specific values.
-#' This is only used for error checking. 
-#' By default, no global options are assumed.
-#' 
 #' @param default_path (\code{character} of length 1)
 #' The default path applied to options that accept path specific values but dont have a path
 #' specified.
@@ -59,8 +54,7 @@ knitr::opts_chunk$set(eval = FALSE)
 #'   \item{path}{The path pattern for the option-value pair}
 #'   \item{config_path}{The full path to the configuration file the setting was derived from}
 #' }
-parse_configuration <- function(paths, config_name, valid_options, global_options = NULL,
-                                default_path = "**") {
+parse_configuration <- function(paths, config_name, valid_options, default_path = "**") {
   
   #| ### Input vaildation ##########################################################################
   #| Since this is a rather high-level function, lets do some argument validation.
