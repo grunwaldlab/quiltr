@@ -55,10 +55,10 @@ get_global_options <- function(config_path, config_name, default_format) {
   #|
   #| Lets check for global options being given path-specific values.
   #| For options that are not given path-specific values, the path pattern returned by `reformat_configuration` should be `NA`.
-  invalid_rows <- which(settings[, "option"] %in% names(global_options()) & !is.na(settings[, "path"]))
+  invalid_rows <- which(settings[, "option"] %in% names(global_options()) & !is.na(settings[, "raw_path"]))
   if (length(invalid_rows) > 0) {
     stop(paste0('Attempt to set global option "', settings[invalid_rows[1], "option"],
-                '" to a path-specific value in configuration file "', settings[invalid_rows[1], "path"], '".'))
+                '" to a path-specific value in configuration file "', settings[invalid_rows[1], "raw_path"], '".'))
   }
   #| Some options should be independent of output type, so they should not be assinged an output type
   output_independent <- c("path", "output_format")
@@ -92,7 +92,7 @@ get_global_options <- function(config_path, config_name, default_format) {
                      FUN = function(x) global_options()))
   
   #| ### Filter
-  settings <- settings[settings[, "option"] %in% global_options, , drop = FALSE]
+  settings <- settings[settings[, "option"] %in% names(global_options()), , drop = FALSE]
   settings <- settings[settings[, "group"] %in% output_type_names | is.na(settings[, "group"]), , drop = FALSE]
   
   
@@ -127,18 +127,27 @@ read_global_options <- function(config_path, config_name, parent_group = NA) {
   
   
   # Determine if the options defined in this file will be included
-  config_path_settings <- settings[ settings[ , "option"] == "config_path", , drop = FALSE]
-  if ( nrow(config_path_settings) > 0 & (! config_path %in% config_path_settings[, "config_path"]) ) {
-    use_current_file_settings <- FALSE
-  } else {
-    use_current_file_settings <- TRUE
-  }
   
+  original_wd <- getwd()
+  on.exit(setwd(original_wd))
+  setwd(config_path)
+  config_path_settings <- settings[ settings[ , "option"] == "config_path", , drop = FALSE]
+  use_current_file_settings <- TRUE
+  if ( nrow(config_path_settings) > 0) {
+    config_sub_paths <- normalizePath(unlist(config_path_settings[, "value"]))
+    if ( ! config_path %in% config_sub_paths ) {
+      use_current_file_settings <- FALSE
+    }
+  }
+ 
   # Define function to handle settings one at a time
   process_setting <- function(setting) {
     if (setting$option == "config_path") {
-      if (setting$value != config_path) {
-        return(read_config_path(setting$value, config_name, parent_group = setting$group))
+      setting_sub_paths <- normalizePath(setting$value)
+      setting_sub_paths <- setting_sub_paths[setting_sub_paths != config_path]
+      if (length(setting_sub_paths) > 0) {
+        return(do.call(rbind, lapply(setting_sub_paths, read_global_options,
+                                     config_name = config_name, parent_group = setting$group)))
       }
     } else if (use_current_file_settings) {
       return(setting)
@@ -162,7 +171,13 @@ read_global_options <- function(config_path, config_name, parent_group = NA) {
 #' 
 #' @return \code{character}
 global_options <- function() {
-  as.list(formals("quilt"))
+  quilt_args <- as.list(formals("quilt"))
+  is_a_symbol <- vapply(quilt_args, is.symbol, FUN.VALUE = logical(1))
+  eval_symbol <- function(symbol) {
+    quilt_args[[which(symbol == names(quilt_args))]]
+  }
+  quilt_args[is_a_symbol] <- lapply(quilt_args[is_a_symbol], eval_symbol)
+  return(quilt_args)
 }
 
 

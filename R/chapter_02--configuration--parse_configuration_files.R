@@ -73,12 +73,6 @@ parse_configuration <- function(paths, config_name, valid_options, default_path 
   if ( length(config_name) != 1 ) {
     stop( paste0("Incorrect length of 'config_name' (", length(config_name), ").") )
   }
-  # Global options should be a subset of `valid_options`...
-  unknown_options <- global_options[!global_options %in% valid_options]
-  if (length(unknown_options) > 0) {
-    stop(paste0("The following options are not known options: ", 
-                paste(unknown_options, collapse = ", ")))
-  }
   # There should be only one default path...
   if ( length(default_path) != 1 ) {
     stop( paste0("Incorrect length of 'default_path' (", length(default_path), ").") )
@@ -105,17 +99,8 @@ parse_configuration <- function(paths, config_name, valid_options, default_path 
   #| For options that are not given path-specific values, the path pattern returned should be `NA`
   settings <- reformat_configuration(raw_content, valid_options)
   
-  #| ### Verify content ############################################################################
-  #| We should vaildate the content of the settings now that it is in a form that is easy to parse. 
-  #|
-  #| Lets for global options being given path-specific values.
-  #| For options that are not given path-specific values, the path pattern returned by `reformat_configuration` should be `NA`.
-  invalid_rows <- which(settings[, "option"] %in% global_options & !is.na(settings[, "path"]))
-  if (length(invalid_rows) > 0) {
-    stop(paste0('Attempt to set global option "', settings[invalid_rows[1], "option"],
-                '" to a path-specific value in configuration file "', settings[invalid_rows[1], "path"], '".'))
-  }
-  
+  #| Save the original format of the path specification for the possibility of later validation.
+  settings <- cbind(settings, raw_path = settings[, "path"])
   #| ### Apply default paths #######################################################################
   #| Finally, lets replace the `NA`s introduced by `reformat_configuration` with the default path value
   settings[is.na(settings[, "path"]), "path"] <- default_path

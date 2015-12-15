@@ -34,10 +34,9 @@ dput(data_a, file = file_path_a)
 #|
 #| #### Call function 
 #|
-global_options <- quiltr:::get_global_options(main_function = "quilt",
-                                              renderers = quiltr:::get_quilt_renderers(),
-                                              config_path   = folder_path_a,
-                                              config_name   = "config")
+global_options <- quiltr:::get_global_options(config_path   = folder_path_a,
+                                              config_name   = "config",
+                                              default_format = c("website", "book"))
 test_that("Output types have the correct global option values", {
   #| Lets test that settings without an output type specified are applied.
   expect_equal(global_options[["website", "output_name"]], "a_name")
@@ -60,8 +59,7 @@ test_that("Output types have the correct global option values", {
 #| #### Create config data
 data_a <- list("output_path" = "a_path",
                "output_name" = "name_a",
-               "config_path" = c(".",
-                                 "folder_b"))
+               "config_path" = c(".", "folder_b"))
 data_b <- list("output_name" = "name_b",
                "website.config_path" = c(".", "../folder_c"))
 data_c <- list("output_name" = "name_c")
@@ -84,10 +82,9 @@ dput(data_c, file = file_path_c)
 #|
 #| #### Call function 
 #|
-global_options <- quiltr:::get_global_options(main_function = "quilt",
-                                              renderers = quiltr:::get_quilt_renderers(),
-                                              config_path   = folder_path_a,
-                                              config_name   = "config")
+global_options <- quiltr:::get_global_options(config_path   = folder_path_a,
+                                              config_name   = "config",
+                                              default_format = c("website", "book"))
 test_that("`config_path` changes the configuration files used", {
   expect_equal(global_options[["website", "output_name"]], data_c$output_name)
 })
