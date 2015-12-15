@@ -91,8 +91,9 @@ get_global_options <- function(config_path, config_name, default_format) {
                      USE.NAMES = TRUE, FUN.VALUE = global_options(), 
                      FUN = function(x) global_options()))
   
-  #| ### 
+  #| ### Filter
   settings <- settings[settings[, "option"] %in% global_options, , drop = FALSE]
+  settings <- settings[settings[, "group"] %in% output_type_names | is.na(settings[, "group"]), , drop = FALSE]
   
   
   #| ### Apply configuration file settings and return
@@ -139,9 +140,10 @@ read_global_options <- function(config_path, config_name, parent_group = NA) {
       if (setting$value != config_path) {
         return(read_config_path(setting$value, config_name, parent_group = setting$group))
       }
-    } else {
+    } else if (use_current_file_settings) {
       return(setting)
     }
+    return(NULL)
   }
   
   do.call(rbind, apply(settings, MARGIN = 1, process_setting))
@@ -177,7 +179,7 @@ global_options <- function() {
 valid_config_options <- function() {
   renderers <- get_quilt_renderers()
   renderer_options <- unique(unlist(lapply(renderers, function(x) names(formals(x)))))
-  quilt_options <- names(as.list(formals("quilt")))
+  quilt_options <- names(global_options())
   return(c(renderer_options, quilt_options))
 }
 
