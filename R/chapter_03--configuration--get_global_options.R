@@ -105,13 +105,34 @@ get_global_options <- function(config_path, config_name, default_format) {
     }
   }
   apply(settings, MARGIN = 1, apply_setting)
+  
+  #| ### Overwrite output format with output type
+  #| Otherwise, the output_format column would have a single value: the last defined in configuration files or the default. 
+  #| This makes the column more useful
+  output[ , "output_format"] <- output_types
   return(output)
 }
 
 
 
 
-
+#' @title 
+#' Read global settings
+#' 
+#' @description 
+#' Read the global settings in configuration files. 
+#' Follow any configuration file redirections within the first file
+#' 
+#' @param  config_path  (\code{character} of length 1)
+#' The path to a configuration file or a folder that might contain a configuration file.
+#' If a path to a folder is supplied, the \code{config_name} option is used to look for the file.
+#'  
+#' @param  config_name (\code{character}) 
+#' The name(s) of configuration files without file extension(s).
+#' 
+#' @param  parent_group  (\code{character} of length 1)
+#' The group of the referring config redirection. 
+#' Used during recursion. 
 read_global_options <- function(config_path, config_name, parent_group = NA) {
   # Read configuration file
   settings <- parse_configuration(paths = config_path, 
@@ -127,7 +148,6 @@ read_global_options <- function(config_path, config_name, parent_group = NA) {
   
   
   # Determine if the options defined in this file will be included
-  
   original_wd <- getwd()
   on.exit(setwd(original_wd))
   setwd(config_path)
