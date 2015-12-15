@@ -45,40 +45,10 @@ knitr::opts_chunk$set(eval = FALSE)
 #|
 #|
 get_global_options <- function(config_path, config_name, default_format) {
-
+  
   #| ### Read configuration file(s)
   #| Since a `config_path` specified in a configuration file can redirect to multiple configuration file, this will be a recursive process.
-  read_config_path <- function(config_path, config_name, group = NA) {
-    options <- parse_configuration(paths = config_path, 
-                                   config_name = config_name,
-                                   valid_options = valid_config_options())
-    if ( ! is.na(group)) { options[ , "group"] = group }
-    config_path_settings <- options[ options[ , "option"] == "config_path", , drop = FALSE]
-    if (nrow(config_path_settings) > 0) {
-      redirect <- function(settings) {
-        original_wd <- getwd()
-        on.exit(setwd(original_wd))
-        setwd(dirname(settings$config_path))
-        
-        redirect_one <- function(path) {
-          if (normalizePath(path) == normalizePath(config_path)) {
-            return(options)
-          } else {
-            return(read_config_path(normalizePath(path),
-                                    config_name,
-                                    settings$group))
-          }
-        }
-        x = do.call(rbind, lapply(settings$value, FUN = redirect_one))
-        return(x)
-      }
-      sub_config_data <- do.call(rbind, apply(config_path_settings, MARGIN = 1, FUN = redirect))
-      return(sub_config_data)
-    } else {
-      return(options)
-    }
-  }
-  settings <- read_config_path(config_path, config_name)
+  settings <- read_global_options(config_path, config_name)
   
   #| ### Verify content ############################################################################
   #| We should vaildate the content of the settings now that it is in a form that is easy to parse. 
@@ -104,20 +74,23 @@ get_global_options <- function(config_path, config_name, default_format) {
   #| The first thing we will do is make the output two-dimensional list output structure.
   #| It will be populated with default values of `main_funciton` (`quilt` in this case).
   #| To make the structure we need the list of output types and the list of `main_funciton` options.
-  
-  
-  
-  output_format_settings <- settings[settings[, "option"] == "output_format"], ]
+  output_format_settings <- settings[settings[, "option"] == "output_format", ]
   if (length(output_format_settings) > 0) {
-    output_types <- output_format_settings[length(output_format_settings
-                                                  )]
+    output_types <- output_format_settings[length(output_format_settings), "value"]
+  } else {
+    output_types <- default_format
   }
-  
-  
-  output <- t(vapply(output_types,
+  # If a name is not assigned to an output type, then assign the name of the output type
+  if (is.null(names(output_types))) {
+    output_type_names <- output_types
+  } else {
+    output_type_names <- output_types
+    output_type_names[is.na(output_type_names)] <- output_types[is.na(output_type_names)]
+  }
+  output <- t(vapply(output_type_names,
                      USE.NAMES = TRUE, FUN.VALUE = global_options(), 
                      FUN = function(x) global_options()))
-
+  
   #| ### 
   settings <- settings[settings[, "option"] %in% global_options, , drop = FALSE]
   
@@ -133,6 +106,49 @@ get_global_options <- function(config_path, config_name, default_format) {
   apply(settings, MARGIN = 1, apply_setting)
   return(output)
 }
+
+
+
+
+
+read_global_options <- function(config_path, config_name, parent_group = NA) {
+  # Read configuration file
+  settings <- parse_configuration(paths = config_path, 
+                                  config_name = config_name,
+                                  valid_options = valid_config_options())
+  
+  # If a group has been assigned from a parent configuration file then assign all settings in this file to that group.
+  # Remove any settings explicitly assigned to other groups.
+  if ( ! is.na(parent_group)) {
+    settings <- settings[settings[ , "group"] == parent_group | is.na(settings[ , "group"]), , drop = FALSE]
+    settings[ , "group"] <- parent_group
+  }
+  
+  
+  # Determine if the options defined in this file will be included
+  config_path_settings <- settings[ settings[ , "option"] == "config_path", , drop = FALSE]
+  if ( nrow(config_path_settings) > 0 & (! config_path %in% config_path_settings[, "config_path"]) ) {
+    use_current_file_settings <- FALSE
+  } else {
+    use_current_file_settings <- TRUE
+  }
+  
+  # Define function to handle settings one at a time
+  process_setting <- function(setting) {
+    if (setting$option == "config_path") {
+      if (setting$value != config_path) {
+        return(read_config_path(setting$value, config_name, parent_group = setting$group))
+      }
+    } else {
+      return(setting)
+    }
+  }
+  
+  do.call(rbind, apply(settings, MARGIN = 1, process_setting))
+}
+
+
+
 
 
 
