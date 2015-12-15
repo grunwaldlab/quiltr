@@ -84,8 +84,8 @@ get_global_options <- function(config_path, config_name, default_format) {
   if (is.null(names(output_types))) {
     output_type_names <- output_types
   } else {
-    output_type_names <- output_types
-    output_type_names[is.na(output_type_names)] <- output_types[is.na(output_type_names)]
+    output_type_names <- names(output_types)
+    output_type_names[output_type_names == ""] <- output_types[output_type_names == ""]
   }
   output <- t(vapply(output_type_names,
                      USE.NAMES = TRUE, FUN.VALUE = global_options(), 
