@@ -291,7 +291,7 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
   #| Simply creating a function with the appropriate name and parameters, even outside of the quiltr package source, will effectivly add a new output type.
   #| The function `get_quilt_renderes` searchs the current namespaces for functions named `quilt_[output type]`, where `[output type]` is the one-word name for an output type.
   #| It returns the list of renderer functions named by their output type. 
-  renderers <- get_quilt_renderers()
+  # renderers <- get_quilt_renderers() # not needed
   
   #| ### Get global option values from configuration files #########################################
   #| Apply any global option values in root configuration file.
@@ -299,13 +299,12 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
   #| Note that `config_path` is used instead of `path`; however, the default for `config_path` is `path`. 
   #| The function `get_global_options` should return a named list of named lists, representing the options for each output type. 
   #| The first dimension groups options by output type, and the second is the lists of options.
-  global_options <- get_global_options(main_function = "quilt",
-                                       renderers = renderers,
-                                       config_path   = config_path,
-                                       config_name   = config_name)
+  global_options <- get_global_options(config_path   = config_path,
+                                       config_name   = config_name,
+                                       default_format = output_format)
   
   #| ### Define function to process each output format #############################################
-  process_format <- function(global_options, renderer) {
+  process_format <- function(global_options) {
     
     ## Find configuration files for local options
     config_paths <- find_config_folders(paths = global_options$path,
@@ -316,17 +315,17 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
                                      search_type = global_options$file_search_type)
     
     ## Get local option values from configuration files
-    local_options <- get_path_specific_options(sub_function   = renderer,
+    local_options <- get_path_specific_options(sub_function   = global_options$renderer,
                                                target_paths   = target_paths, 
                                                config_paths   = config_paths,
                                                config_name    = global_options$config_name)
     
     ## Call renderer functions with path-specific options
     local_options$file_paths <- target_paths
-    do.call(renderer, local_options)
+    do.call(global_options$renderer, local_options)
   }
   
   #| ### Process each output format and return results #############################################
-  mapply(process_format, global_options, renderers, SIMPLIFY = TRUE)
+  apply(global_options, process_format, MARGIN = 1)
 }
 #|

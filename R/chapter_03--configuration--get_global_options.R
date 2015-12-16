@@ -74,9 +74,9 @@ get_global_options <- function(config_path, config_name, default_format) {
   #| The first thing we will do is make the output two-dimensional list output structure.
   #| It will be populated with default values of `main_funciton` (`quilt` in this case).
   #| To make the structure we need the list of output types and the list of `main_funciton` options.
-  output_format_settings <- settings[settings[, "option"] == "output_format", ]
-  if (length(output_format_settings) > 0) {
-    output_types <- output_format_settings[length(output_format_settings), "value"]
+  output_format_settings <- settings[settings[, "option"] == "output_format", , drop = FALSE]
+  if (nrow(output_format_settings) > 0) {
+    output_types <- output_format_settings[[nrow(output_format_settings), "value"]]
   } else {
     output_types <- default_format
   }
@@ -106,10 +106,13 @@ get_global_options <- function(config_path, config_name, default_format) {
   }
   apply(settings, MARGIN = 1, apply_setting)
   
-  #| ### Overwrite output format with output type
-  #| Otherwise, the output_format column would have a single value: the last defined in configuration files or the default. 
-  #| This makes the column more useful
-  output[ , "output_format"] <- output_types
+  #| ### Add columns for output format names and renderers
+  #| The output_format column has only the last defined in configuration files or the default. 
+  #| These columns are more directly useful.
+  output <- cbind(format_name = rownames(output), 
+                  renderer = get_quilt_renderers()[output_types], 
+                  output)
+  rownames(output) <- output[, "format_name"]
   return(output)
 }
 
@@ -190,13 +193,29 @@ read_global_options <- function(config_path, config_name, parent_group = NA) {
 #' Returns the names and default values of quilt options.
 #' 
 #' @return \code{character}
-global_options <- function() {
+global_options <- function(apply_call = TRUE) {
   quilt_args <- as.list(formals("quilt"))
-  is_a_symbol <- vapply(quilt_args, is.symbol, FUN.VALUE = logical(1))
+  
+  
+  # apply arguments called in quilt directly
+  if (apply_call) {
+    quilt_call_index <- which(as.character(sapply(sys.calls(), `[`, 1)) == "quilt()")
+    if (length(quilt_call_index) > 0) {
+      quilt_call_args <- as.list(match.call(sys.call(1), definition = quilt))[-1]
+      quilt_args[names(quilt_call_args)] <- lapply(quilt_call_args, eval)
+    }
+  }
+  
+  # copy options values referenced by other options
+   is_a_symbol <- vapply(quilt_args, is.symbol, FUN.VALUE = logical(1))
   eval_symbol <- function(symbol) {
     quilt_args[[which(symbol == names(quilt_args))]]
   }
   quilt_args[is_a_symbol] <- lapply(quilt_args[is_a_symbol], eval_symbol)
+  
+  
+  # evaluate expressions
+  quilt_args <- lapply(quilt_args, eval)
   return(quilt_args)
 }
 
