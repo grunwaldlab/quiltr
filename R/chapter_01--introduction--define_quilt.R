@@ -320,9 +320,12 @@ quilt <- function(path = getwd(), output_format = "website", output_path = NULL,
                                                config_paths   = config_paths,
                                                config_name    = global_options$config_name)
     
+    ## Add the target paths as a column
+    local_options[, "file_paths"] <- target_paths
+
     ## Call renderer functions with path-specific options
-    local_options$file_paths <- target_paths
-    do.call(global_options$renderer, local_options)
+    do.call(get_quilt_renderers()[[global_options$renderer]], 
+            lapply(1:ncol(local_options), function(x) local_options[, x]))
   }
   
   #| ### Process each output format and return results #############################################

@@ -57,8 +57,6 @@ knitr::opts_chunk$set(eval = FALSE)
 parse_configuration <- function(paths, config_name, valid_options, default_path = "**") {
   
   #| ### Input vaildation ##########################################################################
-  #| Since this is a rather high-level function, lets do some argument validation.
-  #|
   #| All folder paths should exist and point to actual folders unless a named list is given.
   #| If a named list is given, then these checks do not apply;
   #| However, the content of the named list will still be checked later in the function.
@@ -83,7 +81,6 @@ parse_configuration <- function(paths, config_name, valid_options, default_path 
   #| The names of the list should correspond to configuration file paths.
   #| If a named list is given for `paths`, then it is treated as if it was the raw content.
   #| In that case, the names of the list are the folder paths the settings apply to.
-  #| All folders might not have configuration files, so `raw_content` could have less items than `paths`
   raw_content <- lapply(paths, function(x) {
     if (is_named_list(x)) {
       return(list(x))
@@ -92,6 +89,8 @@ parse_configuration <- function(paths, config_name, valid_options, default_path 
     }
   })
   raw_content <- unlist(raw_content, recursive = FALSE)
+  #| All folders might not have configuration files, so `raw_content` could have `NA`s; these should be removed.
+  raw_content <- raw_content[ ! is.na(raw_content)]
 
   #| ### Convert content to output format ##########################################################
   #| Next we need to convert `raw_content` into the output format described in the function documentation.

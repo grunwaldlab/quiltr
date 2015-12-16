@@ -110,7 +110,7 @@ get_global_options <- function(config_path, config_name, default_format) {
   #| The output_format column has only the last defined in configuration files or the default. 
   #| These columns are more directly useful.
   output <- cbind(format_name = rownames(output), 
-                  renderer = get_quilt_renderers()[output_types], 
+                  renderer = output_types, 
                   output)
   rownames(output) <- output[, "format_name"]
   return(output)
