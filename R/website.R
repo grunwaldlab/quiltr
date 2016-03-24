@@ -272,15 +272,21 @@ get_hierarchy <- function(path, root, q_opt) {
         }
       }
       # Apply configuration file effects - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      replace_vector_part <- function(input, replacement, index) {
+        c(input[seq(1, index - 1, length.out = index - 1)],
+          replacement,
+          input[seq(index + 1, length(input), length.out = length(input) - index)])
+      }
+      
       config <- q_opt(current_path, "placement")
       if (is.null(config)) {
         hierarchy <- list()
         addition <- NULL
       } else if (length(config) > 0) {
-        if (config[1] == ".") {
-          if (length(config) > 1) {
-            addition <- c(addition, config[2:length(config)])
-          }
+        if ("." %in% config) {
+            addition <- replace_vector_part(input = config,
+                                            replacement = addition,
+                                            index = which("." == config))
         } else if (config[1] == "..") {
           if (length(config) > 1) {
             addition <- config[2:length(config)]

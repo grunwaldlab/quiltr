@@ -1,6 +1,6 @@
 Package: quiltr
 Title: Automated website creation from scattered HTML
-Version: 0.6.292
+Version: 0.6.293
 Authors@R: c(person(c("Foster", "S.L."), "Zachary", role = c("cre",
         "aut"), email = "zacharyfoster1989@gmail.com"),
         person(c("Niklaus", "J."), "Grunwald", role = "ths", email =
@@ -17,3 +17,4 @@ Imports: rmarkdown, yaml, rstudioapi, XML, stringr, memoise
 Suggests: testthat, knitr
 VignetteBuilder: knitr
 Date: 2016-03-23
+RoxygenNote: 5.0.1
