@@ -10,7 +10,7 @@
 
 Quiltr is still under active development and might not always work correctly until this notice is removed.
 It is being developed on the Ubuntu operating system, so it might not work on Windows yet.
-It should probably work on IOS. 
+It does work on Mac OS X. 
 
 
 ## What it is
