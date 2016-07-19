@@ -5,3 +5,7 @@ packrat/lib*/
 packrat/src/
 inst/doc
 website
+*.html
+*man/*.Rd
+*.md
+
